@@ -8,12 +8,46 @@ console.log('Coursebook extension loaded!');
 }*/
 flag = false;
 waiting = false;
+viewport = document.querySelector("meta[name=viewport]");
+viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+document.querySelector('#page-middle').style.width = "100%";
+document.querySelector('#page-all').style.width = "100%";
+chrome.storage.sync.get({
+    desktop: [],
+    mobile: []
+}, function (items) {
+
+    var styles = '@media (max-width: 767px) {';
+
+    for(var i = 0; i < items.mobile.length; i++){
+        if(!items.mobile[i]){
+            styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
+        }
+    }
+    styles += `}@media (min-width: 767px) {`;
+
+    for(var i = 0; i < items.desktop.length; i++){
+        if(!items.desktop[i]){
+            styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
+        }
+    }
+
+    styles += "}";
+    var styleSheet = document.createElement("style")
+    styleSheet.type = "text/css"
+    styleSheet.innerText = styles
+    document.head.appendChild(styleSheet)
+
+    console.log(styles);
+});
+
 function checkFlag() {
     flag = document.querySelector("#sr > div > table > tbody") != null && document.querySelector("#sr > div > table > tbody").rows.length != 0 && document.querySelectorAll("#sr > div > table > thead > tr > th").length == 7;
     if (flag == false || waiting == true) {
         // console.log('checking...');
         window.setTimeout(checkFlag, 1000);
     } else {
+        document.querySelector("#sr > div > table").classList.add('table-responsive-full');
         var rows = document.querySelector("#sr > div > table > tbody").rows
         var len = document.querySelector("#sr > div > table > tbody").rows.length
         var names = [];
@@ -67,6 +101,10 @@ function process(data) {
         element[4].append(heading1);
         element[5].append(heading2);
     }
+
+    document.querySelectorAll('td:nth-child(3)').forEach(el => {
+        el.textContent = el.textContent.replace("Semester Credit", " ");
+    })
     waiting = false;
 }
 
@@ -103,4 +141,10 @@ function sort(thid) {
         }
         odd = !odd;
     }
+}
+
+function show(id, block) {
+    document.querySelectorAll(`td:nth-child(${id}), th:nth-child(${id})`).forEach(el => {
+        el.style.display = block ? "table-cell" : "none";
+    })
 }
