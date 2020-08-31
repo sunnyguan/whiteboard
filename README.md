@@ -1,4 +1,4 @@
-# Coursebook-Enhanced
+# Blackboard-Enhanced
 
 1. Download the zip file: 
 2. Go to `chrome://extensions`
