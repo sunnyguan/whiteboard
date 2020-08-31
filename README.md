@@ -1,5 +1,11 @@
 # Blackboard-Enhanced
 
+## Features
+
+1. Working ICS link
+
+## Setup
+
 1. Download the zip file: 
 2. Go to `chrome://extensions`
 3. Enable "Developer mode" on top right
