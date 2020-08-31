@@ -3,9 +3,13 @@ console.log('Coursebook extension loaded!');
 var INTERVAL = 60; // in minutes
 
 chrome.storage.sync.get({
-    interval: 60
+    interval: 60,
+	id: 0
 }, function (result) {
     INTERVAL = result.interval;
+	if (result.id != 0) {
+		console.log("%cYour UTD ID: " + result.id, css);
+	}
 });
 
 var css = "font-size: 40px";
