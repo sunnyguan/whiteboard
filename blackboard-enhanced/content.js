@@ -1,4 +1,4 @@
-console.log('Coursebook extension loaded!');
+console.log('Blackboard extension loaded!');
 
 var INTERVAL = 60; // in minutes
 
@@ -14,7 +14,7 @@ chrome.storage.sync.get({
 
 var css = "font-size: 40px";
 cookies = document.cookie;
-console.log("Your cookies: " + cookies);
+// console.log("Your cookies: " + cookies);
 
 var myHeaders = new Headers();
 myHeaders.append("Connection", "keep-alive");
@@ -105,7 +105,7 @@ function process(data) {
             lastSave: new Date().getTime(),
             id: avatarid
         }, function () {
-            console.log("ICS updated on server, next update in an hour.");
+            console.log("ICS updated on server, next update in " + INTERVAL + " minutes.");
         });
     });
 }
