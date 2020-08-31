@@ -1,0 +1,36 @@
+{
+	"name": "Blackboard Enhanced",
+	"version": "1.0",
+	"manifest_version": 2,
+	"content_scripts": [
+		{
+			"matches": [
+				"https://elearning.utdallas.edu/*"
+			],
+			"js": [
+				"content.js"
+			],
+			"css": [
+				"styles.css"
+			]
+		}
+	],
+	"permissions": [
+		"storage",
+		"cookies"
+	],
+	"background": {
+		"scripts": [
+			"bg_page.js"
+		],
+		"persistent": false
+	},
+	"browser_action": {
+		"default_popup": "popup.html"
+	},
+	"icons": {
+		"16": "temoc16.png",
+		"48": "temoc48.png",
+		"128": "temoc128.png"
+	}
+}
