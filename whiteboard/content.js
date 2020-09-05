@@ -32,7 +32,6 @@ function replacePage() {
     if(href.startsWith("https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction")){
         replaceUrl = "home";
     } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp")){
-        
         if(href.includes("contentId")){
             var courseAndContent = href.split("jsp?courseId=")[1].split("&");
             courseId = courseAndContent[0];
@@ -42,6 +41,9 @@ function replacePage() {
             courseId = href.split("jsp?courseId=")[1];
             replaceUrl = "course";
         }
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement")){
+        courseId = href.split("=")[1];
+        replaceUrl = "announcement";
     }
     else {
         foundReplacement = false;
@@ -63,6 +65,8 @@ function replacePage() {
                 course(template, courseId);
             else if (replaceUrl === "content")
                 content(template, courseId, contentId);
+            else if (replaceUrl === "announcement")
+                announcement(template, courseId);
         })
         .catch(function (response) {
             console.log(response.statusText);
@@ -115,11 +119,14 @@ function course(template, courseId) {
         for (var res of data["results"]) {
             var elements = document.querySelectorAll(".content");
             var element = elements[elements.length - 1];
-            var newElement = null;
-            if (element.querySelector(".contentTitle").textContent == "Sample") {
+            var newElement = element.cloneNode(true); // change to null and switch comments on following if statements to remove announcements
+            /* if (element.querySelector(".contentTitle").textContent == "Sample") {
                 newElement = element;
             } else {
                 newElement = element.cloneNode(true);
+            }*/
+            if(elements.length === 1){
+                element.querySelector(".contentLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?courseId=" + courseId;
             }
             newElement.querySelector(".contentTitle").textContent = res.title;
             newElement.querySelector(".contentContent").textContent = "Content details goes here";
@@ -132,6 +139,28 @@ function course(template, courseId) {
 function content(template, courseId, contentId) {
     processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents/" + contentId + "/children").then(response => response.json()).then(data => {
+        if("results" in data){
+            for (var res of data["results"]) {
+                var elements = document.querySelectorAll(".information");
+                var element = elements[elements.length - 1];
+                var newElement = null;
+                if (element.querySelector(".informationTitle").textContent == "Sample") {
+                    newElement = element;
+                } else {
+                    newElement = element.cloneNode(true);
+                }
+                newElement.querySelector(".informationTitle").textContent = res.title;
+                newElement.querySelector(".informationContent").innerHTML = res.body;
+                // newElement.querySelector(".contentLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?courseId=" + res.courseId;
+                element.insertAdjacentElement("afterend", newElement);
+            }
+        }
+    })
+}
+
+function announcement(template, courseId) {
+    processTemplate(template);
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/announcements").then(response => response.json()).then(data => {
         if("results" in data){
             for (var res of data["results"]) {
                 var elements = document.querySelectorAll(".information");
