@@ -17,8 +17,7 @@
 		}
 	],
 	"web_accessible_resources": [
-		"home/*",
-		"home/external/*"
+		"*"
 	],
 	"permissions": [
 		"storage",
