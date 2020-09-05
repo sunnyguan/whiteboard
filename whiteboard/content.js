@@ -70,10 +70,17 @@ function replacePage() {
     }
 }
 
-function home(template) {
+function processTemplate(template){
     document.open()
     document.write(template)
     document.close()
+    var emailElement = document.getElementById("student-email");
+    console.log(emailElement.innerText);
+    emailElement.innerText = email;
+}
+
+function home(template) {
+    processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses").then(response => response.json()).then(data => {
         var res = "";
         var arr = []
@@ -100,15 +107,10 @@ function home(template) {
         })
     })
 
-    var emailElement = document.getElementById("student-email");
-    console.log(emailElement.innerText);
-    emailElement.innerText = email;
 }
 
 function course(template, courseId) {
-    document.open()
-    document.write(template)
-    document.close()
+    processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json()).then(data => {
         for (var res of data["results"]) {
             var elements = document.querySelectorAll(".content");
@@ -128,9 +130,7 @@ function course(template, courseId) {
 }
 
 function content(template, courseId, contentId) {
-    document.open()
-    document.write(template)
-    document.close()
+    processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents/" + contentId + "/children").then(response => response.json()).then(data => {
         if("results" in data){
             for (var res of data["results"]) {
