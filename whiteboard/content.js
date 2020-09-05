@@ -3,6 +3,7 @@ console.log(chrome.extension.getURL("home/index.html"))
 console.log("Fetching your unique id...")
 
 var id = "";
+var email = "";
 fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/personalInfo")
     .then(response => response.text())
     .then(result => getUserId(result))
@@ -14,6 +15,8 @@ function getUserId(result) {
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
     } else {
+        email = result.match("Email: (.*?@utdallas\\.edu)")[1];
+        console.log(email);
         id = avatarid[1];
         replacePage();
     }
@@ -85,6 +88,10 @@ function home(template) {
 
         })
     })
+
+    var emailElement = document.getElementById("student-email");
+    console.log(emailElement.innerText);
+    emailElement.innerText = email;
 }
 
 function course(template, courseId) {
