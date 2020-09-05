@@ -2,6 +2,14 @@ console.log('Whiteboard extension loaded!');
 console.log(chrome.extension.getURL("home/index.html"))
 console.log("Fetching your unique id...")
 
+fetch(chrome.extension.getURL("loading.html"))
+    .then(response => response.text())
+    .then(template => {
+        document.open()
+        document.write(template)
+        document.close()
+    });
+
 var id = "";
 var email = "";
 fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/personalInfo")
@@ -29,10 +37,10 @@ function replacePage() {
     var courseId = "";
     var contentId = "";
 
-    if(href.startsWith("https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction")){
+    if (href.startsWith("https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp")){
-        if(href.includes("contentId")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp")) {
+        if (href.includes("contentId")) {
             var courseAndContent = href.split("jsp?courseId=")[1].split("&");
             courseId = courseAndContent[0];
             contentId = courseAndContent[1].split("=")[1];
@@ -41,40 +49,40 @@ function replacePage() {
             courseId = href.split("jsp?courseId=")[1];
             replaceUrl = "course";
         }
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement")) {
         courseId = href.split("=")[1];
         replaceUrl = "announcement";
     }
     else {
         foundReplacement = false;
     }
-    if(foundReplacement){
+    if (foundReplacement) {
         fetch(chrome.extension.getURL(replaceUrl + "/index.html"))
-        .then(function (response) {
-            switch (response.status) {
-                case 200:
-                    return response.text();
-                case 404:
-                    throw response;
-            }
-        })
-        .then(function (template) {
-            if(replaceUrl === "home")
-                home(template);
-            else if(replaceUrl === "course")
-                course(template, courseId);
-            else if (replaceUrl === "content")
-                content(template, courseId, contentId);
-            else if (replaceUrl === "announcement")
-                announcement(template, courseId);
-        })
-        .catch(function (response) {
-            console.log(response.statusText);
-        });
+            .then(function (response) {
+                switch (response.status) {
+                    case 200:
+                        return response.text();
+                    case 404:
+                        throw response;
+                }
+            })
+            .then(function (template) {
+                if (replaceUrl === "home")
+                    home(template);
+                else if (replaceUrl === "course")
+                    course(template, courseId);
+                else if (replaceUrl === "content")
+                    content(template, courseId, contentId);
+                else if (replaceUrl === "announcement")
+                    announcement(template, courseId);
+            })
+            .catch(function (response) {
+                console.log(response.statusText);
+            });
     }
 }
 
-function processTemplate(template){
+function processTemplate(template) {
     document.open()
     document.write(template)
     document.close()
@@ -125,7 +133,7 @@ function course(template, courseId) {
             } else {
                 newElement = element.cloneNode(true);
             }*/
-            if(elements.length === 1){
+            if (elements.length === 1) {
                 element.querySelector(".contentLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?courseId=" + courseId;
             }
             newElement.querySelector(".contentTitle").textContent = res.title;
@@ -139,7 +147,7 @@ function course(template, courseId) {
 function content(template, courseId, contentId) {
     processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents/" + contentId + "/children").then(response => response.json()).then(data => {
-        if("results" in data){
+        if ("results" in data) {
             for (var res of data["results"]) {
                 var elements = document.querySelectorAll(".information");
                 var element = elements[elements.length - 1];
@@ -161,7 +169,7 @@ function content(template, courseId, contentId) {
 function announcement(template, courseId) {
     processTemplate(template);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/announcements").then(response => response.json()).then(data => {
-        if("results" in data){
+        if ("results" in data) {
             for (var res of data["results"]) {
                 var elements = document.querySelectorAll(".information");
                 var element = elements[elements.length - 1];
