@@ -295,7 +295,8 @@ function announcement(template, courseId) {
                 newElement.href = a.href;
                 newElement.textContent = a.textContent;
             } else {
-                newElement.textContent = "-----------";
+                newElement.href = "";
+                newElement.textContent = "";
             }
             element.insertAdjacentElement("afterend", newElement);
             
