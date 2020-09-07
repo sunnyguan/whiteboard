@@ -105,6 +105,17 @@ function replacePage() {
     }
 }
 
+// loads html from storage and puts in email 
+function processTemplate(template) {
+    document.open()
+    document.write(template)
+    document.close()
+    var emailElement = document.getElementById("student-email");
+    console.log(emailElement.innerText);
+    emailElement.innerText = email;
+}
+
+// all courses
 function home(template) {
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template);
