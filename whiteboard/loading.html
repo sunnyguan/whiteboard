@@ -75,9 +75,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-    .mdl-layout__header-row {
-      padding-left: 256px !important;
-    }
 
     html,
     body {
@@ -315,6 +312,97 @@
       align-items: center;
     }
   </style>
+  <style>
+    main {
+      background-color: #34495e;
+      text-align: center;
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      display: flex !important;
+      justify-content: center !important;
+    }
+
+    .hollowLoader {
+      width: 7em;
+      height: 7em;
+      -webkit-animation: loaderAnim 1.25s infinite ease-in-out;
+      animation: loaderAnim 1.25s infinite ease-in-out;
+      outline: 1px solid transparent;
+    }
+
+    .hollowLoader .largeBox {
+      height: 7em;
+      width: 7em;
+      background-color: #34495e;
+      outline: 1px solid transparent;
+      position: fixed;
+    }
+
+    .hollowLoader .smallBox {
+      height: 7em;
+      width: 7em;
+      background-color: #ECECEC;
+      position: fixed;
+      z-index: 1;
+      outline: 1px solid transparent;
+      -webkit-animation: smallBoxAnim 1.25s alternate infinite ease-in-out;
+      animation: smallBoxAnim 1.25s alternate infinite ease-in-out;
+    }
+
+    @-webkit-keyframes smallBoxAnim {
+      0% {
+        -webkit-transform: scale(0.2);
+        transform: scale(0.2);
+      }
+
+      100% {
+        -webkit-transform: scale(0.75);
+        transform: scale(0.75);
+      }
+    }
+
+    @keyframes smallBoxAnim {
+      0% {
+        -webkit-transform: scale(0.2);
+        transform: scale(0.2);
+      }
+
+      100% {
+        -webkit-transform: scale(0.75);
+        transform: scale(0.75);
+      }
+    }
+
+    @-webkit-keyframes loaderAnim {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+
+      100% {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+      }
+    }
+
+    @keyframes loaderAnim {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+
+      100% {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -346,7 +434,7 @@
       <header class="demo-drawer-header">
         <img style="content:url('https://avatars2.githubusercontent.com/u/19920441?s=60&v=4')" class="demo-avatar">
         <div class="demo-avatar-dropdown">
-          <span id="student-email">hello@example.com</span>
+          <span id="student-email"></span>
           <div class="mdl-layout-spacer"></div>
           <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
             <i class="material-icons" role="presentation">arrow_drop_down</i>
@@ -369,22 +457,9 @@
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
-      <div class="mdl-grid demo-content">
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div
-            class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-            <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-              <h2 class="contentTitle mdl-card__title-text">Announcements</h2>
-            </div>
-            <div class="contentContent mdl-card__supporting-text mdl-color-text--grey-600">
-              All announcements for this course.
-            </div>
-            <div class="mdl-card__actions mdl-card--border">
-              <a href="#" class="contentLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-            </div>
-          </div>
-          <div class="demo-separator mdl-cell--1-col"></div>
-        </div>
+      <div class="hollowLoader">
+        <div class="largeBox"></div>
+        <div class="smallBox"></div>
       </div>
     </main>
   </div>
