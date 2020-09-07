@@ -148,8 +148,13 @@ function home(template) {
 
 // load course contents
 function course(template, courseId) {
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json()).then(data => {
+    var courseName = "";
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+        courseName = data["name"]
+        return fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
+    }).then(data => {
         processTemplate(template);
+        document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
         for (var res of data["results"]) {
             var elements = document.querySelectorAll(".content");
             var element = elements[elements.length - 1];
@@ -188,10 +193,15 @@ function course(template, courseId) {
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents/" + contentId + "/children").then(response => response.json()).then(data => {
+    var courseName = "";
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+        courseName = data["name"]
+        return fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents/" + contentId + "/children").then(response => response.json());
+    }).then(data => {
         if ("results" in data) {
             // has children
             processTemplate(template);
+            document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
             for (var res of data["results"]) {
                 var elements = document.querySelectorAll(".information");
                 var element = elements[elements.length - 1];
@@ -261,8 +271,13 @@ function content(template, courseId, contentId) {
 }
 
 function announcement(template, courseId) {
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/announcements").then(response => response.json()).then(data => {
+    var courseName = "";
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+        courseName = data["name"]
+        return fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/announcements").then(response => response.json());
+    }).then(data => {
         processTemplate(template);
+        document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
         if ("results" in data) {
             for (var res of data["results"]) {
                 var elements = document.querySelectorAll(".information");

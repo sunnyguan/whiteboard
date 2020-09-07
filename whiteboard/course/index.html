@@ -75,6 +75,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+    .mdl-layout__header-row {
+      padding-left: 256px !important;
+    }
 
     html,
     body {
@@ -176,7 +179,7 @@
     .demo-navigation .mdl-navigation__link .material-icons {
       font-size: 24px;
       color: rgba(255, 255, 255, 0.56);
-      margin-right: 32px;
+      margin-right: 10px; margin-bottom: 4px;;
     }
 
     .demo-content {
@@ -341,8 +344,7 @@
     </header>
     <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
       <header class="demo-drawer-header">
-        <img style="content:url('https://avatars2.githubusercontent.com/u/19920441?s=60&v=4')"
-          class="demo-avatar">
+        <img style="content:url('https://avatars2.githubusercontent.com/u/19920441?s=60&v=4')" class="demo-avatar">
         <div class="demo-avatar-dropdown">
           <span id="student-email">hello@example.com</span>
           <div class="mdl-layout-spacer"></div>
@@ -369,7 +371,8 @@
     <main class="mdl-layout__content mdl-color--grey-100">
       <div class="mdl-grid demo-content">
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
+          <div
+            class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
             <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
               <h2 class="contentTitle mdl-card__title-text">Announcements</h2>
             </div>

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+.mdl-layout__header-row {
+  padding-left: 256px;
+}
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
@@ -100,7 +102,7 @@ html, body {
 .demo-navigation .mdl-navigation__link .material-icons {
   font-size: 24px;
   color: rgba(255, 255, 255, 0.56);
-  margin-right: 32px;
+  margin-right: 10px; margin-bottom: 4px;;
 }
 
 .demo-content {
