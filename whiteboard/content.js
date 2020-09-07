@@ -60,38 +60,59 @@ function replacePage() {
 }
 
 function home(template) {
-    document.open()
-    document.write(template)
-    document.close()
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses").then(response => response.json()).then(data => {
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+        processTemplate(template);
         var res = "";
-        var arr = []
-        for (var line of data.results) {
-            arr.push(fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + line.courseId)
-                .then(response => response.json()));
-        }
-        Promise.all(arr).then(results => {
-            for (var res of results) {
-                var elements = document.querySelectorAll(".course");
-                var element = elements[elements.length - 1];
-                var newElement = null;
-                if (element.querySelector(".courseTitle").textContent == "Sample") {
-                    newElement = element;
-                } else {
-                    newElement = element.cloneNode(true);
-                }
-                newElement.querySelector(".courseTitle").textContent = res.name;
-                newElement.querySelector(".courseContent").textContent = "Course content goes here";
-                newElement.querySelector(".courseLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?courseId=" + res.id;
-                element.insertAdjacentElement("afterend", newElement);
+        var fetchArr = [];
+        var courseArr = data.results;
+
+        courseArr.sort(function(a, b) {
+            return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
+        });
+
+        console.log('courseArr', courseArr)
+
+        // add the "real" classes first
+        for (var c of courseArr) {
+            console.log(c);
+            // NOTE: this could break if the 2208 pattern changes!
+            if (!c.course.courseId.startsWith('2208-')) continue;
+
+            console.log(c.course.courseid, c.course.name);
+            var elements = document.querySelectorAll(".course");
+            var element = elements[elements.length - 1];
+            var newElement = null;
+            if (element.querySelector(".courseTitle").textContent == "Sample") {
+                newElement = element;
+            } else {
+                newElement = element.cloneNode(true);
             }
+            newElement.querySelector(".courseTitle").textContent = c.course.name;
+            newElement.querySelector(".courseContent").textContent = "Course content goes here";
+            newElement.querySelector(".courseLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+            element.insertAdjacentElement("afterend", newElement);
+        }
+        // add the other stuff at the bottom
+        for (var c of courseArr) {
+            console.log(c);
+            // NOTE: this could break if the 2208 pattern changes!
+            if (c.course.courseId.startsWith('2208-')) continue;
 
-        })
+            console.log(c.course.courseid, c.course.name);
+            var elements = document.querySelectorAll(".course");
+            var element = elements[elements.length - 1];
+            var newElement = null;
+            if (element.querySelector(".courseTitle").textContent == "Sample") {
+                newElement = element;
+            } else {
+                newElement = element.cloneNode(true);
+            }
+            newElement.querySelector(".courseTitle").textContent = c.course.name;
+            newElement.querySelector(".courseContent").textContent = "Course content goes here";
+            newElement.querySelector(".courseLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+            element.insertAdjacentElement("afterend", newElement);
+        }
     })
-
-    var emailElement = document.getElementById("student-email");
-    console.log(emailElement.innerText);
-    emailElement.innerText = email;
 }
 
 function course(template, courseId) {
