@@ -2,7 +2,7 @@ console.log('Whiteboard extension loaded!');
 console.log(chrome.extension.getURL("home/index.html"))
 
 
-if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
+if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps/blackboard")) {
     start();
 }
 
