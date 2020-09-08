@@ -156,17 +156,17 @@ function home(template) {
             if (c.course.courseId.startsWith('2208-')) continue;
 
             console.log(c.course.courseid, c.course.name);
-            var elements = document.querySelectorAll(".course");
+            var elements = document.querySelectorAll(".group");
             var element = elements[elements.length - 1];
             var newElement = null;
-            if (element.querySelector(".courseTitle").textContent == "Sample") {
+            if (element.querySelector(".groupTitle").textContent == "Sample") {
                 newElement = element;
             } else {
                 newElement = element.cloneNode(true);
             }
-            newElement.querySelector(".courseTitle").textContent = c.course.name;
-            newElement.querySelector(".courseContent").textContent = "Course content goes here";
-            newElement.querySelector(".courseLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+            newElement.querySelector(".groupTitle").textContent = c.course.name;
+            newElement.querySelector(".groupContent").textContent = "Course content goes here";
+            newElement.querySelector(".groupLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
             element.insertAdjacentElement("afterend", newElement);
         }
     })
