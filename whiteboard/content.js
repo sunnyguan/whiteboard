@@ -158,7 +158,8 @@ function home(template) {
             }
             newElement.querySelector(".courseTitle").textContent = c.course.name;
             newElement.querySelector(".courseContent").textContent = "Course content goes here";
-            newElement.querySelector(".courseLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+            newElement.querySelector(".courseLink1").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+            newElement.querySelector(".courseLink2").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=" + c.course.id;
             element.insertAdjacentElement("afterend", newElement);
         }
         // add the other stuff at the bottom
@@ -329,7 +330,7 @@ function fetchSidebarCourse(courseId) {
 
         // some courses have dividers (CS 3341) in course list
         var divider = null;
-        
+
         for (var i of li) {
             var a = i.querySelector('a');
             var elements = document.querySelectorAll(".mdl-navigation__link");
