@@ -2,7 +2,7 @@ console.log('Whiteboard extension loaded!');
 console.log(chrome.extension.getURL("home/index.html"))
 
 
-if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps/blackboard")) {
+if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
     start();
 }
 
@@ -74,6 +74,8 @@ function replacePage() {
             }
         }
         replaceUrl = "announcement";
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/calendar")){
+        replaceUrl = "calendar";
     }
     else {
         foundReplacement = false;
@@ -98,6 +100,8 @@ function replacePage() {
                     content(template, courseId, contentId);
                 else if (replaceUrl === "announcement")
                     announcement(template, courseId);
+                else if (replaceUrl === "calendar")
+                    calendar(template);
             })
             .catch(function (response) {
                 console.log(response.statusText);
@@ -331,4 +335,9 @@ function announcement(template, courseId) {
     }).then(data => {
         return content_hasChildren(template, courseId, data, courseName);
     })
+}
+
+function calendar(template) {
+    processTemplate(template);
+    // https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false
 }
