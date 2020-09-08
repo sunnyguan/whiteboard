@@ -326,15 +326,26 @@ function fetchSidebarCourse(courseId) {
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
         var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
         var li = ul.getElementsByTagName("li");
+
+        // some courses have dividers (CS 3341) in course list
+        var divider = null;
+        
         for (var i of li) {
             var a = i.querySelector('a');
-            console.log(a.textContent + ": " + a.href)
             var elements = document.querySelectorAll(".mdl-navigation__link");
             var element = elements[elements.length - 2];
             var newElement = element.cloneNode();
-            newElement.href = a.href;
-            newElement.textContent = a.textContent;
-            element.insertAdjacentElement("afterend", newElement);
+            if(a){
+                newElement.href = a.href;
+                newElement.textContent = a.textContent;
+                element.insertAdjacentElement("afterend", newElement);
+            } else {
+                divider = element;
+            }
+        }
+        
+        if(divider){
+            divider.insertAdjacentElement("afterend", document.createElement('hr'));
         }
     })
 }
