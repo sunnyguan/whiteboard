@@ -339,5 +339,12 @@ function announcement(template, courseId) {
 
 function calendar(template) {
     processTemplate(template);
+    var iframe = document.getElementById("calendarFrame");
+    iframe.onload = function () {
+        iframe.contentDocument.getElementById('contentPanel').style.margin = "0";
+        iframe.contentDocument.getElementById('navigationPane').style.display = "none";
+        iframe.contentDocument.getElementById('breadcrumbs').style.display = "none";
+        iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
+    }
     // https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false
 }
