@@ -187,7 +187,9 @@
     .demo-navigation .mdl-navigation__link .material-icons {
       font-size: 24px;
       color: rgba(255, 255, 255, 0.56);
-      margin-right: 10px; margin-bottom: 4px;;
+      margin-right: 10px;
+      margin-bottom: 4px;
+      ;
     }
 
     .demo-content {
@@ -371,13 +373,35 @@
         <a class="mdl-navigation__link"
           href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1">
           <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-          <div class="mdl-layout-spacer"></div>
-          <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i class="mdl-color-text--blue-grey-400 material-icons"
-              role="presentation">calendar_today</i>Calendar<span class="visuallyhidden">Calendar</span></a>
+        <div class="mdl-layout-spacer"></div>
+        <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i
+            class="mdl-color-text--blue-grey-400 material-icons" role="presentation">calendar_today</i>Calendar<span
+            class="visuallyhidden">Calendar</span></a>
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
       <div class="mdl-grid demo-content">
+        <ul class="demo-list-three mdl-list mdl-shadow--2dp" style="
+          background-color: white;
+          width: 100%;
+          margin: 8px;
+        ">
+          <li class="announcement mdl-list__item mdl-list__item--three-line">
+            <span class="mdl-list__item-primary-content">
+              <i class="material-icons mdl-list__item-avatar">person</i>
+              <span class="announcementTitle">Sample</span>
+              <span class="announcementContent mdl-list__item-text-body">
+                Bryan Cranston played the role of Walter in Breaking Bad. He is also known
+                for playing Hal in Malcom in the Middle.
+              </span>
+            </span>
+            <span class="mdl-list__item-secondary-content">
+              <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+            </span>
+          </li>
+        </ul>
+
+
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div
             class="course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
@@ -389,7 +413,8 @@
             </div>
             <div class="mdl-card__actions mdl-card--border">
               <a href="#" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
-              <a href="#" class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
+              <a href="#"
+                class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
             </div>
           </div>
         </div>

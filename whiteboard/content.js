@@ -76,7 +76,7 @@ function replacePage() {
             }
         }
         replaceUrl = "announcement";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/calendar")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/calendar")) {
         iframeSrc = "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false";
         title = "Calendar";
         replaceUrl = "iframe";
@@ -127,10 +127,50 @@ function processTemplate(template) {
     emailElement.innerText = email;
 }
 
+function waitForElementToDisplay(time) {
+    if (document.querySelector("#bbFrame") != null && document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule") != null
+        && document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent.length > 2000) {
+        console.log(document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent);
+        var ul = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::2-whatsNewView:::::AN"); // => <a href="#">Link...
+        var li = ul.getElementsByTagName("li");
+        var idx = 0;
+        for (var i of li) {
+            var title = i.querySelector("span > a");
+            var course = i.querySelector("span > div > a");
+            var elements = document.querySelectorAll(".announcement");
+            var element = elements[elements.length - 1];
+            var newElement = element.cloneNode(true);
+            newElement.querySelector(".announcementTitle").textContent = title.textContent
+            newElement.querySelector(".announcementContent").textContent = course.textContent
+            element.insertAdjacentElement("afterend", newElement);
+            idx++;
+            if(idx > 3){
+                break;
+            }
+        }
+        return;
+    }
+    else {
+        console.log('nope');
+        setTimeout(function () {
+            waitForElementToDisplay(time);
+        }, time);
+    }
+}
+
 // all courses
 function home(template) {
+    // NautilusViewService.getViewInfo(null, null, ["GB::GB_ATT_UPDATED", "GB::GB_GRA_UPDATED", "GB::GB_GRA_CLEARED", "CO::CO_AVAIL", "CM::CM_RCVD", "CR::CR_AVAIL", "AS::AS_AVAIL", "AS::AS_AVAIL_RESEND", "AS::AS_GA_AVAIL", "AS::AS_GA_AVAIL_RESEND", "AS::AS_GA_ATTEMPT", "AS::AS_GA_LATE_ATTEMPT", "AN::AN_AVAIL", "TE::TE_AVAIL", "TE::TE_AVAIL_RESEND", "SU::SU_AVAIL"], document.location.href,
+    // false, response => { console.log(response) });
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template);
+        var bbScrape = document.createElement("iframe");
+        bbScrape.id = "bbFrame";
+        bbScrape.style.display = 'none';
+        bbScrape.src = "https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
+        waitForElementToDisplay(500);
+        document.getElementsByTagName("body")[0].appendChild(bbScrape);
+
         var res = "";
         var fetchArr = [];
         var courseArr = data.results;
@@ -263,7 +303,7 @@ function content_hasChildren(template, courseId, data, courseName) {
         } else {
             newElement.querySelector(".informationContent").innerHTML = "No descriptions available.";
         }
-        if("contentHandler" in res && "id" in res.contentHandler && res.contentHandler.id == "resource/x-bb-assignment")
+        if ("contentHandler" in res && "id" in res.contentHandler && res.contentHandler.id == "resource/x-bb-assignment")
             newElement.querySelector(".informationLink").href = "https://elearning.utdallas.edu/webapps/assignment/uploadAssignment?content_id=" + res.id + "&course_id=" + courseId;
         else
             newElement.querySelector(".informationLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
@@ -281,7 +321,7 @@ function content_noChildren(template, courseId, contentId, data, courseName) {
         var elements = document.querySelectorAll(".information");
         var element = elements[elements.length - 1];
         element.querySelector(".informationTitle").textContent = data.title;
-        if(data.body){
+        if (data.body) {
             element.querySelector(".informationContent").innerHTML = data.body;
         } else {
             element.querySelector(".informationContent").innerHTML = "No descriptions available.";
@@ -327,7 +367,6 @@ function fetchSidebarCourse(courseId) {
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
         var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
         var li = ul.getElementsByTagName("li");
-
         // some courses have dividers (CS 3341) in course list
         var divider = null;
 
@@ -336,7 +375,7 @@ function fetchSidebarCourse(courseId) {
             var elements = document.querySelectorAll(".mdl-navigation__link");
             var element = elements[elements.length - 2];
             var newElement = element.cloneNode();
-            if(a){
+            if (a) {
                 newElement.href = a.href;
                 newElement.textContent = a.textContent;
                 element.insertAdjacentElement("afterend", newElement);
@@ -344,8 +383,8 @@ function fetchSidebarCourse(courseId) {
                 divider = element;
             }
         }
-        
-        if(divider){
+
+        if (divider) {
             divider.insertAdjacentElement("afterend", document.createElement('hr'));
         }
     })
