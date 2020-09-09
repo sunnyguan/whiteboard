@@ -140,10 +140,12 @@ function waitForElementToDisplay(time) {
         var ul = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::2-whatsNewView:::::AN"); // => <a href="#">Link...
         var li = ul.getElementsByTagName("li");
         var aul = document.getElementById("announcementUl");
+        console.log(li);
         var idx = 0;
         for (var i of li) {
             var title = i.querySelector("span > a");
             var course = i.querySelector("span > div > a");
+            var courseId = course.href.split("?")[1].split("id=")[1].split("&")[0]
             var newElement = createElementFromHTML(`<li class="announcement mdl-list__item mdl-list__item--three-line">
                                                         <span class="mdl-list__item-primary-content">
                                                             <i class="material-icons mdl-list__item-avatar">person</i>
@@ -154,11 +156,12 @@ function waitForElementToDisplay(time) {
                                                             </span>
                                                         </span>
                                                         <span class="mdl-list__item-secondary-content">
-                                                            <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+                                                            <a class="announcementLink mdl-list__item-secondary-action" href="#"><i class="material-icons">arrow_right_alt</i></a>
                                                         </span>
                                                     </li>`);
             newElement.querySelector(".announcementTitle").textContent = title.textContent
             newElement.querySelector(".announcementContent").textContent = course.textContent
+            newElement.querySelector(".announcementLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=" + courseId;
             aul.appendChild(newElement);
             idx++;
             if (idx > 3) {
@@ -198,15 +201,11 @@ function home(template) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
 
-        console.log('courseArr', courseArr)
-
         // add the "real" classes first
         for (var c of courseArr) {
-            console.log(c);
             // NOTE: this could break if the 2208 pattern changes!
             if (!c.course.courseId.startsWith('2208-')) continue;
 
-            console.log(c.course.courseid, c.course.name);
             var elements = document.querySelectorAll(".course");
             var element = elements[elements.length - 1];
             var newElement = null;
