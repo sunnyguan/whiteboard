@@ -140,7 +140,7 @@
     }
 
     .design {
-      background-color: #1d76db;
+      background-color: black;
     }
 
     .weekday {
@@ -160,15 +160,23 @@
       min-width: 320px;
     }
 
+    .calendar-week {
+      overflow-y: auto;
+    }
+
     .grid-calendar .row {
       margin: 0;
+    }
+
+    .grid-cell div div {
+      background-color: #f6f6f6;
     }
 
     .grid-calendar .calendar-week .grid-cell {
       background-color: #f6f6f6;
       border: 1px solid #fff;
       text-align: center;
-      height: 200px;
+      height: 250px;
     }
 
     .grid-calendar .calendar-week-header .grid-cell {
@@ -527,73 +535,6 @@
             </header>
             <div class="grid-calendar" style="margin: auto;">
 
-              <div class="row calendar-week-header">
-
-                <!-- SEGUNDA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Sunday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- TERÇA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Monday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUARTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Tuesday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Wednesday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Thursday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Friday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div>
-                    <div>
-                      <p class="weekday">Saturday</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
             </div>
             <div class="grid-calendar" style="margin: auto;">
 
@@ -603,8 +544,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">CS 1200 Quiz 1</p>
-                      <p class="employee ti">CS 3345 HW 1</p>
+                      <p class="employee design">Sunday</p>
                     </div>
                   </div>
                 </div>
@@ -613,7 +553,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">ECS 1100 Test 2</p>
+                      <p class="employee design">Monday</p>
                     </div>
                   </div>
                 </div>
@@ -622,7 +562,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">MATH 1111 Quiz</p>
+                      <p class="employee design">Tuesday</p>
                     </div>
                   </div>
                 </div>
@@ -631,7 +571,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">CS 1022 HW 4</p>
+                      <p class="employee design">Wednesday</p>
                     </div>
                   </div>
                 </div>
@@ -640,7 +580,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">CttC Due</p>
+                      <p class="employee design">Thursday</p>
                     </div>
                   </div>
                 </div>
@@ -649,7 +589,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">Some test</p>
+                      <p class="employee design">Friday</p>
                     </div>
                   </div>
                 </div>
@@ -658,7 +598,7 @@
                 <div class="col-xs-1 grid-cell">
                   <div>
                     <div>
-                      <p class="employee design">More quiz</p>
+                      <p class="employee design">Saturday</p>
                     </div>
                   </div>
                 </div>

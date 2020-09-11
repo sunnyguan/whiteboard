@@ -141,46 +141,71 @@ function createElementFromHTML(htmlString) {
     return div.firstChild; 
   }
 
+var loadedAnnouncements = false;
+var loadedAgenda = false;
+var t = new Date();
+t.setDate(t.getDate() - t.getDay());
+
 function waitForElementToDisplay(time) {
-    if (document.querySelector("#bbFrame") != null && document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule") != null
-        && document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent.length > 2000) {
-        console.log(document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent);
-        var ul = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::2-whatsNewView:::::AN"); // => <a href="#">Link...
-        var li = ul.getElementsByTagName("li");
-        var aul = document.getElementById("announcementUl");
-        console.log(li);
-        var idx = 0;
-        for (var i of li) {
-            var title = i.querySelector("span > a");
-            var course = i.querySelector("span > div > a");
-            var courseId = course.href.split("?")[1].split("id=")[1].split("&")[0]
-            var newElement = createElementFromHTML(`<li class="announcement mdl-list__item mdl-list__item--three-line">
-                                                        <span class="mdl-list__item-primary-content">
-                                                            <i class="material-icons mdl-list__item-avatar">person</i>
-                                                            <span class="announcementTitle">Sample</span>
-                                                            <span class="announcementContent mdl-list__item-text-body">
-                                                                Bryan Cranston played the role of Walter in Breaking Bad. He is also known
-                                                                for playing Hal in Malcom in the Middle.
-                                                            </span>
-                                                        </span>
-                                                        <span class="mdl-list__item-secondary-content">
-                                                            <a class="announcementLink mdl-list__item-secondary-action" href="#"><i class="material-icons">arrow_right_alt</i></a>
-                                                        </span>
-                                                    </li>`);
-            newElement.querySelector(".announcementTitle").textContent = title.textContent
-            newElement.querySelector(".announcementContent").textContent = course.textContent
-            newElement.querySelector(".announcementLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=" + courseId;
-            aul.appendChild(newElement);
-            idx++;
-            if (idx > 3) {
-                break;
-            }
+    if (!loadedAnnouncements && document.querySelector("#bbFrame") != null){
+        var whatsNew = document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule");
+        var todo = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::1-dueView:::::1-dueView_4");
+
+        if(todo != null && !loadedAgenda){
+            todo.querySelectorAll("li").forEach(function (li) {
+                var date = li.querySelector(".due").textContent.split("Due ")[1];
+                var date_obj = new Date(date);
+                var dist = Math.floor((date_obj - t) / 86400000) // - 7
+                console.log(li.firstChild.firstChild.textContent + ": " + date + " --> " + dist);
+                if(dist >= 0 && dist < 7) {
+                    var newElement = document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").cloneNode(true);
+                    newElement.textContent = li.firstChild.firstChild.textContent;
+                    newElement.style.backgroundColor = "#00BCD4";
+                    document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
+                }
+            })
+            loadedAgenda = true;
         }
-        document.querySelector("#announcementLoad").style.display = 'none';
-        aul.style.textAlign = "";
-        return;
-    }
-    else {
+        if(whatsNew != null && whatsNew.textContent.length > 2000){
+            console.log(document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent);
+            var ul = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::2-whatsNewView:::::AN"); // => <a href="#">Link...
+            var li = ul.getElementsByTagName("li");
+            var aul = document.getElementById("announcementUl");
+            console.log(li);
+            var idx = 0;
+            for (var i of li) {
+                var title = i.querySelector("span > a");
+                var course = i.querySelector("span > div > a");
+                var courseId = course.href.split("?")[1].split("id=")[1].split("&")[0]
+                var newElement = createElementFromHTML(`<li class="announcement mdl-list__item mdl-list__item--three-line">
+                                                            <span class="mdl-list__item-primary-content">
+                                                                <i class="material-icons mdl-list__item-avatar">person</i>
+                                                                <span class="announcementTitle">Sample</span>
+                                                                <span class="announcementContent mdl-list__item-text-body">
+                                                                    Bryan Cranston played the role of Walter in Breaking Bad. He is also known
+                                                                    for playing Hal in Malcom in the Middle.
+                                                                </span>
+                                                            </span>
+                                                            <span class="mdl-list__item-secondary-content">
+                                                                <a class="announcementLink mdl-list__item-secondary-action" href="#"><i class="material-icons">arrow_right_alt</i></a>
+                                                            </span>
+                                                        </li>`);
+                newElement.querySelector(".announcementTitle").textContent = title.textContent
+                newElement.querySelector(".announcementContent").textContent = course.textContent
+                newElement.querySelector(".announcementLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=" + courseId;
+                aul.appendChild(newElement);
+                idx++;
+                if (idx > 3) {
+                    break;
+                }
+            }
+            document.querySelector("#announcementLoad").style.display = 'none';
+            aul.style.textAlign = "";
+            loadedAnnouncements = true;
+        }
+    } 
+        
+    if(!loadedAnnouncements || !loadedAgenda) {
         console.log('nope');
         setTimeout(function () {
             waitForElementToDisplay(time);
