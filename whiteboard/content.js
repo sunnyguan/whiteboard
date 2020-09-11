@@ -22,7 +22,7 @@ function start() {
     fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => getUserId(result))
-        .catch(error => console.log('error', error));
+        .catch(error => console.log("you're not logged in."));
 }
 
 function getUserId(result) {
@@ -83,6 +83,14 @@ function replacePage() {
     } else if (href.startsWith("https://elearning.utdallas.edu/webapps/assignment/uploadAssignment")) {
         iframeSrc = href;
         title = "Assignment";
+        replaceUrl = "iframe";
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/discussionboard")) {
+        iframeSrc = href;
+        title = "Discussion Board";
+        replaceUrl = "iframe";
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/collab-ultra/tool/collabultra")){
+        iframeSrc = href;
+        title = "BlackBoard Collab";
         replaceUrl = "iframe";
     }
     else {
@@ -408,25 +416,68 @@ function fetchSidebarCourse(courseId) {
     })
 }
 
+var INTERVAL = 1;
+
 function fetchSidebarCourses() {
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    var uiCourses = [];
+    chrome.storage.sync.get({
+        lastSave: 0,
+        courses: []
+    }, function (items) {
+        var diff = ((new Date().getTime() - items.lastSave)) / 1000.0 / 60;
+        console.log("Time since last update: " + diff + " minutes");
+        if (diff >= INTERVAL || items.courses.length == 0) {
+            console.log("More than " + INTERVAL + " minutes, updating courses...");
+            updateCourses().then(courses => {
+                uiCourses = courses;
+                for (var c of uiCourses) {
+                    var elements = document.querySelectorAll(".mdl-navigation__link");
+                    var element = elements[elements.length - 2];
+                    var newElement = element.cloneNode();
+                    newElement.href = c.href
+                    newElement.textContent = c.textContent
+                    element.insertAdjacentElement("afterend", newElement);
+                }
+                chrome.storage.sync.set({
+                    lastSave: new Date().getTime(),
+                    courses: courses
+                }, function () {
+                    console.log("Courses updated, next update in " + INTERVAL + " minutes.");
+                });
+            })
+        } else {
+            uiCourses = items.courses;
+            console.log("Less than " + INTERVAL + " minutes, not updating courses.");
+
+            for (var c of uiCourses) {
+                var elements = document.querySelectorAll(".mdl-navigation__link");
+                var element = elements[elements.length - 2];
+                var newElement = element.cloneNode();
+                newElement.href = c.href
+                newElement.textContent = c.textContent
+                element.insertAdjacentElement("afterend", newElement);
+            }
+        }
+    });
+}
+
+function updateCourses() {
+    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
 
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
-
+        var courses = [];
         for (var c of courseArr) {
             // NOTE: this could break if the 2208 pattern changes!
             if (!c.course.courseId.startsWith('2208-')) continue;
-
-            var elements = document.querySelectorAll(".mdl-navigation__link");
-            var element = elements[elements.length - 2];
-            var newElement = element.cloneNode();
+            var newElement = {};
             newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
             newElement.textContent = c.course.name.split("-")[0]; // TODO figure out better way to trim course name
-            element.insertAdjacentElement("afterend", newElement);
+            courses.push(newElement);
         }
+        return courses;
     });
 }
 

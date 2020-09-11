@@ -75,6 +75,134 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+    /*
+//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css
+*/
+    * {
+      font-family: "Helvetica";
+      user-select: none;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    *:before {
+      box-sizing: border-box;
+    }
+
+    *:after {
+      box-sizing: border-box;
+    }
+
+    header {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 1em;
+    }
+
+    .employee {
+      padding: 5px;
+      width: 130px;
+      border-radius: 5%;
+      color: #fff;
+      transition: all 0.5s;
+    }
+
+    .weekday {
+      padding: 10px;
+      width: 130px;
+      border-radius: 5%;
+      color: #fff;
+      transition: all 0.5s;
+      margin: 0px;
+    }
+
+    .employee:hover {
+      cursor: arrow;
+      background-color: silver;
+      color: #000;
+    }
+
+    .ti {
+      background-color: #0e8a16;
+    }
+
+    .one-one {
+      background-color: #fbca04;
+      color: #000 !important;
+    }
+
+    .design {
+      background-color: #1d76db;
+    }
+
+    .weekday {
+      background-color: black;
+    }
+
+    .container h2 {
+      color: #2a2a2a;
+    }
+
+    .row:before {
+      display: table;
+      content: " ";
+    }
+
+    .grid-calendar {
+      min-width: 320px;
+    }
+
+    .grid-calendar .row {
+      margin: 0;
+    }
+
+    .grid-calendar .calendar-week .grid-cell {
+      background-color: #f6f6f6;
+      border: 1px solid #fff;
+      text-align: center;
+      height: 200px;
+    }
+
+    .grid-calendar .calendar-week-header .grid-cell {
+      background-color: #f6f6f6;
+      border: 1px solid #fff;
+      text-align: center;
+    }
+
+    .grid-calendar .calendar-week-header .grid-cell>div>div {
+      padding-bottom: 10px;
+      height: auto;
+    }
+
+    .grid-calendar .calendar-week-header .grid-cell>div>div {
+      font-weight: bolder;
+      font-size: 14pt;
+    }
+
+    .grid-calendar .grid-cell {
+      display: inline-block;
+      min-height: 1px;
+      padding: 0;
+      position: relative;
+    }
+
+    .grid-calendar .grid-cell>div {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+
+    /* separator */
+
     .mdl-layout__header-row {
       padding-left: 256px !important;
     }
@@ -391,7 +519,155 @@
             Loading Announcements...
           </li>
         </ul>
+        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="container">
 
+            <header>
+              <h3>Week at a Glance</h2>
+            </header>
+            <div class="grid-calendar" style="margin: auto;">
+
+              <div class="row calendar-week-header">
+
+                <!-- SEGUNDA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Sunday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TERÇA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Monday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUARTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Tuesday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Wednesday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Thursday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Friday</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="weekday">Saturday</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+            <div class="grid-calendar" style="margin: auto;">
+
+              <div class="row calendar-week">
+
+                <!-- SEGUNDA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">CS 1200 Quiz 1</p>
+                      <p class="employee ti">CS 3345 HW 1</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TERÇA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">ECS 1100 Test 2</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUARTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">MATH 1111 Quiz</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">CS 1022 HW 4</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">CttC Due</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">Some test</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QUINTA-FEIRA -->
+                <div class="col-xs-1 grid-cell">
+                  <div>
+                    <div>
+                      <p class="employee design">More quiz</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
 
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div
