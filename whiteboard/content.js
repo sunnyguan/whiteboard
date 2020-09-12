@@ -88,7 +88,7 @@ function replacePage() {
         iframeSrc = href;
         title = "Discussion Board";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/collab-ultra/tool/collabultra")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/collab-ultra/tool/collabultra")) {
         iframeSrc = href;
         title = "BlackBoard Collab";
         replaceUrl = "iframe";
@@ -138,35 +138,79 @@ function processTemplate(template) {
 function createElementFromHTML(htmlString) {
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
-    return div.firstChild; 
-  }
+    return div.firstChild;
+}
 
 var loadedAnnouncements = false;
 var loadedAgenda = false;
-var t = new Date();
-t.setDate(t.getDate() - t.getDay());
 
-function waitForElementToDisplay(time) {
-    if (!loadedAnnouncements && document.querySelector("#bbFrame") != null){
-        var whatsNew = document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule");
-        var todo = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::1-dueView:::::1-dueView_4");
+function formatDate(d) {
+    var month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
 
-        if(todo != null && !loadedAgenda){
-            todo.querySelectorAll("li").forEach(function (li) {
-                var date = li.querySelector(".due").textContent.split("Due ")[1];
-                var date_obj = new Date(date);
-                var dist = Math.floor((date_obj - t) / 86400000) // - 7
-                console.log(li.firstChild.firstChild.textContent + ": " + date + " --> " + dist);
-                if(dist >= 0 && dist < 7) {
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function processAgenda() {
+    var lastSun = new Date();
+    lastSun.setDate(lastSun.getDate() - lastSun.getDay());
+    var lastSunday = formatDate(lastSun);
+    lastSun.setDate(lastSun.getDate() + 7);
+    var nextSunday = formatDate(lastSun);
+
+    lastSun = new Date(lastSunday);
+    var nextSun = new Date(nextSunday);
+
+    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
+        if ("results" in data) {
+            for (var cls of data["results"]) {
+                var name = cls.title;
+                var course = cls.calendarName.split(".")[0];
+                var color = cls.color;
+                var dateStart = cls.start.split("T")[0];
+                var jsDate = new Date(cls.end);
+                jsDate.setTime(jsDate.getTime() - 5*60*60*1000);
+                var dist = jsDate.getDay();
+                if (jsDate.getTime() > lastSun.getTime() && jsDate.getTime() < nextSun.getTime()) {
                     var newElement = document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").cloneNode(true);
-                    newElement.textContent = li.firstChild.firstChild.textContent;
-                    newElement.style.backgroundColor = "#00BCD4";
+                    newElement.setAttribute('style', 'white-space: pre;');
+                    newElement.textContent = name;
+                    if (newElement.textContent.length > 15) {
+                        newElement.textContent = newElement.textContent.substring(0, 13) + "...";
+                    }
+                    newElement.textContent = newElement.textContent + "\n" + course;
+                    newElement.style.backgroundColor = color;
                     document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
                 }
-            })
-            loadedAgenda = true;
+            }
         }
-        if(whatsNew != null && whatsNew.textContent.length > 2000){
+    })
+
+    /*var date = li.querySelector(".due").textContent.split("Due ")[1];
+    var date_obj = new Date(date);
+    var dist = Math.floor((date_obj - t) / 86400000)
+    console.log(li.firstChild.firstChild.textContent + ": " + date + " --> " + dist);
+    if (dist >= 0 && dist < 7) {
+        var newElement = document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").cloneNode(true);
+        newElement.textContent = li.firstChild.firstChild.textContent;
+        if (newElement.textContent.length > 15) {
+            newElement.textContent = newElement.textContent.substring(0, 13) + "...";
+        }
+        newElement.style.backgroundColor = "#00BCD4";
+        document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
+    }*/
+}
+
+function waitForElementToDisplay(time) {
+    if (!loadedAnnouncements && document.querySelector("#bbFrame") != null) {
+        var whatsNew = document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule");
+        if (whatsNew != null && whatsNew.textContent.length > 2000) {
             console.log(document.getElementById("bbFrame").contentDocument.getElementById("whatsNewModule").textContent);
             var ul = document.getElementById("bbFrame").contentDocument.getElementById("blocklist::2-whatsNewView:::::AN"); // => <a href="#">Link...
             var li = ul.getElementsByTagName("li");
@@ -203,9 +247,9 @@ function waitForElementToDisplay(time) {
             aul.style.textAlign = "";
             loadedAnnouncements = true;
         }
-    } 
-        
-    if(!loadedAnnouncements || !loadedAgenda) {
+    }
+
+    if (!loadedAnnouncements) {
         console.log('nope');
         setTimeout(function () {
             waitForElementToDisplay(time);
@@ -273,8 +317,9 @@ function home(template) {
             newElement.querySelector(".groupLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
             element.insertAdjacentElement("afterend", newElement);
         }
-
-        return fetchSidebarCourses();
+        return processAgenda().then(data => {
+            return fetchSidebarCourses();
+        })
     })
 }
 
