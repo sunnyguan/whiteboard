@@ -312,6 +312,7 @@ function home(template) {
             } else {
                 newElement = element.cloneNode(true);
             }
+            newElement.onclick = "location.href='https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id + "'";
             newElement.querySelector(".groupTitle").textContent = c.course.name;
             newElement.querySelector(".groupContent").textContent = "Course content goes here";
             newElement.querySelector(".groupLink").href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
