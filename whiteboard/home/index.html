@@ -100,11 +100,20 @@
       margin-top: 25px;
     }
 
+    .zoomDiv {
+      transition: all .2s ease-in-out;
+      cursor: pointer;
+    }
+
+    .zoomDiv:hover {
+      transform: scale(1.1);
+      z-index: 100;
+    }
+
     .container {
       max-width: 1500px;
       margin-left: auto;
       margin-right: auto;
-      padding-bottom: 1em;
     }
 
     .employee {
@@ -517,7 +526,14 @@
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
       <div class="mdl-grid demo-content">
-        <ul id="announcementUl" class="demo-list-three mdl-list mdl-shadow--2dp" style="
+        <div id="announcementDiv"
+          class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div id="announcementLoad">
+            Loading Announcements...
+          </div>
+        </div>
+
+        <!-- <ul id="announcementUl" class="demo-list-three mdl-list mdl-shadow--2dp" style="
           background-color: white;
           width: 100%;
           margin: 8px;
@@ -526,12 +542,13 @@
           <li id="announcementLoad">
             Loading Announcements...
           </li>
-        </ul>
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+        </ul> -->
+        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"
+          style="padding: 15px">
           <div class="container">
 
             <header>
-              <h3>Week at a Glance</h2>
+              <h3 style="font-family: Roboto">Week at a Glance</h2>
             </header>
             <div class="grid-calendar" style="margin: auto;">
 
@@ -611,7 +628,7 @@
 
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div
-            class="course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
+            class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
             <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
               <h2 class="courseTitle mdl-card__title-text">Sample</h2>
             </div>
@@ -627,7 +644,7 @@
         </div>
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div
-            class="group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--4-col-desktop">
+            class="zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--4-col-desktop">
             <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
               <h2 class="groupTitle mdl-card__title-text">Sample</h2>
             </div>

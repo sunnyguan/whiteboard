@@ -175,7 +175,7 @@ function processAgenda() {
                 var color = cls.color;
                 var dateStart = cls.start.split("T")[0];
                 var jsDate = new Date(cls.end);
-                jsDate.setTime(jsDate.getTime() - 5*60*60*1000);
+                jsDate.setTime(jsDate.getTime() - 5 * 60 * 60 * 1000);
                 var dist = jsDate.getDay();
                 if (jsDate.getTime() > lastSun.getTime() && jsDate.getTime() < nextSun.getTime()) {
                     var newElement = document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").cloneNode(true);
@@ -267,7 +267,7 @@ function home(template) {
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
         bbScrape.src = "https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
-        waitForElementToDisplay(500);
+        // waitForElementToDisplay(500);
         document.getElementsByTagName("body")[0].appendChild(bbScrape);
 
         var res = "";
@@ -318,7 +318,60 @@ function home(template) {
             element.insertAdjacentElement("afterend", newElement);
         }
         return processAgenda().then(data => {
-            return fetchSidebarCourses();
+            return fetchSidebarCourses().then(resp => {
+                if (courseIds.length != 0) {
+                    var announcement_fetches = [];
+                    var aul = document.getElementById("announcementUl");
+                    var auld = document.getElementById("announcementDiv");
+                    for (var cid of Object.keys(courseIds)) {
+                        announcement_fetches.push("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + cid + "/announcements?sort=modified(desc)");
+                    }
+                    console.log(courseIds);
+                    document.querySelector("#announcementLoad").style.display = 'none';
+                    return Promise.all(announcement_fetches.map(url => fetch(url).then(resp => resp.json()).then(res => {
+                        if ("results" in res && res["results"].length >= 1) {
+                            var ann = res["results"][0];
+                            /*var newElement = createElementFromHTML(`<li class="announcement mdl-list__item mdl-list__item--three-line">
+                                                                <span class="mdl-list__item-primary-content">
+                                                                    <i class="material-icons mdl-list__item-avatar">person</i>
+                                                                    <span class="announcementTitle">Sample</span>
+                                                                    <span class="announcementContent mdl-list__item-text-body">
+                                                                        Bryan Cranston played the role of Walter in Breaking Bad. He is also known
+                                                                        for playing Hal in Malcom in the Middle.
+                                                                    </span>
+                                                                </span>
+                                                                <span class="mdl-list__item-secondary-content">
+                                                                    <a class="announcementLink mdl-list__item-secondary-action" href="#"><i class="material-icons">arrow_right_alt</i></a>
+                                                                </span>
+                                                            </li>`);
+                            newElement.querySelector(".announcementTitle").textContent = ann.title;
+                            newElement.querySelector(".announcementContent").textContent = courseIds[url.split("courses/")[1].split("/")[0]];
+                            newElement.querySelector(".announcementLink").href = "https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=" + cid;
+                            aul.appendChild(newElement);*/
+                            var csId = url.split("courses/")[1].split("/")[0];
+                            var createdDate = new Date(ann.created);
+                            var newEle = createElementFromHTML(`<div class="zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--3-col-desktop"
+                                            style="min-height:170px;" onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${csId}'">
+                                                                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
+                                                                        style="background-color: orange !important; background: none; min-height: 0px;">
+                                                                        <div style="
+                                                                            position: absolute;
+                                                                            right: 0;
+                                                                            top: 0;
+                                                                            font-weight: 300;
+                                                                            font-family: Roboto;
+                                                                            font-size: 14px;
+                                                                            margin: 8px;
+                                                                        ">${(createdDate.getMonth()+1) + "/" + createdDate.getDate()}</div>
+                                                                        <h2 class="mdl-card__title-text" style="font-size: 20px">${ann.title}</h2>
+                                                                    </div>
+                                                                    <div class="mdl-card__supporting-text mdl-color-text--grey-600">${courseIds[csId]}</div>
+                                                                </div>`);
+                            auld.appendChild(newEle);
+                        }
+                    })));
+                }
+            });
         })
     })
 }
@@ -489,7 +542,7 @@ function fetchSidebarCourse(courseId) {
 var INTERVAL = 1;
 
 function fetchSidebarCourses() {
-    var uiCourses = [];
+    /*var uiCourses = [];
     chrome.storage.sync.get({
         lastSave: 0,
         courses: []
@@ -528,8 +581,21 @@ function fetchSidebarCourses() {
                 element.insertAdjacentElement("afterend", newElement);
             }
         }
+    });*/
+    return updateCourses().then(courses => {
+        uiCourses = courses;
+        for (var c of uiCourses) {
+            var elements = document.querySelectorAll(".mdl-navigation__link");
+            var element = elements[elements.length - 2];
+            var newElement = element.cloneNode();
+            newElement.href = c.href
+            newElement.textContent = c.textContent
+            element.insertAdjacentElement("afterend", newElement);
+        }
     });
 }
+
+var courseIds = {};
 
 function updateCourses() {
     return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
@@ -546,6 +612,10 @@ function updateCourses() {
             newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
             newElement.textContent = c.course.name.split("-")[0]; // TODO figure out better way to trim course name
             courses.push(newElement);
+
+            if (!(c.course.id in courseIds)) {
+                courseIds[c.course.id] = c.course.name.split("-")[0];
+            }
         }
         return courses;
     });
