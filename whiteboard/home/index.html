@@ -95,6 +95,24 @@
       box-sizing: border-box;
     }
 
+    #announcementDiv {
+      overflow-y: auto;
+      height: 400px;
+    }
+
+    .box {
+      opacity: 0;
+      transition: all 1s;
+    }
+
+    .box.in {
+      opacity: 1;
+    }
+
+    .card {
+      width: 100%;
+    }
+
     #style-9::-webkit-scrollbar-track {
       -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
       box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -116,6 +134,43 @@
           rgba(255, 255, 255, .2) 75%,
           transparent 75%,
           transparent)
+    }
+
+    .slide {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .first,
+    .second {
+      text-align: center;
+      position: absolute;
+    }
+
+    .first {
+      -webkit-transition: transform 0.5s ease;
+      transition: transform 0.5s ease;
+    }
+
+    .first.animate {
+      transform: translate3d(-100%, 0, 0);
+      -webkit-transform: translate3d(-100%, 0, 0);
+      -webkit-transition: transform 0.5s ease;
+      transition: transform 0.5s ease;
+    }
+
+    .second {
+      transform: translate3d(100%, 0, 0);
+      -webkit-transform: translate3d(100%, 0, 0);
+      -webkit-transition: transform 0.5s ease;
+      transition: transform 0.5s ease;
+    }
+
+    .second.animate {
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+      -webkit-transition: transform 0.5s ease;
+      transition: transform 0.5s ease;
     }
 
     header {
@@ -343,7 +398,7 @@
       -webkit-align-items: center;
       -ms-flex-align: center;
       align-items: center;
-      color: rgba(255, 255, 255, 0.96);
+      color: rgba(255, 255, 255, 0.56);
       font-weight: 500;
     }
 
@@ -551,7 +606,7 @@
       <div class="mdl-grid demo-content">
         <div id="announcementDiv"
           class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div id="announcementLoad">
+          <div id="announcementLoad" style="width: 100%; text-align: center;">
             Loading Announcements...
           </div>
         </div>
@@ -649,37 +704,12 @@
           </div>
         </div>
 
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div
-            class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-            <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-              <h2 class="courseTitle mdl-card__title-text">Sample</h2>
-            </div>
-            <div class="courseContent mdl-card__supporting-text mdl-color-text--grey-600">
-              Non dolore elit adipisicing ea reprehenderit consectetur culpa.
-            </div>
-            <div class="mdl-card__actions mdl-card--border">
-              <a href="#" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
-              <a href="#"
-                class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
-            </div>
-          </div>
+        <div class="courseAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
         </div>
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div
-            class="zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--4-col-desktop">
-            <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-              <h2 class="groupTitle mdl-card__title-text">Sample</h2>
-            </div>
-            <div class="groupContent mdl-card__supporting-text mdl-color-text--grey-600">
-              Non dolore elit adipisicing ea reprehenderit consectetur culpa.
-            </div>
-            <div class="mdl-card__actions mdl-card--border">
-              <a href="#" class="groupLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-            </div>
-          </div>
-          <div class="demo-separator mdl-cell--1-col"></div>
+
+        <div class="groupAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
         </div>
+
       </div>
     </main>
   </div>

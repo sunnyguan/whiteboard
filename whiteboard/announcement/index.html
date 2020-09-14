@@ -85,6 +85,15 @@
       font-family: 'Roboto', 'Helvetica', sans-serif;
     }
 
+    .box {
+      opacity: 0;
+      transition: all 0.5s;
+    }
+
+    .box.in {
+      opacity: 1;
+    }
+
     .demo-avatar {
       width: 48px;
       height: 48px;
@@ -179,7 +188,9 @@
     .demo-navigation .mdl-navigation__link .material-icons {
       font-size: 24px;
       color: rgba(255, 255, 255, 0.56);
-      margin-right: 10px; margin-bottom: 4px;;
+      margin-right: 10px;
+      margin-bottom: 4px;
+      ;
     }
 
     .demo-content {
@@ -363,31 +374,20 @@
         <a class="mdl-navigation__link"
           href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1">
           <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-          <div class="mdl-layout-spacer"></div>
-          <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i class="mdl-color-text--blue-grey-400 material-icons"
-              role="presentation">calendar_today</i>Calendar<span class="visuallyhidden">Calendar</span></a>
+        <div class="mdl-layout-spacer"></div>
+        <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i
+            class="mdl-color-text--blue-grey-400 material-icons" role="presentation">calendar_today</i>Calendar<span
+            class="visuallyhidden">Calendar</span></a>
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
       <div class="mdl-grid demo-content">
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div
-            class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-            <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-              <h2 class="informationTitle mdl-card__title-text">Sample</h2>
-            </div>
-            <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600">
-              Non dolore elit adipisicing ea reprehenderit consectetur culpa.
-            </div>
-            <div class="mdl-card__actions mdl-card--border">
-              <a href="#" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-            </div>
-          </div>
-          <div class="demo-separator mdl-cell--1-col"></div>
+        <div class="informationAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
         </div>
       </div>
     </main>
   </div>
+  <script src="chrome-extension://dgoddhbeomdbphldifclnhofannfnpcd/home/external/material.min.js" async></script>
 </body>
 
 </html>
