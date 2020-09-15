@@ -177,7 +177,7 @@ _:-ms-input-placeholder, :root .demo-graph {
   font-size: 1em;
 }
 .demo-updates .mdl-card__title {
-  min-height: 200px;
+  min-height: 150px;
   background-image: url('images/dog.png');
   background-position: 90% 100%;
   background-repeat: no-repeat;

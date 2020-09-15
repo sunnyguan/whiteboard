@@ -203,6 +203,7 @@ function processAgenda() {
                 }
             }
         }
+        document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
     })
 
 }
@@ -245,7 +246,6 @@ function home(template) {
         }
         // add the other stuff at the bottom
         for (var c of courseArr) {
-            console.log(c);
             // NOTE: this could break if the 2208 pattern changes!
             if (c.course.courseId.startsWith('2208-')) continue;
 
@@ -281,21 +281,19 @@ function home(template) {
                                                                     
                                                                 </div>`);
                             var card1 = createElementFromHTML(`<div class="first card">
-                                                                <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
-                                                                    style="background-color: orange !important; background: none; min-height: 120px;">
-                                                                    <div style="
-                                                                        position: absolute;
-                                                                        right: 0;
-                                                                        top: 0;
-                                                                        font-weight: 300;
-                                                                        font-family: Roboto;
-                                                                        font-size: 14px;
-                                                                        margin: 8px;
-                                                                    ">${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}</div>
-                                                                    <h2 class="mdl-card__title-text" style="font-size: 20px">${card1info.title}</h2>
-                                                                </div>
-                                                                <div class="mdl-card__supporting-text mdl-color-text--grey-600">${courseIds[csId]}</div>
-                                                            </div>`)
+                                                                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
+                                                                        style="background-color: orange !important; background: none; min-height: 120px;"
+                                                                        onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${csId}'">
+                                                                        <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
+                                                                            ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
+                                                                        </div>
+                                                                        <h2 class="mdl-card__title-text" style="font-size: 20px">${card1info.title}</h2>
+                                                                    </div>
+                                                                    <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: left;">
+                                                                        ${courseIds[csId]}
+                                                                        <i class="arrow material-icons" style="position: absolute; right: 10px; bottom: 13px;">arrow_right_alt</i>
+                                                                    </div>
+                                                                </div>`)
                             newEle.appendChild(card1);
                             // onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${csId}'
                             if(res["results"].length >= 2) {
@@ -303,29 +301,29 @@ function home(template) {
                                 var createdDate = new Date(card2info.created);
                                 var card2 = createElementFromHTML(`<div class="second card">
                                                                     <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
-                                                                        style="background-color: orange !important; background: none; min-height: 120px;">
-                                                                        <div style="
-                                                                            position: absolute;
-                                                                            right: 0;
-                                                                            top: 0;
-                                                                            font-weight: 300;
-                                                                            font-family: Roboto;
-                                                                            font-size: 14px;
-                                                                            margin: 8px;
-                                                                        ">${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}</div>
+                                                                        style="background-color: orange !important; background: none; min-height: 120px;"
+                                                                        onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${csId}'">
+                                                                        <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
+                                                                            ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
+                                                                        </div>
                                                                         <h2 class="mdl-card__title-text" style="font-size: 20px">${card2info.title}</h2>
                                                                     </div>
-                                                                    <div class="mdl-card__supporting-text mdl-color-text--grey-600">${courseIds[csId]}</div>
+                                                                    <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: right;">
+                                                                        ${courseIds[csId]}
+                                                                        <i class="material-icons" style="position: absolute; left: 10px; bottom: 13px; transform: rotate(180deg)">arrow_right_alt</i>
+                                                                    </div>
                                                                 </div>`)
-                                card2.onclick = function (e) {
+                                card2.querySelector(".switch").onclick = function (e) {
                                     card1.classList.toggle("animate");
                                     card2.classList.toggle("animate");
                                 }
-                                card1.onclick = function (e) {
+                                card1.querySelector(".switch").onclick = function (e) {
                                     card1.classList.toggle("animate");
                                     card2.classList.toggle("animate");
                                 }
                                 newEle.appendChild(card2);
+                            } else {
+                                card1.querySelector(".arrow").style.display = "none";
                             }
                             auld.appendChild(newEle);
                             window.getComputedStyle(newEle).opacity; // added
