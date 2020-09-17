@@ -436,15 +436,37 @@ function addToLinks(link, courseId, name) {
         }, function () {
             console.log("new link added");
             console.log(newlinks);
+            fetchSidebarCourse(courseId);
+        });
+    });
+}
 
-            var homeLink = document.querySelector(".allLinks");
-            var element = createElementFromHTML(`<a class="mdl-navigation__link" style="color: orange" href="${link}">${name}</a>`);
-            homeLink.appendChild(element);
+function removeFromLinks(link, courseId, name) {
+    chrome.storage.sync.get({
+        links: {}
+    }, function (result) {
+        var newlinks = result.links;
+        if (!(courseId in newlinks)) 
+            return;
+        newlinks[courseId] = newlinks[courseId].filter(function(el) { return el.link != link; }); 
+        console.log(newlinks[courseId]);
+        console.log({link: link, title: name});
+        chrome.storage.sync.set({
+            links: newlinks
+        }, function () {
+            console.log("link removed");
+            console.log(newlinks);
+            fetchSidebarCourse(courseId);
         });
     });
 }
 
 function fetchSidebarCourse(courseId) {
+    var homeLink = document.querySelector(".allLinks");
+    while (homeLink.children.length > 2) {
+        homeLink.removeChild(homeLink.lastChild);
+    }
+    
     chrome.storage.sync.get({
         links: {}
     }, function (result) {
@@ -463,27 +485,30 @@ function fetchSidebarCourse(courseId) {
             var xmlString = html;
             var doc = new DOMParser().parseFromString(xmlString, "text/html");
             var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
-            var li = ul.getElementsByTagName("li");
-            var homeLink = document.querySelector(".allLinks");
-
-            for (var i of li) {
-                var a = i.querySelector('a');
-                if (a) {
-                    var element = createElementFromHTML(`<a class="mdl-navigation__link" href="${a.href}">${a.textContent}</a>`);
+            if(ul){
+                var li = ul.getElementsByTagName("li");
+                for (var pinned of newLinks) {
+                    var element = createElementFromHTML(`<div class="mdl-navigation__link" style="color: orange"><i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                        style="padding: 0; color: orange !important; cursor: pointer" href="${pinned.link}" courseid="${courseId}" title="${pinned.title}">push_pin
+                    </i><a class="mdl-navigation__link" style="padding: 0" href="${pinned.link}">${pinned.title}</a></div>`);
                     homeLink.appendChild(element);
-                } else {
-                    var divider = createElementFromHTML(`<hr>`);
-                    homeLink.appendChild(divider);
+                    element.querySelector(".pin").addEventListener('click', function (event) {
+                        var t = event.target;
+                        removeFromLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                    });
+                }
+    
+                for (var i of li) {
+                    var a = i.querySelector('a');
+                    if (a) {
+                        var element = createElementFromHTML(`<a class="mdl-navigation__link" href="${a.href}">${a.textContent}</a>`);
+                        homeLink.appendChild(element);
+                    } else {
+                        var divider = createElementFromHTML(`<hr>`);
+                        homeLink.appendChild(divider);
+                    }
                 }
             }
-
-            for (var pinned of newLinks) {
-                var element = createElementFromHTML(`<a class="mdl-navigation__link" style="color: orange" href="${pinned.link}"><i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                    style="color: red !important; cursor: pointer">push_pin
-                </i>${pinned.title}</a>`);
-                homeLink.appendChild(element);
-            }
-
         })
     });
 }
