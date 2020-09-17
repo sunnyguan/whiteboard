@@ -489,7 +489,7 @@ function fetchSidebarCourse(courseId) {
                 var li = ul.getElementsByTagName("li");
                 for (var pinned of newLinks) {
                     var element = createElementFromHTML(`<div class="mdl-navigation__link" style="color: orange"><i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                        style="padding: 0; color: orange !important; cursor: pointer" href="${pinned.link}" courseid="${courseId}" title="${pinned.title}">push_pin
+                        style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" href="${pinned.link}" courseid="${courseId}" title="${pinned.title}">push_pin
                     </i><a class="mdl-navigation__link" style="padding: 0" href="${pinned.link}">${pinned.title}</a></div>`);
                     homeLink.appendChild(element);
                     element.querySelector(".pin").addEventListener('click', function (event) {
