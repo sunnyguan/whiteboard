@@ -96,11 +96,11 @@ function replacePage() {
         iframeSrc = href;
         title = "Assessment";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN")) {
         iframeSrc = href;
         title = "My Grades";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/gradebook")){
+    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/gradebook")) {
         iframeSrc = href;
         title = "Gradebook";
         replaceUrl = "iframe";
@@ -296,7 +296,7 @@ function home(template) {
                                                                 </div>`)
                             newEle.appendChild(card1);
                             // onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${csId}'
-                            if(res["results"].length >= 2) {
+                            if (res["results"].length >= 2) {
                                 var card2info = res["results"][1];
                                 var createdDate = new Date(card2info.created);
                                 var card2 = createElementFromHTML(`<div class="second card">
@@ -376,25 +376,36 @@ function content(template, courseId, contentId) {
         document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
 
         var list = doc.querySelectorAll("#content_listContainer > li");
-        for(var item of list){
-            
+        for (var item of list) {
+
             var newElement = createElementFromHTML(`<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                                                         <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                                                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                                                                style="position: absolute;right: 10px;top: 10px;color: orange !important; cursor: pointer">push_pin
+                                                            </i>
                                                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("div > h3").textContent}</h2>
                                                         </div>
                                                         <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600">
                                                             ${item.querySelector(".details").innerHTML}
                                                         </div>
                                                     </div>`);
-            if(item.querySelector("div > h3 > a") && item.querySelector("div > h3 > a").hasAttribute("href")) {
+
+            if (item.querySelector("div > h3 > a") && item.querySelector("div > h3 > a").hasAttribute("href")) {
                 var read_more = createElementFromHTML(`<div class="informationLinks mdl-card__actions mdl-card--border">
                                                             <a href="${item.querySelector("div > h3 > a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
                                                       </div>`);
+                newElement.querySelector(".pin").setAttribute("href", item.querySelector("div > h3 > a").href);
+                newElement.querySelector(".pin").setAttribute("courseid", courseId);
+                newElement.querySelector(".pin").setAttribute("title", item.querySelector("div > h3").textContent);
+                newElement.querySelector(".pin").addEventListener('click', function (event) {
+                    var t = event.target;
+                    addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                });
                 newElement.appendChild(read_more);
             }
-                
+
             var attachments = item.querySelectorAll(".attachments > li");
-            if(attachments && attachments.length != 0) {
+            if (attachments && attachments.length != 0) {
                 attachments.forEach(file => {
                     var attached = createElementFromHTML(`<div class="informationLinks mdl-card__actions mdl-card--border">
                                                             <a href="${file.querySelector("a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">${file.querySelector("a").textContent.trim()}</a>
@@ -411,33 +422,70 @@ function content(template, courseId, contentId) {
     });
 }
 
-function fetchSidebarCourse(courseId) {
-    return fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
-        var xmlString = html;
-        var doc = new DOMParser().parseFromString(xmlString, "text/html");
-        var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
-        var li = ul.getElementsByTagName("li");
-        // some courses have dividers (CS 3341) in course list
-        var divider = null;
+function addToLinks(link, courseId, name) {
+    chrome.storage.sync.get({
+        links: {}
+    }, function (result) {
+        var newlinks = result.links;
+        if (!(courseId in newlinks)) {
+            newlinks[courseId] = [];
+        }
+        newlinks[courseId].push({ link: link, title: name });
+        chrome.storage.sync.set({
+            links: newlinks
+        }, function () {
+            console.log("new link added");
+            console.log(newlinks);
 
-        for (var i of li) {
-            var a = i.querySelector('a');
-            var elements = document.querySelectorAll(".mdl-navigation__link");
-            var element = elements[elements.length - 2];
-            var newElement = element.cloneNode();
-            if (a) {
-                newElement.href = a.href;
-                newElement.textContent = a.textContent;
-                element.insertAdjacentElement("afterend", newElement);
+            var homeLink = document.querySelector(".allLinks");
+            var element = createElementFromHTML(`<a class="mdl-navigation__link" style="color: orange" href="${link}">${name}</a>`);
+            homeLink.appendChild(element);
+        });
+    });
+}
+
+function fetchSidebarCourse(courseId) {
+    chrome.storage.sync.get({
+        links: {}
+    }, function (result) {
+        var newLinks = [];
+        if (courseId in result.links) {
+            var links = result.links[courseId];
+            if (links.length != 0) {
+                console.log(links);
+                newLinks = result.links[courseId];
             } else {
-                divider = element;
+                console.log("links is empty!");
             }
         }
 
-        if (divider) {
-            divider.insertAdjacentElement("afterend", document.createElement('hr'));
-        }
-    })
+        return fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
+            var xmlString = html;
+            var doc = new DOMParser().parseFromString(xmlString, "text/html");
+            var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
+            var li = ul.getElementsByTagName("li");
+            var homeLink = document.querySelector(".allLinks");
+
+            for (var i of li) {
+                var a = i.querySelector('a');
+                if (a) {
+                    var element = createElementFromHTML(`<a class="mdl-navigation__link" href="${a.href}">${a.textContent}</a>`);
+                    homeLink.appendChild(element);
+                } else {
+                    var divider = createElementFromHTML(`<hr>`);
+                    homeLink.appendChild(divider);
+                }
+            }
+
+            for (var pinned of newLinks) {
+                var element = createElementFromHTML(`<a class="mdl-navigation__link" style="color: orange" href="${pinned.link}"><i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                    style="color: red !important; cursor: pointer">push_pin
+                </i>${pinned.title}</a>`);
+                homeLink.appendChild(element);
+            }
+
+        })
+    });
 }
 
 var INTERVAL = 1;
@@ -485,16 +533,16 @@ function updateCourses() {
 function announcement(template, courseId) {
     var courseName = "";
     fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
-    .then(resp => resp.text()).then(data => {
-        processTemplate(template);
-        var xmlString = data;
-        var doc = new DOMParser().parseFromString(xmlString, "text/html");
-        document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
+        .then(resp => resp.text()).then(data => {
+            processTemplate(template);
+            var xmlString = data;
+            var doc = new DOMParser().parseFromString(xmlString, "text/html");
+            document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
 
-        var list = doc.querySelectorAll("#announcementList > li");
-        for(var item of list){
-            
-            var newElement = createElementFromHTML(`<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
+            var list = doc.querySelectorAll("#announcementList > li");
+            for (var item of list) {
+
+                var newElement = createElementFromHTML(`<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                                                         <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
                                                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("h3").textContent}</h2>
                                                         </div>
@@ -502,12 +550,12 @@ function announcement(template, courseId) {
                                                             ${item.querySelector(".details").innerHTML}
                                                         </div>
                                                     </div>`);
-            document.querySelector(".informationAll").appendChild(newElement);
-            window.getComputedStyle(newElement).opacity; // added
-            newElement.className += ' in';
-        }
-        return fetchSidebarCourse(courseId);
-    })
+                document.querySelector(".informationAll").appendChild(newElement);
+                window.getComputedStyle(newElement).opacity; // added
+                newElement.className += ' in';
+            }
+            return fetchSidebarCourse(courseId);
+        })
 }
 
 function iframe(template, iframeSrc, title) {
