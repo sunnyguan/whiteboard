@@ -145,6 +145,7 @@ function processTemplate(template) {
     var emailElement = document.getElementById("student-email");
     console.log(emailElement.innerText);
     emailElement.innerText = email;
+    render_calendar_addon();
 }
 
 function createElementFromHTML(htmlString) {
@@ -206,6 +207,44 @@ function processAgenda() {
         document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
     })
 
+}
+
+function render_calendar_addon() {
+    document.querySelector("#addEvent").addEventListener('click', function (event) {
+        event.preventDefault();
+        var title = document.getElementById("first").value;
+        var desc = document.getElementById("last").value;
+        var start = document.getElementById("start").value + ":00"; // 2020-09-17T16:30:00
+        var end = document.getElementById("end").value + ":01"; // 2020-09-17T17:00:00
+
+        return fetch("https://elearning.utdallas.edu/webapps/calendar/calendarData/event", {
+            "headers": {
+                "accept": "application/json, text/javascript, */*; q=0.01",
+                "accept-language": "en-US,en;q=0.9",
+                "blackboard.platform.security.nonceutil.nonce.ajax": "b7ea3963-e064-4f1a-a6cd-1b6c4650b03e",
+                "content-type": "application/json;charset=UTF-8",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+                "x-requested-with": "XMLHttpRequest"
+            },
+            "referrer": "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false",
+            "referrerPolicy": "no-referrer-when-downgrade",
+            "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}","allDay":false,"recur":false,"freq":"WEEKLY","interval":"1","byDay":["TH"],"monthRepeatBy":"BYMONTHDAY","byMonthDay":"1","bySetPos":"1","endsBy":"COUNT","count":"10","untilDate":"2020-11-17T16:15:00"}`,
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
+        }).then(resp => resp.text()).then(data => { 
+            console.log(data); 
+            alert("Added!"); 
+            document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
+        }).catch(err => { console.log(err); alert("Error!"); })
+    });
+
+    document.getElementById("hdrbtn").addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
+    })
 }
 
 // all courses
@@ -380,9 +419,6 @@ function content(template, courseId, contentId) {
 
             var newElement = createElementFromHTML(`<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                                                         <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-                                                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                                                                style="position: absolute;right: 10px;top: 10px;color: orange !important; cursor: pointer">push_pin
-                                                            </i>
                                                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("div > h3").textContent}</h2>
                                                         </div>
                                                         <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600">
@@ -391,6 +427,11 @@ function content(template, courseId, contentId) {
                                                     </div>`);
 
             if (item.querySelector("div > h3 > a") && item.querySelector("div > h3 > a").hasAttribute("href")) {
+                var pushpin = createElementFromHTML(`<i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                    style="position: absolute;right: 10px;top: 10px;color: orange !important; cursor: pointer">push_pin
+                </i>`);
+                newElement.querySelector(".mdl-card__title").insertBefore(pushpin, newElement.querySelector(".mdl-card__title").firstChild);
+
                 var read_more = createElementFromHTML(`<div class="informationLinks mdl-card__actions mdl-card--border">
                                                             <a href="${item.querySelector("div > h3 > a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
                                                       </div>`);
@@ -430,6 +471,7 @@ function addToLinks(link, courseId, name) {
         if (!(courseId in newlinks)) {
             newlinks[courseId] = [];
         }
+        newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
         newlinks[courseId].push({ link: link, title: name });
         chrome.storage.sync.set({
             links: newlinks
@@ -446,11 +488,11 @@ function removeFromLinks(link, courseId, name) {
         links: {}
     }, function (result) {
         var newlinks = result.links;
-        if (!(courseId in newlinks)) 
+        if (!(courseId in newlinks))
             return;
-        newlinks[courseId] = newlinks[courseId].filter(function(el) { return el.link != link; }); 
+        newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
         console.log(newlinks[courseId]);
-        console.log({link: link, title: name});
+        console.log({ link: link, title: name });
         chrome.storage.sync.set({
             links: newlinks
         }, function () {
@@ -466,7 +508,7 @@ function fetchSidebarCourse(courseId) {
     while (homeLink.children.length > 2) {
         homeLink.removeChild(homeLink.lastChild);
     }
-    
+
     chrome.storage.sync.get({
         links: {}
     }, function (result) {
@@ -485,7 +527,7 @@ function fetchSidebarCourse(courseId) {
             var xmlString = html;
             var doc = new DOMParser().parseFromString(xmlString, "text/html");
             var ul = doc.getElementById("courseMenuPalette_contents"); // => <a href="#">Link...
-            if(ul){
+            if (ul) {
                 var li = ul.getElementsByTagName("li");
                 for (var pinned of newLinks) {
                     var element = createElementFromHTML(`<div class="mdl-navigation__link" style="color: orange"><i class="mdl-color-text--blue-grey-400 material-icons pin" 
@@ -497,7 +539,7 @@ function fetchSidebarCourse(courseId) {
                         removeFromLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
                     });
                 }
-    
+
                 for (var i of li) {
                     var a = i.querySelector('a');
                     if (a) {
