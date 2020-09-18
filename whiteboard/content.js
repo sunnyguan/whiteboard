@@ -1,11 +1,11 @@
 console.log('Whiteboard extension loaded!');
-console.log(chrome.extension.getURL("home/index.html"))
 
-
+// only replace page if starts with /webapps
 if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
     start();
 }
 
+// for displaying user info, might add more uses later
 var id = "";
 var email = "";
 
@@ -25,6 +25,7 @@ function start() {
         .catch(error => console.log("you're not logged in."));
 }
 
+// save user ID for API calls
 function getUserId(result) {
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
     console.log(avatarid);
@@ -38,10 +39,10 @@ function getUserId(result) {
     }
 }
 
+// logic for choosing page to replace
 function replacePage() {
     var href = window.location.href;
     var replaceUrl = "home";
-    var foundReplacement = true;
     var courseId = "";
     var contentId = "";
     var iframeSrc = "";
@@ -110,38 +111,39 @@ function replacePage() {
         replaceUrl = "iframe";
     }
     else {
-        foundReplacement = false;
+        // no suitable replacement found, use iframe fallback
+        iframeSrc = href;
+        title = "Blackboard";
+        replaceUrl = "iframe";
     }
 
-    if (foundReplacement) {
-        fetch(chrome.extension.getURL(replaceUrl + "/index.html"))
-            .then(function (response) {
-                switch (response.status) {
-                    case 200:
-                        return response.text();
-                    case 404:
-                        throw response;
-                }
-            })
-            .then(function (template) {
-                if (replaceUrl === "home")
-                    home(template);
-                else if (replaceUrl === "course")
-                    course(template, courseId);
-                else if (replaceUrl === "content")
-                    content(template, courseId, contentId);
-                else if (replaceUrl === "announcement")
-                    announcement(template, courseId);
-                else if (replaceUrl === "iframe")
-                    iframe(template, iframeSrc, title);
-            })
-            .catch(function (response) {
-                console.log(response.statusText);
-            });
-    }
+    fetch(chrome.extension.getURL(replaceUrl + "/index.html"))
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.text();
+                case 404:
+                    throw response;
+            }
+        })
+        .then(function (template) {
+            if (replaceUrl === "home")
+                home(template);
+            else if (replaceUrl === "course")
+                course(template, courseId);
+            else if (replaceUrl === "content")
+                content(template, courseId, contentId);
+            else if (replaceUrl === "announcement")
+                announcement(template, courseId);
+            else if (replaceUrl === "iframe")
+                iframe(template, iframeSrc, title);
+        })
+        .catch(function (response) {
+            console.log(response.statusText);
+        });
 }
 
-// loads html from storage and puts in email 
+// loads html from storage, puts in email, render quick add calendar popup
 function processTemplate(template) {
     document.open()
     document.write(template)
@@ -152,15 +154,14 @@ function processTemplate(template) {
     render_calendar_addon();
 }
 
+// util function to make element from HTML
 function createElementFromHTML(htmlString) {
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
     return div.firstChild;
 }
 
-var loadedAnnouncements = false;
-var loadedAgenda = false;
-
+// util function to format date
 function formatDate(d) {
     var month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
@@ -174,6 +175,7 @@ function formatDate(d) {
     return [year, month, day].join('-');
 }
 
+// fetch week at a glance
 function processAgenda() {
     var lastSun = new Date();
     lastSun.setDate(lastSun.getDate() - lastSun.getDay());
@@ -213,6 +215,7 @@ function processAgenda() {
 
 }
 
+// logic for adding event to calendar
 function render_calendar_addon() {
     document.querySelector("#addEvent").addEventListener('click', function (event) {
         event.preventDefault();
@@ -253,7 +256,7 @@ function render_calendar_addon() {
     })
 }
 
-// all courses
+// dashboard page (home)
 function home(template) {
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template);
@@ -262,6 +265,7 @@ function home(template) {
         bbScrape.style.display = 'none';
         bbScrape.src = "https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
         document.getElementsByTagName("body")[0].appendChild(bbScrape);
+        document.title = "Dashboard";
 
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
@@ -308,6 +312,7 @@ function home(template) {
     })
 }
 
+// load the top announcement card sliders
 function loadAnnouncementCards() {
     if (courseIds.length == 0)
         return;
@@ -396,6 +401,7 @@ function course(template, courseId) {
     }).then(data => {
         processTemplate(template);
         document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
+        document.title = courseName;
         var allLinks = document.querySelector(".allLinks");
         for (var res of data["results"]) {
             var href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
@@ -427,10 +433,11 @@ function content(template, courseId, contentId) {
         var xmlString = data;
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
         document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
-
+        document.title = doc.getElementById("courseMenu_link").textContent;
         var list = doc.querySelectorAll("#content_listContainer > li");
         for (var item of list) {
 
+            // basic framework
             var newElement = createElementFromHTML(
                 `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
@@ -442,6 +449,7 @@ function content(template, courseId, contentId) {
                 </div>`
             );
 
+            // add link
             if (item.querySelector("div > h3 > a") && item.querySelector("div > h3 > a").hasAttribute("href")) {
                 var pushpin = createElementFromHTML(
                     `<i class="mdl-color-text--blue-grey-400 material-icons pin" 
@@ -465,6 +473,7 @@ function content(template, courseId, contentId) {
                 newElement.appendChild(read_more);
             }
 
+            // add attachments
             var attachments = item.querySelectorAll(".attachments > li");
             if (attachments && attachments.length != 0) {
                 attachments.forEach(file => {
@@ -485,6 +494,7 @@ function content(template, courseId, contentId) {
     });
 }
 
+// add link to pinned
 function addToLinks(link, courseId, name) {
     chrome.storage.sync.get({
         links: {}
@@ -505,6 +515,7 @@ function addToLinks(link, courseId, name) {
     });
 }
 
+// remove link from pinned
 function removeFromLinks(link, courseId, name) {
     chrome.storage.sync.get({
         links: {}
@@ -525,6 +536,7 @@ function removeFromLinks(link, courseId, name) {
     });
 }
 
+// fetch sidebar items for a course
 function fetchSidebarCourse(courseId) {
     var homeLink = document.querySelector(".allLinks");
     while (homeLink.children.length > 2) {
@@ -551,6 +563,8 @@ function fetchSidebarCourse(courseId) {
             var ul = doc.getElementById("courseMenuPalette_contents");
             if (ul) {
                 var li = ul.getElementsByTagName("li");
+
+                // add pinned links first
                 for (var pinned of newLinks) {
                     var element = createElementFromHTML(
                         `<div class="mdl-navigation__link" style="color: orange">
@@ -568,6 +582,7 @@ function fetchSidebarCourse(courseId) {
                     });
                 }
 
+                // then add course's own links
                 for (var i of li) {
                     var a = i.querySelector('a');
                     if (a) {
@@ -583,6 +598,7 @@ function fetchSidebarCourse(courseId) {
     });
 }
 
+// fetch list of courses for sidebar (home page and iframe)
 function fetchSidebarCourses() {
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
@@ -600,6 +616,7 @@ function fetchSidebarCourses() {
 
 var courseIds = {};
 
+// fetch list of courses
 function fetchCourseList() {
     return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
@@ -624,6 +641,7 @@ function fetchCourseList() {
     });
 }
 
+// announcement page (very similar to content, might improve later)
 function announcement(template, courseId) {
     fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
         .then(resp => resp.text()).then(data => {
@@ -631,7 +649,7 @@ function announcement(template, courseId) {
             var xmlString = data;
             var doc = new DOMParser().parseFromString(xmlString, "text/html");
             document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
-
+            document.title = doc.getElementById("courseMenu_link").textContent;
             var list = doc.querySelectorAll("#announcementList > li");
             for (var item of list) {
 
@@ -653,9 +671,11 @@ function announcement(template, courseId) {
         })
 }
 
+// fallback to links not implemented
 function iframe(template, iframeSrc, title) {
     processTemplate(template);
     document.getElementById('header_title').textContent = title;
+    document.title = title;
     var iframe = document.getElementById("iframe");
     iframe.src = iframeSrc;
     iframe.onload = function () {
@@ -663,6 +683,21 @@ function iframe(template, iframeSrc, title) {
         iframe.contentDocument.getElementById('navigationPane').style.display = "none";
         iframe.contentDocument.getElementById('breadcrumbs').style.display = "none";
         iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
+
+        // add grade percentage logic
+        if(title === "My Grades") {
+            iframe.contentDocument.querySelectorAll(".cell.grade").forEach(element => {
+                var g = element.querySelector(".grade")
+                var o = element.querySelector(".pointsPossible")
+                if(g && o) {
+                    var percentage = eval(g.textContent + o.textContent) * 100 + "%";
+                    var percentElement = createElementFromHTML(`
+                        <span class="grade" tabindex="0" style="font-weight: 300; color: black; font-size: 14px;">${percentage}</span>`
+                    )
+                    element.appendChild(percentElement);
+                }
+            });
+        }
     }
     return fetchSidebarCourses();
 }
