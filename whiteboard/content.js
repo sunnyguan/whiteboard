@@ -223,31 +223,33 @@ function render_calendar_addon() {
         var desc = document.getElementById("last").value;
         var start = document.getElementById("start").value + ":00"; // 2020-09-17T16:30:00
         var end = document.getElementById("end").value + ":01"; // 2020-09-17T17:00:00
-
-        return fetch("https://elearning.utdallas.edu/webapps/calendar/calendarData/event", {
-            "headers": {
-                "accept": "application/json, text/javascript, */*; q=0.01",
-                "accept-language": "en-US,en;q=0.9",
-                "blackboard.platform.security.nonceutil.nonce.ajax": "b7ea3963-e064-4f1a-a6cd-1b6c4650b03e",
-                "content-type": "application/json;charset=UTF-8",
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "same-origin",
-                "x-requested-with": "XMLHttpRequest"
-            },
-            "referrer": "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false",
-            "referrerPolicy": "no-referrer-when-downgrade",
-            "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}",
+        return fetch("https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
+            var id = data.match("nonceVal = \"(.*?)\"")[1];
+            return fetch("https://elearning.utdallas.edu/webapps/calendar/calendarData/event", {
+                "headers": {
+                    "accept": "application/json, text/javascript, */*; q=0.01",
+                    "accept-language": "en-US,en;q=0.9",
+                    "blackboard.platform.security.nonceutil.nonce.ajax": id,
+                    "content-type": "application/json;charset=UTF-8",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-requested-with": "XMLHttpRequest"
+                },
+                "referrer": "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false",
+                "referrerPolicy": "no-referrer-when-downgrade",
+                "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}",
                     "allDay":false,"recur":false,"freq":"WEEKLY","interval":"1","byDay":["TH"],"monthRepeatBy":"BYMONTHDAY",
                     "byMonthDay":"1","bySetPos":"1","endsBy":"COUNT","count":"10","untilDate":"2020-11-17T16:15:00"}`,
-            "method": "POST",
-            "mode": "cors",
-            "credentials": "include"
-        }).then(resp => resp.text()).then(data => {
-            console.log(data);
-            alert("Added!");
-            document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
-        }).catch(err => { console.log(err); alert("Error!"); })
+                "method": "POST",
+                "mode": "cors",
+                "credentials": "include"
+            }).then(resp => resp.text()).then(data => {
+                console.log(data);
+                alert("Added!");
+                document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
+            }).catch(err => { console.log(err); alert("Error!"); })
+        });
     });
 
     document.getElementById("hdrbtn").addEventListener('click', function (event) {
@@ -419,7 +421,7 @@ function course(template, courseId) {
                     </div>
                 </div>`
             );
-            
+
             allLinks.appendChild(newElement);
         }
         return fetchSidebarCourse(courseId);
@@ -627,7 +629,10 @@ function fetchCourseList() {
         var courses = [];
         for (var c of courseArr) {
             // NOTE: this could break if the 2208 pattern changes!
-            if (!c.course.courseId.startsWith('2208-')) continue;
+            console.log(c.course.availability);
+            console.log(c.course.name);
+            if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
+                continue;
             var newElement = {};
             newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
             newElement.textContent = c.course.name.split("-")[0]; // TODO figure out better way to trim course name
@@ -685,11 +690,11 @@ function iframe(template, iframeSrc, title) {
         iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
 
         // add grade percentage logic
-        if(title === "My Grades") {
+        if (title === "My Grades") {
             iframe.contentDocument.querySelectorAll(".cell.grade").forEach(element => {
                 var g = element.querySelector(".grade")
                 var o = element.querySelector(".pointsPossible")
-                if(g && o) {
+                if (g && o) {
                     var percentage = eval(g.textContent + o.textContent) * 100 + "%";
                     var percentElement = createElementFromHTML(`
                         <span class="grade" tabindex="0" style="font-weight: 300; color: black; font-size: 14px;">${percentage}</span>`
