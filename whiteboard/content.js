@@ -188,23 +188,35 @@ function processAgenda() {
 
     return fetch("https://elearning.utdallas.edu/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
         if ("results" in data) {
+            console.log(data);
             for (var cls of data["results"]) {
                 var name = cls.title;
                 var course = cls.calendarName.split(".")[0];
                 var color = cls.color;
+                var id = cls.id;
                 var dateStart = cls.start.split("T")[0];
                 var jsDate = new Date(cls.end);
                 jsDate.setTime(jsDate.getTime() - 5 * 60 * 60 * 1000);
                 var dist = jsDate.getDay();
                 if (jsDate.getTime() > lastSun.getTime() && jsDate.getTime() < nextSun.getTime()) {
-                    var newElement = createElementFromHTML(`<p class="employee design box" style="white-space: pre; background-color: ${color}; font-size: 12px">Saturday</p>`);
                     var processName = name;
                     if (processName.length > 15) {
                         processName = processName.substring(0, 18) + "...";
                     }
-                    newElement.textContent = processName + "\n" + course;
+                    var newElement = createElementFromHTML(`
+                        <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
+                            <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
+                                href="https://elearning.utdallas.edu/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
+                        </p>
+                    `);
+                    if("dynamicCalendarItemProps" in cls) {
+                        newElement.style.cursor = "pointer";
+                    } else {
+                        newElement.style.cursor = "initial";
+                        newElement.querySelector(".directLink").addEventListener('click', function(e) {e.preventDefault(); });
+                        newElement.querySelector(".directLink").href = "";
+                    }
                     document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
-
                     window.getComputedStyle(newElement).opacity; // added
                     newElement.className += ' in';
                 }
