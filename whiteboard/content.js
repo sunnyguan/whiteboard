@@ -209,11 +209,11 @@ function processAgenda() {
                                 href="https://elearning.utdallas.edu/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
                         </p>
                     `);
-                    if("dynamicCalendarItemProps" in cls) {
+                    if ("dynamicCalendarItemProps" in cls) {
                         newElement.style.cursor = "pointer";
                     } else {
                         newElement.style.cursor = "initial";
-                        newElement.querySelector(".directLink").addEventListener('click', function(e) {e.preventDefault(); });
+                        newElement.querySelector(".directLink").addEventListener('click', function (e) { e.preventDefault(); });
                         newElement.querySelector(".directLink").href = "";
                     }
                     document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
@@ -322,8 +322,87 @@ function home(template) {
             // newElement.querySelector(".groupContent").textContent = "Course content goes here"; // what to put here?
             document.querySelector(".groupAll").appendChild(newElement);
         }
-        return processAgenda().then(data => { return fetchSidebarCourses().then(resp => { return loadAnnouncementCards(); }) });
+        return processAgenda().then(data => { return fetchSidebarCourses().then(resp => { return fetchGrades().then(text => { return loadAnnouncementCards(); }) }) });
     })
+}
+
+function gradeToColor(grade, def, convert = false) {
+    var colorClass = def;
+    try {
+        var evaluated = eval(grade);
+        evaluated = Math.round((evaluated + Number.EPSILON) * 10000) / 10000
+        var newGrade = evaluated * 100;
+        if (newGrade < 80)
+            colorClass = "success3";
+        else if (newGrade < 90)
+            colorClass = "success2";
+        if(convert) grade = newGrade;
+    } catch (err) { }
+    return {"grade": grade, "color": colorClass};
+}
+
+function fetchGrades() {
+    console.log(courseIds);
+    var promises = [];
+    for (var courseId in courseIds) {
+        promises.push(`https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
+    }
+
+    return Promise.all(promises.map(url => fetch(url).then(resp => resp.text()).then(res => {
+        var doc = new DOMParser().parseFromString(res, "text/html");
+        console.log(doc);
+        var script = doc.createElement("script");
+        script.text = "mygrades.sort('sortByLastActivity', true)";
+        doc.head.appendChild(script).parentNode.removeChild(script);
+        console.log(doc);
+
+        var overallRows = doc.querySelector(".calculatedRow > .cell.grade");
+        var courseId = url.split("?course_id=")[1].split("&")[0];
+        var grade = "N/A";
+        if (overallRows && overallRows.textContent.trim() !== "-") {
+            grade = overallRows.textContent.trim();
+        }
+        if (grade !== "N/A") {
+            var converted = gradeToColor(grade, "success", true);
+            var colorClassOverall = converted["color"];
+            grade = converted["grade"];
+
+            var lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
+            var convertedLast = gradeToColor(lastGrade, "success");
+            var lastGradeColor = convertedLast["color"];
+            lastGrade = convertedLast["grade"];
+
+            var lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
+            if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
+
+            var newElement = createElementFromHTML(
+                `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard">
+                    <div class="status success"></div>
+                    <div class="detail">
+                        <div class="mdl-grid">
+                            <div class="mdl-cell mdl-cell--4-col block" style="color: black;">
+                                <div style="text-align: left;">
+                                    <h3 style="font-weight: 100;">${courseIds[courseId]}</h3>
+                                </div>
+                            </div>
+                            <div class="mdl-cell mdl-cell--6-col block ${lastGradeColor}" style="margin: 2px 0px 0px 8px;">
+                                <div style="margin: auto;float: right;">
+                                <h4 style="font-weight: 100; margin: 0;">${lastHW}</h4>
+                                    <h4 style="font-weight: 100; margin: 0;">${lastGrade}</h4>
+                                </div>
+                            </div>
+                            <div class="mdl-cell mdl-cell--2-col block ${colorClassOverall} overall" style="margin: 2px 0px 0px 8px;">
+                                <div style="margin: auto;float: right;">
+                                    <h4 style="font-weight: 100; margin: 0;">${grade}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+            );
+            document.querySelector(".gradeAll").appendChild(newElement);
+        }
+    })));
 }
 
 // load the top announcement card sliders
@@ -647,11 +726,11 @@ function fetchCourseList() {
                 continue;
             var newElement = {};
             newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
-            newElement.textContent = c.course.name.split("-")[0]; // TODO figure out better way to trim course name
+            newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
             courses.push(newElement);
 
             if (!(c.course.id in courseIds)) {
-                courseIds[c.course.id] = c.course.name.split("-")[0];
+                courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
             }
         }
         return courses;

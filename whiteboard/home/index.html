@@ -571,9 +571,82 @@
       -ms-flex-align: center;
       align-items: center;
     }
-    
+
     .mdl-card__supporting-text {
       width: 100%;
+    }
+
+    .dashboard {
+      cursor: pointer;
+      position: relative;
+      /*     min-height: 102px;  */
+      background-color: white;
+      display: inline-block;
+    }
+
+    .dashboard .status {
+      z-index: 1;
+      background-color: #FFEB3B;
+      float: left;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      min-height: 52px;
+      width: 25px;
+    }
+
+    .status.failed,
+    .block.failed {
+      background-color: orange !important;
+    }
+
+    .status.success,
+    .block.success {
+      background-color: #4CAF50 !important;
+    }
+
+    .success2 {
+      background-color: #FFC45F !important;
+    }
+
+    .success3 {
+      background-color: #FF6B6B !important;
+    }
+
+    .dashboard .detail {
+      z-index: 2;
+      float: right;
+      height: 100%;
+      width: calc(100% - 25px);
+    }
+
+    .detail h4 {
+      margin-top: 0;
+    }
+
+    .block {
+      /*   box-shadow: 0 2px 5px rgba(0,0,0,0.26); */
+      text-align: right;
+      color: black;
+      padding-left: 10px;
+      padding-right: 10px;
+      border-radius: 5px;
+    }
+
+    .overall {
+      display: flex;
+    }
+
+    .block h3 {
+      margin: 5px 0;
+    }
+
+    .block h6 {
+      margin: 6px 0 10px;
+    }
+
+    .block.total {
+      background-color: #9E9E9E;
     }
   </style>
 </head>
@@ -595,7 +668,7 @@
 
 
       <div class="mdl-card__supporting-text">
-        
+
         <form action="">
 
           <div id="name">
@@ -624,9 +697,9 @@
           </button>
         </form>
       </div>
-      
-      </div>
+
     </div>
+  </div>
 
   </div>
 
@@ -780,6 +853,31 @@
               </div>
 
             </div>
+          </div>
+        </div>
+
+        <div class="gradeAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard">
+            <div class="status success"></div>
+              <div class="detail">
+                  <div class="mdl-grid">
+                      <div class="mdl-cell mdl-cell--4-col block" style="color: black;">
+                          <div style="text-align: left;">
+                              <h3 style="font-weight: 300;">Course Name</h3>
+                          </div>
+                      </div>
+                      <div class="mdl-cell mdl-cell--6-col block" style="margin: 2px 0px 0px 8px;">
+                          <div style="margin: auto;float: right; display:table; height:100%;">
+                            <h4 style="font-weight: 100; margin: 0; display: table-cell; vertical-align: middle;">Latest Grade</h4>
+                          </div>
+                      </div>
+                      <div class="mdl-cell mdl-cell--2-col block" style="margin: 2px 0px 0px 8px; display: flex;">
+                          <div style="margin: auto;float: right;">
+                              <h4 style="font-weight: 100; margin: 0;">Overall (%)</h4>
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
         </div>
 
