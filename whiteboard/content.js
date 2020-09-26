@@ -332,9 +332,9 @@ function gradeToColor(grade, def, convert = false) {
         var evaluated = eval(grade);
         evaluated = Math.round((evaluated + Number.EPSILON) * 10000) / 10000
         var newGrade = evaluated * 100;
-        if (newGrade < 80)
+        if (newGrade < 96)
             colorClass = "success3";
-        else if (newGrade < 90)
+        else if (newGrade < 97)
             colorClass = "success2";
         if(convert) grade = newGrade;
     } catch (err) { }
@@ -359,22 +359,31 @@ function fetchGrades() {
         var overallRows = doc.querySelector(".calculatedRow > .cell.grade");
         var courseId = url.split("?course_id=")[1].split("&")[0];
         var grade = "N/A";
+        var colorClassOverall = "success";
         if (overallRows && overallRows.textContent.trim() !== "-") {
             grade = overallRows.textContent.trim();
         }
         if (grade !== "N/A") {
             var converted = gradeToColor(grade, "success", true);
-            var colorClassOverall = converted["color"];
+            colorClassOverall = converted["color"];
             grade = converted["grade"];
+        }
 
-            var lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
+        var lastGradeElement = doc.querySelector(".graded_item_row > div.cell.grade");
+        var lastGrade = "N/A";
+        var lastHW = "N/A";
+        var lastGradeColor = "success";
+        if(lastGradeElement) {
+            lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
             var convertedLast = gradeToColor(lastGrade, "success");
-            var lastGradeColor = convertedLast["color"];
+            lastGradeColor = convertedLast["color"];
             lastGrade = convertedLast["grade"];
 
-            var lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
+            lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
             if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
+        }
 
+        if(lastGrade !== "N/A" || grade !== "N/A") {
             var newElement = createElementFromHTML(
                 `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard">
                     <div class="status success"></div>
