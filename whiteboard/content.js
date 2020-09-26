@@ -332,13 +332,13 @@ function gradeToColor(grade, def, convert = false) {
         var evaluated = eval(grade);
         evaluated = Math.round((evaluated + Number.EPSILON) * 10000) / 10000
         var newGrade = evaluated * 100;
-        if (newGrade < 96)
+        if (newGrade < 80)
             colorClass = "success3";
-        else if (newGrade < 97)
+        else if (newGrade < 90)
             colorClass = "success2";
-        if(convert) grade = newGrade;
+        if (convert) grade = newGrade;
     } catch (err) { }
-    return {"grade": grade, "color": colorClass};
+    return { "grade": grade, "color": colorClass };
 }
 
 function fetchGrades() {
@@ -371,7 +371,7 @@ function fetchGrades() {
         var lastGrade = "N/A";
         var lastHW = "N/A";
         var lastGradeColor = "success";
-        if(lastGradeElement) {
+        if (lastGradeElement) {
             lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
             var convertedLast = gradeToColor(lastGrade, "success");
             lastGradeColor = convertedLast["color"];
@@ -381,7 +381,7 @@ function fetchGrades() {
             if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
         }
 
-        if(lastGrade !== "N/A" || grade !== "N/A") {
+        if (lastGrade !== "N/A" || grade !== "N/A") {
             var newElement = createElementFromHTML(
                 `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" onclick="location.href='${url}'">
                     <div class="status success"></div>
@@ -799,7 +799,7 @@ function iframe(template, iframeSrc, title) {
                             <span class="grade" tabindex="0" style="font-weight: 300; color: black; font-size: 14px;">${percentage}</span>`
                         )
                         element.appendChild(percentElement);
-                    } catch(err) {}
+                    } catch (err) { }
                 }
             });
         }
