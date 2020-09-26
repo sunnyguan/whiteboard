@@ -176,7 +176,9 @@
     .demo-navigation .mdl-navigation__link .material-icons {
       font-size: 24px;
       color: rgba(255, 255, 255, 0.56);
-      margin-right: 10px; margin-bottom: 4px;;
+      margin-right: 10px;
+      margin-bottom: 4px;
+      ;
     }
 
     .demo-content {
@@ -313,94 +315,193 @@
     }
   </style>
   <style>
-    main {
-      background-color: #34495e;
-      text-align: center;
+    .cat {
+      position: relative;
+      width: 100%;
+      max-width: 20em;
+      overflow: hidden;
+      background-color: #e6dcdc;
+    }
+
+    .cat::before {
+      content: '';
+      display: block;
+      padding-bottom: 100%;
+    }
+
+    .cat:hover>* {
+      -webkit-animation-play-state: paused;
+      animation-play-state: paused;
+    }
+
+    .cat:active>* {
+      -webkit-animation-play-state: running;
+      animation-play-state: running;
+    }
+
+    .cat__head,
+    .cat__tail,
+    .cat__body {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      -webkit-animation: rotating 2.79s cubic-bezier(0.65, 0.54, 0.12, 0.93) infinite;
+      animation: rotating 2.79s cubic-bezier(0.65, 0.54, 0.12, 0.93) infinite;
+    }
+
+    .cat__head::before,
+    .cat__tail::before,
+    .cat__body::before {
+      content: '';
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background-size: 200%;
+      background-repeat: no-repeat;
+      background-image: url("https://images.weserv.nl/?url=i.imgur.com/M1raXX3.png&il");
+    }
+
+    .cat__head::before {
+      top: 0;
+      right: 0;
+      background-position: 100% 0%;
+      -webkit-transform-origin: 0% 100%;
+      transform-origin: 0% 100%;
+      -webkit-transform: rotate(90deg);
+      transform: rotate(90deg);
+    }
+
+    .cat__tail {
+      -webkit-animation-delay: .2s;
+      animation-delay: .2s;
+    }
+
+    .cat__tail::before {
+      left: 0;
+      bottom: 0;
+      background-position: 0% 100%;
+      -webkit-transform-origin: 100% 0%;
+      transform-origin: 100% 0%;
+      -webkit-transform: rotate(-30deg);
+      transform: rotate(-30deg);
+    }
+
+    .cat__body {
+      -webkit-animation-delay: .1s;
+      animation-delay: .1s;
+    }
+
+    .cat__body:nth-of-type(2) {
+      -webkit-animation-delay: .2s;
+      animation-delay: .2s;
+    }
+
+    .cat__body::before {
+      right: 0;
+      bottom: 0;
+      background-position: 100% 100%;
+      -webkit-transform-origin: 0% 0%;
+      transform-origin: 0% 0%;
+    }
+
+    @-webkit-keyframes rotating {
+      from {
+        -webkit-transform: rotate(720deg);
+        transform: rotate(720deg);
+      }
+
+      to {
+        -webkit-transform: none;
+        transform: none;
+      }
+    }
+
+    @keyframes rotating {
+      from {
+        -webkit-transform: rotate(720deg);
+        transform: rotate(720deg);
+      }
+
+      to {
+        -webkit-transform: none;
+        transform: none;
+      }
+    }
+
+    .box {
+      height: 100%;
       display: -webkit-box;
       display: flex;
+      -webkit-box-flex: 1;
+      flex: 1;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      -webkit-box-pack: start;
+      justify-content: flex-start;
       -webkit-box-pack: center;
       justify-content: center;
       -webkit-box-align: center;
       align-items: center;
-      height: 100%;
+      background-color: #e6dcdc;
+    }
+
+    *,
+    *::before,
+    *::after {
       margin: 0;
-      display: flex !important;
-      justify-content: center !important;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .hollowLoader {
-      width: 7em;
-      height: 7em;
-      -webkit-animation: loaderAnim 1.25s infinite ease-in-out;
-      animation: loaderAnim 1.25s infinite ease-in-out;
-      outline: 1px solid transparent;
+    html {
+      height: 100%;
     }
 
-    .hollowLoader .largeBox {
-      height: 7em;
-      width: 7em;
-      background-color: #34495e;
-      outline: 1px solid transparent;
-      position: fixed;
+    body {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      min-height: 100%;
+      margin: 0;
+      line-height: 1.4;
     }
 
-    .hollowLoader .smallBox {
-      height: 7em;
-      width: 7em;
-      background-color: #ECECEC;
-      position: fixed;
-      z-index: 1;
-      outline: 1px solid transparent;
-      -webkit-animation: smallBoxAnim 1.25s alternate infinite ease-in-out;
-      animation: smallBoxAnim 1.25s alternate infinite ease-in-out;
+    .intro {
+      width: 90%;
+      max-width: 36rem;
+      padding-bottom: 1rem;
+      margin: 0 auto 1em;
+      padding-top: .5em;
+      font-size: calc(1rem + 2vmin);
+      text-transform: capitalize;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+      text-align: center;
     }
 
-    @-webkit-keyframes smallBoxAnim {
-      0% {
-        -webkit-transform: scale(0.2);
-        transform: scale(0.2);
-      }
-
-      100% {
-        -webkit-transform: scale(0.75);
-        transform: scale(0.75);
-      }
+    .intro small {
+      display: block;
+      opacity: .5;
+      font-style: italic;
+      text-transform: none;
     }
 
-    @keyframes smallBoxAnim {
-      0% {
-        -webkit-transform: scale(0.2);
-        transform: scale(0.2);
-      }
-
-      100% {
-        -webkit-transform: scale(0.75);
-        transform: scale(0.75);
-      }
+    .info {
+      margin: 0;
+      padding: 1em;
+      font-size: .9em;
+      font-style: italic;
+      font-family: serif;
+      text-align: right;
+      opacity: .5;
     }
 
-    @-webkit-keyframes loaderAnim {
-      0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-      }
-    }
-
-    @keyframes loaderAnim {
-      0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-      }
+    .info a {
+      color: inherit;
     }
   </style>
 </head>
@@ -412,7 +513,7 @@
         <span id="header_title" class="mdl-layout-title">Home</span>
         <div class="mdl-layout-spacer"></div>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-          
+
           <div class="mdl-textfield__expandable-holder">
             <input class="mdl-textfield__input" type="text" id="search">
             <label class="mdl-textfield__label" for="search">Enter your query...</label>
@@ -452,15 +553,20 @@
         <a class="mdl-navigation__link"
           href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1">
           <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-          <div class="mdl-layout-spacer"></div>
-          <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i class="mdl-color-text--blue-grey-400 material-icons"
-              role="presentation">calendar_today</i>Calendar<span class="visuallyhidden">Calendar</span></a>
+        <div class="mdl-layout-spacer"></div>
+        <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i
+            class="mdl-color-text--blue-grey-400 material-icons" role="presentation">calendar_today</i>Calendar<span
+            class="visuallyhidden">Calendar</span></a>
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
-      <div class="hollowLoader">
-        <div class="largeBox"></div>
-        <div class="smallBox"></div>
+      <div class="box">
+        <div class="cat">
+          <div class="cat__body"></div>
+          <div class="cat__body"></div>
+          <div class="cat__tail"></div>
+          <div class="cat__head"></div>
+        </div>
       </div>
     </main>
   </div>
