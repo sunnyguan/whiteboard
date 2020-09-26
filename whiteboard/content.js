@@ -12,7 +12,6 @@ function start() {
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
         .then(template => {
-            console.log(template);
             document.getElementsByTagName("html")[0].innerHTML = template;
         });
 
@@ -571,6 +570,7 @@ function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").setAttribute("title", item.querySelector("div > h3").textContent);
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
+                    console.log(t);
                     addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
                 });
                 newElement.appendChild(read_more);
@@ -599,16 +599,20 @@ function content(template, courseId, contentId) {
 
 // add link to pinned
 function addToLinks(link, courseId, name) {
-    chrome.storage.sync.get({
-        links: {}
-    }, function (result) {
-        var newlinks = result.links;
-        if (!(courseId in newlinks)) {
-            newlinks[courseId] = [];
+    chrome.storage.local.get({links: {}}, function (result) {
+        console.log(result);
+        var newlinks = {};
+        if(result.links !== {}) {
+            newlinks = result.links;
+            if (!(courseId in newlinks)) {
+                newlinks[courseId] = [];
+            }
+            newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
+            newlinks[courseId].push({ link: link, title: name });
+        } else {
+            newlinks[courseId] = [{ link: link, title: name }];
         }
-        newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
-        newlinks[courseId].push({ link: link, title: name });
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             links: newlinks
         }, function () {
             console.log("new link added");
@@ -620,7 +624,7 @@ function addToLinks(link, courseId, name) {
 
 // remove link from pinned
 function removeFromLinks(link, courseId, name) {
-    chrome.storage.sync.get({
+    chrome.storage.local.get({
         links: {}
     }, function (result) {
         var newlinks = result.links;
@@ -629,7 +633,7 @@ function removeFromLinks(link, courseId, name) {
         newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
         console.log(newlinks[courseId]);
         console.log({ link: link, title: name });
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             links: newlinks
         }, function () {
             console.log("link removed");
@@ -645,12 +649,10 @@ function fetchSidebarCourse(courseId) {
     while (homeLink.children.length > 2) {
         homeLink.removeChild(homeLink.lastChild);
     }
-
-    chrome.storage.sync.get({
-        links: {}
-    }, function (result) {
+    chrome.storage.local.get('links', function (result) {
+        console.log(result);
         var newLinks = [];
-        if (courseId in result.links) {
+        if (result && courseId in result.links) {
             var links = result.links[courseId];
             if (links.length != 0) {
                 console.log(links);
@@ -659,7 +661,6 @@ function fetchSidebarCourse(courseId) {
                 console.log("links is empty!");
             }
         }
-
         return fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
             var xmlString = html;
             var doc = new DOMParser().parseFromString(xmlString, "text/html");
