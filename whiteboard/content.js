@@ -155,7 +155,7 @@ function processTemplate(template) {
 }
 
 // util function to make element from HTML
-function createElementFromHTML(htmlString) {
+function createElementFromHTML(htmlString) { 
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
     return div.firstChild;
@@ -322,7 +322,8 @@ function home(template) {
             // newElement.querySelector(".groupContent").textContent = "Course content goes here"; // what to put here?
             document.querySelector(".groupAll").appendChild(newElement);
         }
-        return processAgenda().then(data => { return fetchSidebarCourses().then(resp => { return fetchGrades().then(text => { return loadAnnouncementCards(); }) }) });
+        
+        return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
     })
 }
 
@@ -371,30 +372,35 @@ function fetchGrades() {
         var lastGrade = "N/A";
         var lastHW = "N/A";
         var lastGradeColor = "success";
+        var date = "No date information.";
         if (lastGradeElement) {
             lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
             var convertedLast = gradeToColor(lastGrade, "success");
             lastGradeColor = convertedLast["color"];
             lastGrade = convertedLast["grade"];
-
+            var dateElement = doc.querySelector("div.cell.activity.timestamp > span.lastActivityDate");
+            if(dateElement) {
+                date = dateElement.textContent;
+            }
             lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
             if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
         }
 
         if (lastGrade !== "N/A" || grade !== "N/A") {
             var newElement = createElementFromHTML(
-                `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" onclick="location.href='${url}'">
+                `<div class="zoomDiv mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" onclick="location.href='${url}'">
                     <div class="status success"></div>
                     <div class="detail">
                         <div class="mdl-grid">
                             <div class="mdl-cell mdl-cell--4-col block" style="color: black;">
                                 <div style="text-align: left;">
                                     <h3 style="font-weight: 100;">${courseIds[courseId]}</h3>
+                                    <h5 style="font-weight: 100; margin: 0 0 0 2px;">${date}</h5>
                                 </div>
                             </div>
-                            <div class="mdl-cell mdl-cell--6-col block ${lastGradeColor}" style="margin: 2px 0px 0px 8px;">
-                                <div style="margin: auto;float: right;">
-                                <h4 style="font-weight: 100; margin: 0;">${lastHW}</h4>
+                            <div class="mdl-cell mdl-cell--6-col block ${lastGradeColor}" style="margin: 2px 0px 0px 8px; display: flex;">
+                                <div style="margin: auto;float: right; width: 100%;">
+                                    <h4 style="font-weight: 100; margin: 0;">${lastHW}</h4>
                                     <h4 style="font-weight: 100; margin: 0;">${lastGrade}</h4>
                                 </div>
                             </div>
