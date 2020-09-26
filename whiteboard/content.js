@@ -139,7 +139,7 @@ function replacePage() {
                 iframe(template, iframeSrc, title);
         })
         .catch(function (response) {
-            console.log(response.statusText);
+            // console.log(response.statusText);
         });
 }
 
@@ -149,7 +149,7 @@ function processTemplate(template) {
     document.write(template)
     document.close()
     var emailElement = document.getElementById("student-email");
-    console.log(emailElement.innerText);
+    // console.log(emailElement.innerText);
     emailElement.innerText = email;
     render_calendar_addon();
 }
@@ -188,7 +188,7 @@ function processAgenda() {
 
     return fetch("https://elearning.utdallas.edu/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
         if ("results" in data) {
-            console.log(data);
+            // console.log(data);
             for (var cls of data["results"]) {
                 var name = cls.title;
                 var course = cls.calendarName.split(".")[0];
@@ -257,7 +257,7 @@ function render_calendar_addon() {
                 "mode": "cors",
                 "credentials": "include"
             }).then(resp => resp.text()).then(data => {
-                console.log(data);
+                // console.log(data);
                 alert("Added!");
                 document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
             }).catch(err => { console.log(err); alert("Error!"); })
@@ -342,7 +342,7 @@ function gradeToColor(grade, def, convert = false) {
 }
 
 function fetchGrades() {
-    console.log(courseIds);
+    // console.log(courseIds);
     var promises = [];
     for (var courseId in courseIds) {
         promises.push(`https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
@@ -350,11 +350,9 @@ function fetchGrades() {
 
     return Promise.all(promises.map(url => fetch(url).then(resp => resp.text()).then(res => {
         var doc = new DOMParser().parseFromString(res, "text/html");
-        console.log(doc);
         var script = doc.createElement("script");
         script.text = "mygrades.sort('sortByLastActivity', true)";
         doc.head.appendChild(script).parentNode.removeChild(script);
-        console.log(doc);
 
         var overallRows = doc.querySelector(".calculatedRow > .cell.grade");
         var courseId = url.split("?course_id=")[1].split("&")[0];
@@ -385,7 +383,7 @@ function fetchGrades() {
 
         if(lastGrade !== "N/A" || grade !== "N/A") {
             var newElement = createElementFromHTML(
-                `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard">
+                `<div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" onclick="location.href='${url}'">
                     <div class="status success"></div>
                     <div class="detail">
                         <div class="mdl-grid">
@@ -729,8 +727,8 @@ function fetchCourseList() {
         var courses = [];
         for (var c of courseArr) {
             // NOTE: this could break if the 2208 pattern changes!
-            console.log(c.course.availability);
-            console.log(c.course.name);
+            // console.log(c.course.availability);
+            // console.log(c.course.name);
             if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
                 continue;
             var newElement = {};
@@ -795,11 +793,13 @@ function iframe(template, iframeSrc, title) {
                 var g = element.querySelector(".grade")
                 var o = element.querySelector(".pointsPossible")
                 if (g && o) {
-                    var percentage = eval(g.textContent + o.textContent) * 100 + "%";
-                    var percentElement = createElementFromHTML(`
-                        <span class="grade" tabindex="0" style="font-weight: 300; color: black; font-size: 14px;">${percentage}</span>`
-                    )
-                    element.appendChild(percentElement);
+                    try {
+                        var percentage = eval(g.textContent + o.textContent) * 100 + "%";
+                        var percentElement = createElementFromHTML(`
+                            <span class="grade" tabindex="0" style="font-weight: 300; color: black; font-size: 14px;">${percentage}</span>`
+                        )
+                        element.appendChild(percentElement);
+                    } catch(err) {}
                 }
             });
         }
