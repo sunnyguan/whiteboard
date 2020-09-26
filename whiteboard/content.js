@@ -6,16 +6,14 @@ if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
 }
 
 // for displaying user info, might add more uses later
-var id = "";
+var user_id = "";
 var email = "";
-
 function start() {
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
         .then(template => {
-            document.open()
-            document.write(template)
-            document.close()
+            console.log(template);
+            document.getElementsByTagName("html")[0].innerHTML = template;
         });
 
     console.log("Fetching your unique id...")
@@ -34,7 +32,7 @@ function getUserId(result) {
     } else {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
         console.log(email);
-        id = avatarid[1];
+        user_id = avatarid[1];
         replacePage();
     }
 }
@@ -145,9 +143,7 @@ function replacePage() {
 
 // loads html from storage, puts in email, render quick add calendar popup
 function processTemplate(template) {
-    document.open()
-    document.write(template)
-    document.close()
+    document.getElementsByTagName("html")[0].innerHTML = template;
     var emailElement = document.getElementById("student-email");
     // console.log(emailElement.innerText);
     emailElement.innerText = email;
@@ -272,7 +268,8 @@ function render_calendar_addon() {
 
 // dashboard page (home)
 function home(template) {
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    console.log(user_id);
+    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template);
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
@@ -724,7 +721,7 @@ var courseIds = {};
 
 // fetch list of courses
 function fetchCourseList() {
-    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
 
         courseArr.sort(function (a, b) {
