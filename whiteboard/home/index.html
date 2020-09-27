@@ -656,6 +656,7 @@
 
     .no-dec-link {
       text-decoration: none;
+      white-space: nowrap;
       color: inherit;
     }
 
@@ -861,6 +862,7 @@
       border: none;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
 
     .mdl-layout__drawer .mdl-menu__container {
@@ -1014,28 +1016,27 @@
       background: rgba(255, 255, 255, 0.1);
     }
   </style>
+  <style>
+    #mycard {
+      margin: 1em;
+      position: absolute;
+      right: 1em;
+      top: 4em;
+      /* left: 0; */
+      z-index: 100;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="mycard" style="
-    margin: 1em;
-    position: absolute;
-    right: 1em;
-    top: 4em;
-    /* left: 0; */
-    z-index: 100;
-    display: none;
-">
+  <div id="mycard">
     <div class="demo-card-wide mdl-card mdl-shadow--2dp">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Add Event</h2>
       </div>
-
-
       <div class="mdl-card__supporting-text">
-
         <form action="">
-
           <div id="name">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <label class="mdl-textfield--floating-label has-placeholder" for="sample3">Event Title</label>
@@ -1046,7 +1047,6 @@
               <input class="mdl-textfield__input" type="text" id="last">
             </div>
           </div>
-
           <div id="time">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <label class="mdl-textfield--floating-label has-placeholder" for="sample3">Start Time</label>
@@ -1062,7 +1062,6 @@
           </button>
         </form>
       </div>
-
     </div>
   </div>
 
@@ -1128,195 +1127,10 @@
     </div>
 
 
-    <!-- <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-    <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
-      <div class="mdl-layout__header-row">
-        <span id="header_title" class="mdl-layout-title">Home</span>
-        <div class="mdl-layout-spacer"></div>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-          <div class="mdl-textfield__expandable-holder">
-            <input class="mdl-textfield__input" type="text" id="search">
-            <label class="mdl-textfield__label" for="search">Enter your query...</label>
-          </div>
-        </div>
-        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
-          <i class="material-icons">note_add</i>
-        </button>
-        <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
-          <li class="mdl-menu__item">About</li>
-          <li class="mdl-menu__item">Contact</li>
-          <li class="mdl-menu__item">Legal information</li>
-        </ul>
-      </div>
-    </header>
-    <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50"
-      style="overflow-x: hidden">
-      <header class="demo-drawer-header">
-        <img style="content:url('https://avatars2.githubusercontent.com/u/19920441?s=60&v=4')" class="demo-avatar">
-        <div class="demo-avatar-dropdown">
-          <span id="student-email" style="
-    font-family: Roboto;
-    font-weight: 300;
-">hello@example.com</span>
-          <div class="mdl-layout-spacer"></div>
-          <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">arrow_drop_down</i>
-            <span class="visuallyhidden">Accounts</span>
-          </button>
-          <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-            <li class="mdl-menu__item">hello@example.com</li>
-            <li class="mdl-menu__item">info@example.com</li>
-            <li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
-          </ul>
-        </div>
-      </header>
-      <nav class="allLinks demo-navigation mdl-navigation mdl-color--blue-grey-800">
-        <a class="mdl-navigation__link"
-          href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1">
-          <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-        <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i
-            class="mdl-color-text--blue-grey-400 material-icons" role="presentation">calendar_today</i>Calendar<span
-            class="visuallyhidden">Calendar</span></a>
-      </nav>
-    </div> -->
     <main class="mdl-layout__content mdl-color--grey-100">
-      <div class="mdl-grid demo-content">
-        <div id="announcementDiv"
-          class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div id="announcementLoad" style="width: 100%; text-align: center;">
-            Loading Announcements...
-          </div>
-        </div>
-
-        <!-- <ul id="announcementUl" class="demo-list-three mdl-list mdl-shadow--2dp" style="
-          background-color: white;
-          width: 100%;
-          margin: 8px;
-          text-align: center;
-        ">
-          <li id="announcementLoad">
-            Loading Announcements...
-          </li>
-        </ul> -->
-        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"
-          style="padding: 15px">
-          <div class="container">
-
-            <header>
-              <h3 style="font-family: Roboto; font-weight: 300;">Week at a Glance</h2>
-            </header>
-            <div class="grid-calendar" style="margin: auto;">
-
-            </div>
-            <div class="grid-calendar" style="margin: auto;">
-
-              <div class="row calendar-week" id="style-9">
-
-                <!-- SEGUNDA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Sunday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- TERÇA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Monday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUARTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Tuesday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Wednesday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Thursday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Friday</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- QUINTA-FEIRA -->
-                <div class="col-xs-1 grid-cell">
-                  <div class="day">
-                    <div>
-                      <p class="employee design">Saturday</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <div class="gradeAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" style="cursor: auto !important;">
-            <div class="status success"></div>
-            <div class="detail">
-              <div class="mdl-grid">
-                <div class="mdl-cell mdl-cell--4-col block" style="color: black;">
-                  <div style="text-align: left;">
-                    <h3 style="font-weight: 300;">Course Name</h3>
-                    <h5 style="font-weight: 100; margin: 0 0 0 2px;">Last Updated</h5>
-                  </div>
-                </div>
-                <div class="mdl-cell mdl-cell--6-col block" style="margin: 2px 0px 0px 8px;">
-                  <div style="margin: auto;float: right; display:table; height:100%;">
-                    <h4
-                      style="font-weight: 100; margin: 0; display: table-cell; vertical-align: middle; color: black !important;">
-                      Latest Grade</h4>
-                  </div>
-                </div>
-                <div class="mdl-cell mdl-cell--2-col block" style="margin: 2px 0px 0px 8px; display: flex;">
-                  <div style="margin: auto;float: right;">
-                    <h4 style="font-weight: 100; margin: 0; color: black !important;">Overall (%)</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="courseAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-        </div>
-
-        <div class="groupAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-        </div>
-
-      </div>
+      
     </main>
+
   </div>
   <script src="chrome-extension://dgoddhbeomdbphldifclnhofannfnpcd/home/external/material.min.js" async></script>
 </body>

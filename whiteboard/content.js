@@ -32,7 +32,7 @@ function getUserId(result) {
     var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
     var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
     // src="/avatar/default_user?ts=1525262400000"  <- note: needs to also match this for default avatar
-    
+
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
@@ -124,7 +124,7 @@ function replacePage() {
         replaceUrl = "iframe";
     }
 
-    fetch(chrome.extension.getURL(replaceUrl + "/index.html"))
+    fetch(chrome.extension.getURL("home/index.html"))
         .then(function (response) {
             switch (response.status) {
                 case 200:
@@ -150,7 +150,7 @@ function replacePage() {
         });
 }
 
-function refreshNavLinks(def=true) {
+function refreshNavLinks(def = true) {
     var names = def ? "" : ".newSubnav";
     var navListWithSubNav = document.querySelectorAll('.mdl-navigation__list .has-subnav' + names);
     Array.from(navListWithSubNav).forEach(function (item) {
@@ -178,8 +178,10 @@ function refreshNavLinks(def=true) {
 }
 
 // loads html from storage, puts in email, render quick add calendar popup
-function processTemplate(template) {
+function processTemplate(template, main) {
     document.getElementsByTagName("html")[0].innerHTML = template;
+    document.querySelector("main").innerHTML = main;
+
     var emailElement = document.getElementById("student-email");
     emailElement.innerText = email;
     var nameElement = document.getElementById("student-name");
@@ -307,11 +309,115 @@ function render_calendar_addon() {
     })
 }
 
+var home_main = `
+    <div class="mdl-grid demo-content">
+        <div id="announcementDiv"
+          class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div id="announcementLoad" style="width: 100%; text-align: center;">
+            Loading Announcements...
+          </div>
+        </div>
+        <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"
+          style="padding: 15px">
+          <div class="container">
+            <header>
+              <h3 style="font-family: Roboto; font-weight: 300;">Week at a Glance</h2>
+            </header>
+            <div class="grid-calendar" style="margin: auto;">
+            </div>
+            <div class="grid-calendar" style="margin: auto;">
+              <div class="row calendar-week" id="style-9">
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Sunday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Monday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Tuesday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Wednesday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Thursday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Friday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div>
+                      <p class="employee design">Saturday</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gradeAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-shadow--4dp mdl-cell mdl-cell--12-col dashboard" style="cursor: auto !important;">
+            <div class="status success"></div>
+            <div class="detail">
+              <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--4-col block" style="color: black;">
+                  <div style="text-align: left;">
+                    <h3 style="font-weight: 300;">Course Name</h3>
+                    <h5 style="font-weight: 100; margin: 0 0 0 2px;">Last Updated</h5>
+                  </div>
+                </div>
+                <div class="mdl-cell mdl-cell--6-col block" style="margin: 2px 0px 0px 8px;">
+                  <div style="margin: auto;float: right; display:table; height:100%;">
+                    <h4
+                      style="font-weight: 100; margin: 0; display: table-cell; vertical-align: middle; color: black !important;">
+                      Latest Grade</h4>
+                  </div>
+                </div>
+                <div class="mdl-cell mdl-cell--2-col block" style="margin: 2px 0px 0px 8px; display: flex;">
+                  <div style="margin: auto;float: right;">
+                    <h4 style="font-weight: 100; margin: 0; color: black !important;">Overall (%)</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="courseAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"></div>
+        <div class="groupAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"></div>
+    </div>
+`;
+
 // dashboard page (home)
 function home(template) {
     console.log(user_id);
     fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
-        processTemplate(template);
+        processTemplate(template, home_main);
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
@@ -536,6 +642,13 @@ function loadAnnouncementCards() {
     })));
 }
 
+var course_main = `
+    <div class="mdl-grid demo-content">
+        <div class="contents demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+        </div>
+    </div>
+`;
+
 // load course contents
 function course(template, courseId) {
     var courseName = "";
@@ -543,10 +656,11 @@ function course(template, courseId) {
         courseName = data["name"]
         return fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
     }).then(data => {
-        processTemplate(template);
+        processTemplate(template, course_main);
         document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
         document.title = courseName;
-        var allLinks = document.querySelector(".allLinks");
+
+        var allLinks = document.querySelector(".contents");
         for (var res of data["results"]) {
             var href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
             var newElement = createElementFromHTML(`
@@ -572,14 +686,21 @@ function course(template, courseId) {
 
             allLinks.appendChild(newElement);
         }
-        return fetchSidebarCourse(courseId);
+        return fetchSidebarCourses(courseId);
     })
 }
+
+var content_main = `
+    <div class="mdl-grid demo-content">
+        <div class="informationAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+        </div>
+    </div>
+`;
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
     fetch("https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
-        processTemplate(template);
+        processTemplate(template, content_main);
         var xmlString = data;
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
         document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
@@ -619,7 +740,7 @@ function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
                     console.log(t);
-                    addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                    addToLinks(t);
                 });
                 newElement.appendChild(read_more);
             }
@@ -646,17 +767,24 @@ function content(template, courseId, contentId) {
 }
 
 // add link to pinned
-function addToLinks(link, courseId, name) {
+function addToLinks(element) {
+    var link = element.getAttribute("href");
+    var courseId = element.getAttribute("courseid");
+    var name = element.getAttribute("title");
+
     chrome.storage.local.get({ links: {} }, function (result) {
         console.log(result);
         var newlinks = {};
+        var add_new = false;
         if (result.links !== {}) {
             newlinks = result.links;
             if (!(courseId in newlinks)) {
                 newlinks[courseId] = [];
             }
+            var oriSize = newlinks[courseId].length;
             newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
             newlinks[courseId].push({ link: link, title: name });
+            add_new = (oriSize !== newlinks[courseId].length);
         } else {
             newlinks[courseId] = [{ link: link, title: name }];
         }
@@ -665,13 +793,37 @@ function addToLinks(link, courseId, name) {
         }, function () {
             console.log("new link added");
             console.log(newlinks);
-            // fetchSidebarCourse(courseId);
+            if (add_new) {
+                var newLink = createElementFromHTML(`
+                    <li>
+                        <div class="mdl-navigation__link">
+                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                                style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" 
+                                href="${link}" courseid="${courseId}" title="${name}">
+                                    push_pin
+                            </i>
+                            <a href="${link}" class="no-dec-link">
+                                ${name}
+                            </a>
+                        </div>
+                    </li>
+                `);
+                newLink.querySelector(".pin").addEventListener('click', function (event) {
+                    var t = event.target;
+                    removeFromLinks(t);
+                });
+                document.querySelector(`li[course="${courseId}"] > ul`).prepend(newLink);
+            }
         });
     });
 }
 
 // remove link from pinned
-function removeFromLinks(link, courseId, name) {
+function removeFromLinks(element) {
+    var link = element.getAttribute("href");
+    var courseId = element.getAttribute("courseid");
+    var name = element.getAttribute("title");
+
     chrome.storage.local.get({
         links: {}
     }, function (result) {
@@ -686,72 +838,13 @@ function removeFromLinks(link, courseId, name) {
         }, function () {
             console.log("link removed");
             console.log(newlinks);
-            // fetchSidebarCourses(courseId);
+            element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
         });
     });
 }
 
-// fetch sidebar items for a course
-function fetchSidebarCourse(courseId) {
-    var homeLink = document.querySelector(".allLinks");
-    while (homeLink.children.length > 2) {
-        homeLink.removeChild(homeLink.lastChild);
-    }
-    chrome.storage.local.get({ links: {} }, function (result) {
-        console.log(result);
-        var newLinks = [];
-        if (courseId in result.links) {
-            var links = result.links[courseId];
-            if (links.length != 0) {
-                console.log(links);
-                newLinks = result.links[courseId];
-            } else {
-                console.log("links is empty!");
-            }
-        }
-        return fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
-            var xmlString = html;
-            var doc = new DOMParser().parseFromString(xmlString, "text/html");
-            var ul = doc.getElementById("courseMenuPalette_contents");
-            if (ul) {
-                var li = ul.getElementsByTagName("li");
-
-                // add pinned links first
-                for (var pinned of newLinks) {
-                    var element = createElementFromHTML(
-                        `<div class="mdl-navigation__link" style="color: orange">
-                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                            style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" href="${pinned.link}" courseid="${courseId}" title="${pinned.title}">
-                                push_pin
-                            </i>
-                            <a class="mdl-navigation__link" style="padding: 0" href="${pinned.link}">${pinned.title}</a>
-                        </div>`
-                    );
-                    homeLink.appendChild(element);
-                    element.querySelector(".pin").addEventListener('click', function (event) {
-                        var t = event.target;
-                        removeFromLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
-                    });
-                }
-
-                // then add course's own links
-                for (var i of li) {
-                    var a = i.querySelector('a');
-                    if (a) {
-                        var element = createElementFromHTML(`<a class="mdl-navigation__link" href="${a.href}">${a.textContent}</a>`);
-                        homeLink.appendChild(element);
-                    } else {
-                        var divider = createElementFromHTML(`<hr>`);
-                        homeLink.appendChild(divider);
-                    }
-                }
-            }
-        })
-    });
-}
-
 // fetch list of courses for sidebar (home page and iframe)
-function fetchSidebarCourses(courseId="") {
+function fetchSidebarCourses(courseId = "") {
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
@@ -759,10 +852,10 @@ function fetchSidebarCourses(courseId="") {
         for (var c of uiCourses) {
             var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav newSubnav"' : "";
             var nav_uls = "";
-            if(classes) 
+            if (classes)
                 nav_uls = '<ul class="mdl-navigation__list"></ul>';
             var newElement = createElementFromHTML(`
-                <li ${classes}>
+                <li ${classes} course="${c.id}">
                     <div class="mdl-navigation__link">
                         <a href="${c.href}" class="no-dec-link">
                             <i class="material-icons" role="presentation">subject</i>
@@ -775,13 +868,13 @@ function fetchSidebarCourses(courseId="") {
                     ${nav_uls}
                 </li>
             `);
-            for(var links of c.links) {
+            for (var links of c.links) {
                 var newLink = createElementFromHTML(`
                     <li>
                         <div class="mdl-navigation__link">
                             <i class="mdl-color-text--blue-grey-400 material-icons pin" 
                                 style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" 
-                                href="${links.link}" courseid="${courseId}" title="${links.title}">
+                                href="${links.link}" courseid="${c.id}" title="${links.title}">
                                     push_pin
                             </i>
                             <a href="${links.link}" class="no-dec-link">
@@ -793,17 +886,17 @@ function fetchSidebarCourses(courseId="") {
                 `);
                 newLink.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
-                    removeFromLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                    removeFromLinks(t);
                 });
                 newElement.querySelector(".mdl-navigation__list").appendChild(newLink);
             }
-            if(courseId !== "" && c.href.includes(courseId)) 
+            if (courseId !== "" && c.href.includes(courseId))
                 currentCourse = newElement;
             allLinks.appendChild(newElement);
         }
 
         var promises = [];
-        if(courseId !== ""){
+        if (courseId !== "") {
             promises.push(fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
                 var xmlString = html;
                 var doc = new DOMParser().parseFromString(xmlString, "text/html");
@@ -815,7 +908,7 @@ function fetchSidebarCourses(courseId="") {
                         if (a) {
                             var element = createElementFromHTML(`
                                 <li>
-                                    <a href="${a.href}" class="mdl-navigation__link">
+                                    <a href="${a.href}" class="mdl-navigation__link no-dec-link">
                                         <i class="material-icons" role="presentation">assistant</i>
                                         ${a.textContent}
                                     </a>
@@ -848,7 +941,7 @@ function fetchCourseList() {
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             chrome.storage.local.get({ links: {} }, function (result) {
                 var courses = [];
                 for (var c of courseArr) {
@@ -858,11 +951,12 @@ function fetchCourseList() {
                     if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
                         continue;
                     var newElement = {};
+                    newElement.id = c.course.id;
                     newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
                     newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
                     newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
                     courses.push(newElement);
-        
+
                     if (!(c.course.id in courseIds)) {
                         courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
                     }
@@ -873,18 +967,24 @@ function fetchCourseList() {
     });
 }
 
+var announcement_main = `
+    <div class="mdl-grid demo-content">
+        <div class="informationAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+        </div>
+    </div>
+`;
+
 // announcement page (very similar to content, might improve later)
 function announcement(template, courseId) {
     fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
         .then(resp => resp.text()).then(data => {
-            processTemplate(template);
+            processTemplate(template, announcement_main);
             var xmlString = data;
             var doc = new DOMParser().parseFromString(xmlString, "text/html");
             document.getElementsByClassName("mdl-layout-title")[0].textContent = doc.getElementById("courseMenu_link").textContent;
             document.title = doc.getElementById("courseMenu_link").textContent;
             var list = doc.querySelectorAll("#announcementList > li");
             for (var item of list) {
-
                 var newElement = createElementFromHTML(
                     `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                         <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
@@ -899,13 +999,26 @@ function announcement(template, courseId) {
                 window.getComputedStyle(newElement).opacity; // added
                 newElement.className += ' in';
             }
-            return fetchSidebarCourse(courseId);
+            if (!list || list.length === 0) {
+                document.querySelector(".informationAll").appendChild(createElementFromHTML(`
+                    <h4 style="
+                        width: 100%;
+                        font-weight: 300;
+                        text-align: center;
+                    ">No information found.</h4>`)
+                );
+            }
+            return fetchSidebarCourses(courseId);
         })
 }
 
+var iframe_main = `
+    <iframe id="iframe" src="" style="width: 100%; height: 100%">
+`;
+
 // fallback to links not implemented
 function iframe(template, iframeSrc, title) {
-    processTemplate(template);
+    processTemplate(template, iframe_main);
     document.getElementById('header_title').textContent = title;
     document.title = title;
     var iframe = document.getElementById("iframe");
