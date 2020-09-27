@@ -905,7 +905,6 @@ function announcement(template, courseId) {
 
 // fallback to links not implemented
 function iframe(template, iframeSrc, title) {
-    debugger
     processTemplate(template);
     document.getElementById('header_title').textContent = title;
     document.title = title;
