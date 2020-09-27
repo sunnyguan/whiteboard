@@ -8,6 +8,9 @@ if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
 // for displaying user info, might add more uses later
 var user_id = "";
 var email = "";
+var username = "";
+var avatar_link = "";
+
 function start() {
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
@@ -24,7 +27,10 @@ function start() {
 
 // save user ID for API calls
 function getUserId(result) {
+    console.log(result);
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
+    var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
+    var avatarMatch = result.match('src="(/avatar/user/.*?)"');
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
@@ -32,6 +38,8 @@ function getUserId(result) {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
         console.log(email);
         user_id = avatarid[1];
+        username = nameMatch[1];
+        avatar_link = avatarMatch[1];
         replacePage();
     }
 }
@@ -140,17 +148,49 @@ function replacePage() {
         });
 }
 
+function refreshNavLinks(def=true) {
+    var names = def ? "" : ".newSubnav";
+    var navListWithSubNav = document.querySelectorAll('.mdl-navigation__list .has-subnav' + names);
+    Array.from(navListWithSubNav).forEach(function (item) {
+        var listItem = item;
+        var toggleButton = item.querySelector('.js-toggle-subnav');
+        var subnav = item.querySelector('.mdl-navigation__list');
+        toggleButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (listItem.classList.contains('is-opened')) {
+                listItem.classList.remove('is-opened');
+
+                toggleButton.classList.remove('is-active');
+            } else {
+                // close all other
+                //$navListWithSubNav
+                //.removeClass('is-opened')
+                //.find('.is-active').removeClass('is-active');
+
+                // open this one
+                listItem.classList.add('is-opened');
+                toggleButton.classList.add('is-active');
+            }
+        })
+    })
+}
+
 // loads html from storage, puts in email, render quick add calendar popup
 function processTemplate(template) {
     document.getElementsByTagName("html")[0].innerHTML = template;
     var emailElement = document.getElementById("student-email");
-    // console.log(emailElement.innerText);
     emailElement.innerText = email;
+    var nameElement = document.getElementById("student-name");
+    nameElement.innerText = username;
+    var avatarElement = document.getElementById("student-avatar");
+    avatarElement.src = avatar_link;
+
+    refreshNavLinks();
     render_calendar_addon();
 }
 
 // util function to make element from HTML
-function createElementFromHTML(htmlString) { 
+function createElementFromHTML(htmlString) {
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
     return div.firstChild;
@@ -318,7 +358,7 @@ function home(template) {
             // newElement.querySelector(".groupContent").textContent = "Course content goes here"; // what to put here?
             document.querySelector(".groupAll").appendChild(newElement);
         }
-        
+
         return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
     })
 }
@@ -375,7 +415,7 @@ function fetchGrades() {
             lastGradeColor = convertedLast["color"];
             lastGrade = convertedLast["grade"];
             var dateElement = doc.querySelector("div.cell.activity.timestamp > span.lastActivityDate");
-            if(dateElement) {
+            if (dateElement) {
                 date = dateElement.textContent;
             }
             lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
@@ -599,10 +639,10 @@ function content(template, courseId, contentId) {
 
 // add link to pinned
 function addToLinks(link, courseId, name) {
-    chrome.storage.local.get({links: {}}, function (result) {
+    chrome.storage.local.get({ links: {} }, function (result) {
         console.log(result);
         var newlinks = {};
-        if(result.links !== {}) {
+        if (result.links !== {}) {
             newlinks = result.links;
             if (!(courseId in newlinks)) {
                 newlinks[courseId] = [];
@@ -649,10 +689,10 @@ function fetchSidebarCourse(courseId) {
     while (homeLink.children.length > 2) {
         homeLink.removeChild(homeLink.lastChild);
     }
-    chrome.storage.local.get('links', function (result) {
+    chrome.storage.local.get({ links: {} }, function (result) {
         console.log(result);
         var newLinks = [];
-        if (result && courseId in result.links) {
+        if (courseId in result.links) {
             var links = result.links[courseId];
             if (links.length != 0) {
                 console.log(links);
@@ -708,13 +748,33 @@ function fetchSidebarCourses() {
         var allLinks = document.querySelector('.allLinks');
         uiCourses = courses;
         for (var c of uiCourses) {
+            var classes = c.links.length > 0 ? 'class="has-subnav newSubnav"' : "";
+            var nav_uls = "";
+            if(classes) 
+                nav_uls = '<ul class="mdl-navigation__list"></ul>';
             var newElement = createElementFromHTML(`
-                <a class="mdl-navigation__link" href="${c.href}">
-                    ${c.textContent}
-                </a>`
-            );
+                <li ${classes}>
+                    <a class="mdl-navigation__link js-toggle-subnav" href="#">
+                        <i class="material-icons" role="presentation">subject</i>
+                        ${c.textContent}
+                    </a>
+                    ${nav_uls}
+                </li>
+            `);
+            for(var links of c.links) {
+                var newLink = createElementFromHTML(`
+                    <li>
+                        <a href="${links.link}" class="mdl-navigation__link">
+                            <i class="material-icons" role="presentation">assistant</i>
+                            ${links.title}
+                        </a>
+                    </li>
+                `);
+                newElement.querySelector(".mdl-navigation__list").appendChild(newLink);
+            }
             allLinks.appendChild(newElement);
         }
+        refreshNavLinks(false);
     });
 }
 
@@ -724,27 +784,31 @@ var courseIds = {};
 function fetchCourseList() {
     return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
-
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
-        var courses = [];
-        for (var c of courseArr) {
-            // NOTE: this could break if the 2208 pattern changes!
-            // console.log(c.course.availability);
-            // console.log(c.course.name);
-            if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
-                continue;
-            var newElement = {};
-            newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
-            newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
-            courses.push(newElement);
-
-            if (!(c.course.id in courseIds)) {
-                courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
-            }
-        }
-        return courses;
+        return new Promise(function(resolve, reject) {
+            chrome.storage.local.get({ links: {} }, function (result) {
+                var courses = [];
+                for (var c of courseArr) {
+                    // NOTE: this could break if the 2208 pattern changes!
+                    // console.log(c.course.availability);
+                    // console.log(c.course.name);
+                    if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
+                        continue;
+                    var newElement = {};
+                    newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+                    newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
+                    newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
+                    courses.push(newElement);
+        
+                    if (!(c.course.id in courseIds)) {
+                        courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
+                    }
+                }
+                resolve(courses);
+            });
+        });
     });
 }
 
