@@ -562,6 +562,12 @@ function course(template, courseId) {
                 </div>`
             );
 
+            newElement.querySelector(".pin").addEventListener('click', function (event) {
+                var t = event.target;
+                console.log(t);
+                addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+            });
+
             allLinks.appendChild(newElement);
         }
         return fetchSidebarCourse(courseId);
@@ -633,7 +639,7 @@ function content(template, courseId, contentId) {
 
             document.querySelector(".informationAll").appendChild(newElement);
         }
-        return fetchSidebarCourse(courseId);
+        return fetchSidebarCourses(courseId);
     });
 }
 
@@ -657,7 +663,7 @@ function addToLinks(link, courseId, name) {
         }, function () {
             console.log("new link added");
             console.log(newlinks);
-            fetchSidebarCourse(courseId);
+            // fetchSidebarCourse(courseId);
         });
     });
 }
@@ -678,7 +684,7 @@ function removeFromLinks(link, courseId, name) {
         }, function () {
             console.log("link removed");
             console.log(newlinks);
-            fetchSidebarCourse(courseId);
+            // fetchSidebarCourses(courseId);
         });
     });
 }
@@ -743,38 +749,91 @@ function fetchSidebarCourse(courseId) {
 }
 
 // fetch list of courses for sidebar (home page and iframe)
-function fetchSidebarCourses() {
+function fetchSidebarCourses(courseId="") {
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
+        var currentCourse;
         uiCourses = courses;
         for (var c of uiCourses) {
-            var classes = c.links.length > 0 ? 'class="has-subnav newSubnav"' : "";
+            var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav newSubnav"' : "";
             var nav_uls = "";
             if(classes) 
                 nav_uls = '<ul class="mdl-navigation__list"></ul>';
             var newElement = createElementFromHTML(`
                 <li ${classes}>
-                    <a class="mdl-navigation__link js-toggle-subnav" href="#">
-                        <i class="material-icons" role="presentation">subject</i>
-                        ${c.textContent}
-                    </a>
+                    <div class="mdl-navigation__link">
+                        <a href="${c.href}" class="no-dec-link">
+                            <i class="material-icons" role="presentation">subject</i>
+                            ${c.textContent}
+                        </a>
+                        ${courseId !== "" || nav_uls !== "" ? `<div class="after js-toggle-subnav">
+                            <i class="material-icons" role="presentation">expand_more</i>
+                        </div>` : ""}
+                    </div>
                     ${nav_uls}
                 </li>
             `);
             for(var links of c.links) {
                 var newLink = createElementFromHTML(`
                     <li>
-                        <a href="${links.link}" class="mdl-navigation__link">
-                            <i class="material-icons" role="presentation">assistant</i>
-                            ${links.title}
-                        </a>
+                        <div class="mdl-navigation__link">
+                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
+                                style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" 
+                                href="${links.link}" courseid="${courseId}" title="${links.title}">
+                                    push_pin
+                            </i>
+                            <a href="${links.link}" class="no-dec-link">
+                                ${links.title}
+                            </a>
+                        </div>
                     </li>
+                    
                 `);
+                newLink.querySelector(".pin").addEventListener('click', function (event) {
+                    var t = event.target;
+                    removeFromLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                });
                 newElement.querySelector(".mdl-navigation__list").appendChild(newLink);
             }
+            if(courseId !== "" && c.href.includes(courseId)) 
+                currentCourse = newElement;
             allLinks.appendChild(newElement);
         }
+
+        var promises = [];
+        if(courseId !== ""){
+            promises.push(fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
+                var xmlString = html;
+                var doc = new DOMParser().parseFromString(xmlString, "text/html");
+                var ul = doc.getElementById("courseMenuPalette_contents");
+                if (ul) {
+                    var li = ul.getElementsByTagName("li");
+                    for (var i of li) {
+                        var a = i.querySelector('a');
+                        if (a) {
+                            var element = createElementFromHTML(`
+                                <li>
+                                    <a href="${a.href}" class="mdl-navigation__link">
+                                        <i class="material-icons" role="presentation">assistant</i>
+                                        ${a.textContent}
+                                    </a>
+                                </li>
+                            `);
+                            currentCourse.querySelector(".mdl-navigation__list").appendChild(element);
+                        } else {
+                            var divider = createElementFromHTML(`<hr>`);
+                            currentCourse.querySelector(".mdl-navigation__list").appendChild(divider);
+                        }
+                    }
+                    currentCourse.classList.add('is-opened');
+                    currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
+                }
+                // allLinks.appendChild(newElement);
+                // refreshNavLinks(false);
+            }));
+        }
         refreshNavLinks(false);
+        Promise.all(promises);
     });
 }
 
@@ -844,6 +903,7 @@ function announcement(template, courseId) {
 
 // fallback to links not implemented
 function iframe(template, iframeSrc, title) {
+    debugger
     processTemplate(template);
     document.getElementById('header_title').textContent = title;
     document.title = title;

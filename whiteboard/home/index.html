@@ -648,8 +648,16 @@
     .block.total {
       background-color: #9E9E9E;
     }
+  </style>
+  <style>
+    .after {
+      cursor: pointer;
+    }
 
-
+    .no-dec-link {
+      text-decoration: none;
+      color: inherit;
+    }
 
     html,
     body {
@@ -862,7 +870,7 @@
     .mdl-layout__drawer .mdl-navigation {
       -webkit-box-flex: 1;
       flex-grow: 1;
-      padding-top: 0;
+      padding-top: 10px;
       z-index: -2;
     }
 
@@ -872,7 +880,7 @@
       padding: 0;
     }
 
-    .mdl-navigation__list .has-subnav>.mdl-navigation__link::after {
+    .mdl-navigation__list .has-subnav>.mdl-navigation__link>.after {
       font-family: 'Material Icons';
       font-feature-settings: 'liga';
       font-size: 24px;
@@ -940,7 +948,7 @@
     }
 
     .mdl-navigation__list .is-opened+.mdl-navigation__divider {
-      margint-top: 0;
+      margin-top: 0;
       padding-top: 0;
       border-top: 0;
     }
@@ -1058,7 +1066,6 @@
     </div>
   </div>
 
-  </div>
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
       <div class="mdl-layout__header-row">
@@ -1093,7 +1100,8 @@
       <nav class="mdl-navigation">
         <ul class="mdl-navigation__list">
           <li>
-            <a href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1" class="mdl-navigation__link">
+            <a href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1"
+              class="mdl-navigation__link">
               <i class="material-icons" role="presentation">dashboard</i>
               Dashboard
             </a>
@@ -1105,7 +1113,7 @@
             </a>
           </li>
           <li class="mdl-navigation__divider allLinks">
-            
+
           </li>
         </ul>
 
@@ -1309,7 +1317,6 @@
 
       </div>
     </main>
-  </div>
   </div>
   <script src="chrome-extension://dgoddhbeomdbphldifclnhofannfnpcd/home/external/material.min.js" async></script>
 </body>

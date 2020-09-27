@@ -75,9 +75,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-    .mdl-layout__header-row{
+    .mdl-layout__header-row {
       padding-left: 256px !important;
     }
+
     html,
     body {
       height: 100%;
@@ -178,7 +179,9 @@
     .demo-navigation .mdl-navigation__link .material-icons {
       font-size: 24px;
       color: rgba(255, 255, 255, 0.56);
-      margin-right: 10px; margin-bottom: 4px;;
+      margin-right: 10px;
+      margin-bottom: 4px;
+      ;
     }
 
     .demo-content {
@@ -318,6 +321,371 @@
       width: 100%;
     }
   </style>
+  <style>
+    html,
+    body {
+      font-family: 'Roboto', 'Helvetica', sans-serif;
+      height: 100%;
+    }
+
+    .l-split {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-pack: justify;
+      justify-content: space-between;
+    }
+
+    .l-split div:nth-child(2) {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .mdl-layout-title__meta {
+      display: block;
+      font-size: 12px;
+      line-height: 1.6em;
+    }
+
+    @media (min-width: 1024px) {
+      .mdl-layout-title__meta {
+        display: none;
+      }
+    }
+
+    .mdl-layout__header {
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .mdl-layout__header .mdl-layout__header-row {
+      padding: 0 16px 0 60px;
+    }
+
+    .mdl-layout__header .mdl-layout__drawer-button {
+      color: #fff;
+    }
+
+    .mdl-layout__header .mdl-button--user {
+      color: #fff;
+      text-transform: none;
+      padding: 0 8px;
+    }
+
+    .mdl-layout__header .mdl-button--user span {
+      display: none;
+    }
+
+    .mdl-layout__header .mdl-button--user::after {
+      font-family: 'Material Icons';
+      font-feature-settings: 'liga';
+      font-size: 24px;
+      content: 'expand_more';
+      vertical-align: middle;
+      line-height: 1em;
+    }
+
+    .mdl-layout__header .mdl-button--user img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin: 0 -.2em 0 .2em;
+      vertical-align: middle;
+    }
+
+    @media (min-width: 600px) {
+      .mdl-layout__header .mdl-button--user span {
+        display: inline;
+      }
+    }
+
+    .mdl-layout__tab {
+      color: rgba(255, 255, 255, 0.7);
+      -webkit-transition: color 150ms ease-in-out;
+      transition: color 150ms ease-in-out;
+    }
+
+    .mdl-layout__tab:hover,
+    .mdl-layout__tab:focus,
+    .mdl-layout.is-upgraded .mdl-layout__tab.is-active {
+      color: #fff;
+    }
+
+    .mdl-menu .mdl-menu__item {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+    }
+
+    .mdl-menu__item--flex {
+      height: auto;
+      line-height: 1.4;
+      padding: 8px 16px;
+    }
+
+    .mdl-menu__link {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      flex-direction: row;
+      -webkit-box-align: center;
+      align-items: center;
+      text-decoration: none;
+      color: rgba(0, 0, 0, 0.7);
+      font-weight: 400;
+      -webkit-font-smoothing: subpixel-antialiased;
+      -moz-osx-font-smoothing: auto;
+    }
+
+    .mdl-menu__link i {
+      margin-right: 16px;
+    }
+
+    .md-menu__divider {
+      border-top: 1px solid #e0e0e0;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 1034px) {
+      .mdl-layout__tab-bar {
+        padding-left: 40px;
+      }
+    }
+
+    .mdl-layout__tab-bar-button {
+      color: rgba(255, 255, 255, 0.7);
+      display: none;
+    }
+
+    .mdl-layout__section {
+      padding: 0 16px;
+    }
+
+    @media (min-width: 1034px) {
+      .mdl-layout__section {
+        padding: 0 40px;
+      }
+    }
+
+    .mdl-navheader {
+      background: #2d3940;
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      -webkit-box-pack: end;
+      justify-content: flex-end;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .mdl-navheader .mdl-navheader__meta {
+      display: block;
+      font-size: 12px;
+    }
+
+    .mdl-navheader__brand {
+      padding: 12px 16px;
+      background: #37474F;
+      text-align: center;
+    }
+
+    .mdl-navheader__brand img {
+      vertical-align: middle;
+      width: auto;
+      height: 24px;
+      margin: 0 auto;
+    }
+
+    .m-navheader__user {
+      padding: 16px;
+    }
+
+    .m-navheader__user img {
+      display: inline-block;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      margin: 0 0 8px;
+    }
+
+    @media (min-width: 1034px) {
+      .m-navheader__user {
+        text-align: center;
+      }
+    }
+
+    .mdl-layout__drawer {
+      background: #37474F;
+      color: rgba(255, 255, 255, 0.7);
+      border: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .mdl-layout__drawer .mdl-menu__container {
+      z-index: -1;
+    }
+
+    .mdl-layout__drawer .mdl-navigation {
+      -webkit-box-flex: 1;
+      flex-grow: 1;
+      padding-top: 10;
+      z-index: -2;
+    }
+
+    .mdl-navigation__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .after {
+      cursor: pointer;
+    }
+
+    .no-dec-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .mdl-navigation__list .has-subnav>.mdl-navigation__link>.after {
+      font-family: 'Material Icons';
+      font-feature-settings: 'liga';
+      font-size: 24px;
+      content: 'expand_more';
+      display: -webkit-box;
+      display: flex;
+      margin-left: auto;
+    }
+
+    .mdl-navigation__list .mdl-navigation__list {
+      display: none;
+      background: #313f46;
+      border-top: 1px solid #455A64;
+      border-bottom: 1px solid #455A64;
+      padding: 6px 0;
+    }
+
+    .mdl-navigation__list .mdl-navigation__list i {
+      font-size: 20px;
+      line-height: 1em;
+      vertical-align: middle;
+      margin: 4px 19px 0 2px;
+    }
+
+    .mdl-navigation__list .is-opened .mdl-navigation__list {
+      display: block;
+    }
+
+    .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
+      display: -webkit-box !important;
+      display: flex !important;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      flex-direction: row;
+      -webkit-box-align: stretch;
+      align-items: stretch;
+      padding: 8px 8px 8px 16px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .mdl-layout__drawer .mdl-navigation .mdl-navigation__link:hover,
+    .mdl-layout__drawer .mdl-navigation .mdl-navigation__link:focus {
+      background: none;
+      color: #fff;
+    }
+
+    .has-subnav .mdl-layout__drawer .mdl-navigation .mdl-navigation__link.is-active {
+      background: #455A64;
+      color: #fff;
+    }
+
+    .has-subnav .mdl-layout__drawer .mdl-navigation .mdl-navigation__link.is-active:after {
+      content: 'expand_less';
+    }
+
+    .mdl-navigation__link i {
+      vertical-align: middle;
+      margin-right: 16px;
+    }
+
+    .mdl-navigation__divider {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #455A64;
+    }
+
+    .mdl-navigation__list .is-opened+.mdl-navigation__divider {
+      margint-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .mdl-navigation__footer {
+      padding: 16px;
+    }
+
+    .mdl-layout__drawer .mdl-navigation .mdl-navigation__footer .mdl-navigation__link {
+      padding: 8px 0;
+    }
+
+    .m-linechart {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      flex-direction: row;
+      -webkit-box-align: center;
+      align-items: center;
+      margin: 8px 0 16px;
+    }
+
+    .m-linechart__lower,
+    .m-linechart__upper {
+      -webkit-box-flex: 1;
+      flex: 1;
+      height: 5px;
+    }
+
+    .m-linechart__lower {
+      background: #03A9F4;
+    }
+
+    .m-linechart__dot {
+      display: none;
+      -webkit-box-flex: 0;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #03A9F4;
+    }
+
+    .m-linechart__upper {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .m-button--clean {
+      display: block;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      text-align: center;
+      line-height: 2.4em;
+      border-radius: 2px;
+      background: transparent;
+      -webkit-transition: background;
+      transition: background;
+    }
+
+    .m-button--clean:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
 </head>
 
 <body>
@@ -337,7 +705,7 @@
 
 
       <div class="mdl-card__supporting-text">
-        
+
         <form action="">
 
           <div id="name">
@@ -366,18 +734,15 @@
           </button>
         </form>
       </div>
-      
-      </div>
-    </div>
 
+    </div>
   </div>
-  <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
       <div class="mdl-layout__header-row">
         <span id="header_title" class="mdl-layout-title">Home</span>
         <div class="mdl-layout-spacer"></div>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-          
           <div class="mdl-textfield__expandable-holder">
             <input class="mdl-textfield__input" type="text" id="search">
             <label class="mdl-textfield__label" for="search">Enter your query...</label>
@@ -393,33 +758,43 @@
         </ul>
       </div>
     </header>
-    <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-      <header class="demo-drawer-header">
-        <img style="content:url('https://avatars2.githubusercontent.com/u/19920441?s=60&v=4')"
-          class="demo-avatar">
-        <div class="demo-avatar-dropdown">
-          <span id="student-email" style="
-    font-family: Roboto;
-    font-weight: 300;
-">hello@example.com</span>
-          <div class="mdl-layout-spacer"></div>
-          <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">arrow_drop_down</i>
-            <span class="visuallyhidden">Accounts</span>
-          </button>
-          <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-            <li class="mdl-menu__item">hello@example.com</li>
-            <li class="mdl-menu__item">info@example.com</li>
-            <li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
-          </ul>
+
+    <div class="mdl-layout__drawer">
+      <header class="mdl-navheader">
+        <div class="m-navheader__user">
+          <img id="student-avatar" src="" class="mdl-navheader__image" alt=""><br>
+          <span class="mdl-navheader__meta" id="student-name"></span>
+          <span class="mdl-navheader__meta" id="student-email"></span>
         </div>
       </header>
-      <nav class="allLinks demo-navigation mdl-navigation mdl-color--blue-grey-800">
-        <a class="mdl-navigation__link"
-          href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1">
-          <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-        <a class="mdl-navigation__link" href="https://elearning.utdallas.edu/webapps/calendar"><i class="mdl-color-text--blue-grey-400 material-icons"
-          role="presentation">calendar_today</i>Calendar<span class="visuallyhidden">Calendar</span></a>
+
+      <nav class="mdl-navigation">
+        <ul class="mdl-navigation__list">
+          <li>
+            <a href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1"
+              class="mdl-navigation__link">
+              <i class="material-icons" role="presentation">dashboard</i>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="https://elearning.utdallas.edu/webapps/calendar" class="mdl-navigation__link">
+              <i class="material-icons" role="presentation">calendar_today</i>
+              Calendar
+            </a>
+          </li>
+          <li class="mdl-navigation__divider allLinks">
+
+          </li>
+        </ul>
+
+        <div class="mdl-layout-spacer"></div>
+
+        <div class="mdl-navigation__footer">
+          <a href="https://github.com/sunnyguan/whiteboard" class="m-button m-button--clean">
+            Check us out on Github!
+          </a>
+        </div>
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
