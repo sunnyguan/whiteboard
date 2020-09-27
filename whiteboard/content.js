@@ -30,7 +30,9 @@ function getUserId(result) {
     console.log(result);
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
     var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
-    var avatarMatch = result.match('src="(/avatar/user/.*?)"');
+    var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
+    // src="/avatar/default_user?ts=1525262400000"  <- note: needs to also match this for default avatar
+    
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
