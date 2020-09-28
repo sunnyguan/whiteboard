@@ -40,4 +40,4 @@
 
 ## Screenshots
 
-![Dashboard](screenshots/dashboard.PNG)
+![Dashboard](screenshots/sidebar_and_grades.PNG)
