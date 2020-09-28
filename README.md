@@ -1,5 +1,7 @@
 # Whiteboard
 
+![Dashboard](screenshots/sidebar_and_grades.PNG)
+
 ### Two main goals of this project:
 1. Improve the UI of Blackboard
 2. Add non-intrusive features that speed up workflow
@@ -37,7 +39,24 @@
 3. Navigate to <chrome://extensions> and reload the extension.  
 ![](https://i.imgur.com/MsRBK2A.png)
 
+## How to use each feature
 
-## Screenshots
+### Dashboard (home page)
+1. There are three key features located on the home page
+	1. Announcements, which are the orange cards on the top grid, shows the two most recent announcements of the course. Clicking on the arrow part of the card switches between the two recent announcements. Clicking on the orange part of the card will redirect you to that class's annoucements page.
+	2. Week at a Glance, which is a calendar showing you your agenda for this week. Clicking on clickable tiles (such as homework/exams) will lead to their pages.
+	3. Grades overview, which shows all of your courses (where you have at least one assignment) with their most recent grade and overall grade. The most recent assignment is meant to help you quickly check if your exam/test grades have came out recently. The date listed below the course name is the last updated date for that course, which is the same as the date of the most recent assignment. Clicking on the course row will lead to that course's grades page.
+2. A list of courses and groups can be found by scrolling below the grades overview.
 
-![Dashboard](screenshots/sidebar_and_grades.PNG)
+### Sidebar and Pins
+1. Contains a list of all your courses (and dashboard/calendar). Each course can be clicked to access that course's homepage.
+2. Note: When the user first start using the extension, these courses will not have expandable sections with user-defined pins since none have been added.
+3. To add a pin, go to any course and look for orange pin icons on the top right of each content card. Click the pin and it should appear in the sidebar.
+4. To remove a pin, click the red sideways pin icon on the sidebar.
+5. Sidebar logic:
+	1. In the dashboard, each course will only contain its user-defined pins and not include the course's own sidebar links
+	2. In each course's individual pages, the dashboard will expand to include its pins as well as the course's own links
+	3. While the user is in one course, other courses will only have user pins listed on the sidebar.
+
+### Quick Add to Calendar
+1. On every page in Whiteboard, there will be an add icon on the top right of the page. Clicking on that icon will allow users to quickly add an event to their calendar. Fields include title, description, start time, and end time.
