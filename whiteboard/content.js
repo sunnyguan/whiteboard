@@ -484,6 +484,19 @@ function home(template) {
 
 function gradeToColor(grade, def, convert = false) {
     var colorClass = def;
+    if(grade === "N/A") 
+        return def;
+    
+    var checkLetter = grade.trim();
+    var matches = checkLetter.match("([A-Z])\+");
+    if(matches) {
+        var cat = matches[0];
+        if(cat === 'A') colorClass = def;
+        else if(cat === 'B') colorClass = "success2";
+        else colorClass = "success3";
+        return { "grade": grade, "color": colorClass };
+    }
+
     try {
         var evaluated = eval(grade);
         evaluated = Math.round((evaluated + Number.EPSILON) * 10000) / 10000
