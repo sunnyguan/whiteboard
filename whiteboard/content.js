@@ -536,21 +536,22 @@ function fetchGrades() {
             grade = converted["grade"];
         }
 
+        var lastGradeRow = doc.querySelector(".graded_item_row");
         var lastGradeElement = doc.querySelector(".graded_item_row > div.cell.grade");
         var lastGrade = "N/A";
         var lastHW = "N/A";
         var lastGradeColor = "success";
         var date = "No date information.";
         if (lastGradeElement) {
-            lastGrade = doc.querySelector(".graded_item_row > div.cell.grade").textContent.trim();
+            lastGrade = lastGradeElement.textContent.trim();
             var convertedLast = gradeToColor(lastGrade, "success");
             lastGradeColor = convertedLast["color"];
             lastGrade = convertedLast["grade"];
-            var dateElement = doc.querySelector("div.cell.activity.timestamp > span.lastActivityDate");
+            var dateElement = lastGradeRow.querySelector("div.cell.activity.timestamp > span.lastActivityDate");
             if (dateElement) {
                 date = dateElement.textContent;
             }
-            lastHW = doc.querySelector(".graded_item_row > div.cell.gradable > a").textContent.trim();
+            lastHW = lastGradeRow.querySelector("div.cell.gradable > a").textContent.trim();
             if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
         }
 
