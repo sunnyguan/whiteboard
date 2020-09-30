@@ -447,7 +447,7 @@ function home(template) {
             if (!course.course.courseId.startsWith('2208-')) continue;
             var newElement = createElementFromHTML(
                 `<div class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
                         <h2 class="courseTitle mdl-card__title-text">${course.course.name}</h2>
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
@@ -611,7 +611,7 @@ function loadAnnouncementCards() {
                 style="min-height:170px; padding-top: 0px; padding-bottom: 0px;"></div>`);
         var card1 = createElementFromHTML(
             `<div class="first card">
-                <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
+                <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
                     style="background-color: orange !important; background: none; min-height: 120px;"
                     onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${courseId}'">
                     <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
@@ -633,7 +633,7 @@ function loadAnnouncementCards() {
             var createdDate = new Date(card2info.created);
             var card2 = createElementFromHTML(
                 `<div class="second card">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300" 
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
                         style="background-color: orange !important; background: none; min-height: 120px;"
                         onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${courseId}'">
                         <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
@@ -690,7 +690,7 @@ function course(template, courseId) {
             var href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
             var newElement = createElementFromHTML(`
                 <div class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
                         <i class="mdl-color-text--blue-grey-400 material-icons pin" style="position: absolute;right: 10px;top: 10px;color: orange !important; cursor: pointer">push_pin</i>
                         <h2 class="contentTitle mdl-card__title-text">${res.title}</h2>
                     </div>
@@ -735,12 +735,14 @@ function content(template, courseId, contentId) {
 
             // basic framework
             var newElement = createElementFromHTML(
-                `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="height: 100px">
                         <h2 class="informationTitle mdl-card__title-text">${item.querySelector("div > h3").textContent}</h2>
                     </div>
-                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto;">
+                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 170px; ;">
                         ${item.querySelector(".details").innerHTML}
+                    </div>
+                    <div class="informationLinks mdl-card__actions mdl-card--border" style="height: 53px; ">
                     </div>
                 </div>`
             );
@@ -754,11 +756,9 @@ function content(template, courseId, contentId) {
                 );
                 newElement.querySelector(".mdl-card__title").insertBefore(pushpin, newElement.querySelector(".mdl-card__title").firstChild);
 
-                var read_more = createElementFromHTML(
-                    `<div class="informationLinks mdl-card__actions mdl-card--border">
-                        <a href="${item.querySelector("div > h3 > a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-                    </div>`
-                );
+                var read_more = createElementFromHTML(`
+                        <a href="${item.querySelector("div > h3 > a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--primary">Read More</a>
+                `);
                 newElement.querySelector(".pin").setAttribute("href", item.querySelector("div > h3 > a").href);
                 newElement.querySelector(".pin").setAttribute("courseid", courseId);
                 newElement.querySelector(".pin").setAttribute("title", item.querySelector("div > h3").textContent);
@@ -767,7 +767,7 @@ function content(template, courseId, contentId) {
                     console.log(t);
                     addToLinks(t);
                 });
-                newElement.appendChild(read_more);
+                newElement.querySelector(".informationLinks").appendChild(read_more);
             }
 
             // add attachments
@@ -775,11 +775,9 @@ function content(template, courseId, contentId) {
             if (attachments && attachments.length != 0) {
                 attachments.forEach(file => {
                     var attached = createElementFromHTML(
-                        `<div class="informationLinks mdl-card__actions mdl-card--border">
-                            <a href="${file.querySelector("a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect">${file.querySelector("a").textContent.trim()}</a>
-                        </div>`
+                        `<a href="${file.querySelector("a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--secondary">${file.querySelector("a").textContent.trim()}</a>`
                     );
-                    newElement.appendChild(attached);
+                    newElement.querySelector(".informationLinks").appendChild(attached);
                 });
                 var toRemove = newElement.querySelector(".informationContent > .contextItemDetailsHeaders");
                 toRemove.parentNode.removeChild(toRemove);
@@ -1012,7 +1010,7 @@ function announcement(template, courseId) {
             for (var item of list) {
                 var newElement = createElementFromHTML(
                     `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                        <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                        <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("h3").textContent}</h2>
                         </div>
                         <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600">
@@ -1100,7 +1098,7 @@ function discussion(template, courseId) {
             var partCount = board.querySelector(".participants-count").textContent.trim();
             var newElement = createElementFromHTML(`
                 <div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
                         <h2 class="informationTitle mdl-card__title-text">${title}</h2>
                     </div>
                     <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto;">
