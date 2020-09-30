@@ -735,11 +735,11 @@ function content(template, courseId, contentId) {
             var hasContent = item.querySelector(".details").textContent.trim() !== "";
             // basic framework
             var newElement = createElementFromHTML(
-                `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-                    <div class="cardTitle mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px;">
+                `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop" style="min-height: 153px">
+                    <div class="cardTitle mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px; max-height: 100px">
                         <h2 class="informationTitle mdl-card__title-text">${item.querySelector("div > h3").textContent}</h2>
                     </div>
-                    <div class="cardInfo informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%; ${!hasContent ? `display: none;` : ''}">
+                    <div class="cardInfo informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%; ${!hasContent ? `padding: 0` : ''}">
                         ${item.querySelector(".details").innerHTML}
                     </div>
                     <div class="informationLinks mdl-card__actions mdl-card--border" style="height: 53px; min-height: 53px; max-height: 53px;">
@@ -1009,7 +1009,7 @@ function announcement(template, courseId) {
             var list = doc.querySelectorAll("#announcementList > li");
             for (var item of list) {
                 var newElement = createElementFromHTML(
-                    `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
+                    `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop" style="min-height: 153px">
                         <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="max-height: 100px; min-height: 100px">
                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("h3").textContent}</h2>
                         </div>
@@ -1099,11 +1099,11 @@ function discussion(template, courseId) {
             var unreadToMe = board.querySelectorAll(".unread-count")[1].textContent.trim();
             var partCount = board.querySelector(".participants-count").textContent.trim();
             var newElement = createElementFromHTML(`
-                <div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
+                <div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop" style="min-height: 153px">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px; max-height: 100px">
                         <h2 class="informationTitle mdl-card__title-text">${title}</h2>
                     </div>
-                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto;">
+                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%">
                         ${html}
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
