@@ -732,17 +732,17 @@ function content(template, courseId, contentId) {
         document.title = doc.getElementById("courseMenu_link").textContent;
         var list = doc.querySelectorAll("#content_listContainer > li");
         for (var item of list) {
-
+            var hasContent = item.querySelector(".details").textContent.trim() !== "";
             // basic framework
             var newElement = createElementFromHTML(
                 `<div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="height: 100px">
+                    <div class="cardTitle mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px;">
                         <h2 class="informationTitle mdl-card__title-text">${item.querySelector("div > h3").textContent}</h2>
                     </div>
-                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 170px; ;">
+                    <div class="cardInfo informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%; ${!hasContent ? `display: none;` : ''}">
                         ${item.querySelector(".details").innerHTML}
                     </div>
-                    <div class="informationLinks mdl-card__actions mdl-card--border" style="height: 53px; ">
+                    <div class="informationLinks mdl-card__actions mdl-card--border" style="height: 53px; min-height: 53px; max-height: 53px;">
                     </div>
                 </div>`
             );
@@ -1009,11 +1009,11 @@ function announcement(template, courseId) {
             var list = doc.querySelectorAll("#announcementList > li");
             for (var item of list) {
                 var newElement = createElementFromHTML(
-                    `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                        <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
+                    `<div class="box information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
+                        <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="max-height: 100px; min-height: 100px">
                             <h2 class="informationTitle mdl-card__title-text">${item.querySelector("h3").textContent}</h2>
                         </div>
-                        <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600">
+                        <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="height: 100%">
                             ${item.querySelector(".details").innerHTML}
                         </div>
                     </div>`
@@ -1087,11 +1087,13 @@ function discussion(template, courseId) {
         // document.title = title;
         var doc = new DOMParser().parseFromString(data, "text/html");
         console.log(doc);
-        var boards = doc.getElementById("listContainer_databody").children;
+        var boards = doc.getElementById("listContainer_databody");
+        boards = boards ? boards.children : [];
         for(var board of boards) {
             var title = board.querySelector(".dbheading").textContent.trim();
             var link = board.querySelector(".dbheading > a").href;
-            var html = board.querySelector(".vtbegenerated").innerHTML;
+            var html = board.querySelector(".vtbegenerated");
+            html = html ? html.innerHTML : "";
             var totalPosts = board.querySelector(".total-count").textContent.trim();
             var unreadCount = board.querySelectorAll(".unread-count")[0].textContent.trim();
             var unreadToMe = board.querySelectorAll(".unread-count")[1].textContent.trim();
