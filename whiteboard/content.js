@@ -175,11 +175,6 @@ function refreshNavLinks(def = true) {
 
                 toggleButton.classList.remove('is-active');
             } else {
-                // close all other
-                //$navListWithSubNav
-                //.removeClass('is-opened')
-                //.find('.is-active').removeClass('is-active');
-
                 // open this one
                 listItem.classList.add('is-opened');
                 toggleButton.classList.add('is-active');
@@ -200,8 +195,62 @@ function processTemplate(template, main) {
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
 
-    refreshNavLinks();
-    render_calendar_addon();
+    // check latest versions
+    return checkLatestRelease();
+}
+
+// converts version number "xx.xx.xx" into an integer
+function verToNumber(str) {
+    var arr = str.split(".");
+    var res = 0;
+    for(var i = 0; i < arr.length; i++)
+        res += Math.pow(100, arr.length - 1 - i) * arr[i];
+    return res;
+}
+
+function checkLatestRelease() {
+    return fetch("https://api.github.com/repos/sunnyguan/whiteboard/releases/latest").then(d => d.json()).then(release => {
+        var latestVersion = verToNumber(release["tag_name"].substring(1));
+        return fetch("https://raw.githubusercontent.com/sunnyguan/whiteboard/master/whiteboard/manifest.json").then(data => data.json()).then(beta => {
+            var betaVersion = verToNumber(beta["version"]);
+            return fetch(chrome.extension.getURL("manifest.json")).then(data => data.json()).then(current => {
+                var appVersion = verToNumber(current["version"])
+                console.log("Latest: " + latestVersion);
+                console.log("Current: " + appVersion);
+
+                // testing
+                // latestVersion = verToNumber("1.0.0");
+                // betaVersion = verToNumber("1.0.7");
+                // appVersion = verToNumber("1.0.5");
+
+                if(appVersion < latestVersion) {
+                    document.querySelector("#stableUpdate").innerText = "Update Available!";
+                    document.querySelector("#stableUpdate").href = release.assets[0].browser_download_url;
+                    document.querySelector("#stableUpdate").style.color = "rgb(255, 78, 103)";
+                    document.querySelector("#stableUpdate").style.borderColor = "rgba(255,3,3,70%)";
+                } else if (appVersion < betaVersion) {
+                    document.querySelector("#stableUpdate").innerText = "Beta Available";
+                    document.querySelector("#stableUpdate").href = "https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip";
+                    // document.querySelector("#stableUpdate").style.color = "rgb(78, 255, 103)";
+                    // document.querySelector("#stableUpdate").style.borderColor = "rgba(3,255,3,70%)";
+                    document.querySelector("#stableUpdate").color = "rgb(0, 78, 103)";
+                    document.querySelector("#stableUpdate").style.borderColor = "initial";
+                } else if (appVersion > betaVersion) {
+                    // easter egg : )
+                    document.querySelector("#stableUpdate").innerText = "Developer Mode";
+                    document.querySelector("#stableUpdate").style.borderImage = "linear-gradient(to right bottom, rgb(184, 39, 252) 0%, rgb(44, 144, 252) 25%, rgb(184, 253, 51) 50%, rgb(254, 200, 55) 75%, rgb(253, 24, 146) 100%) 1 / 1 / 0 stretch";
+                    document.querySelector("#stableUpdate").style.borderImageSlice = "1";
+                    document.querySelector("#stableUpdate").style.color = "yellow";
+                } else {
+                    document.querySelector("#stableUpdate").innerText = "On Latest Version";
+                    document.querySelector("#stableUpdate").color = "rgb(0, 78, 103)";
+                    document.querySelector("#stableUpdate").style.borderColor = "initial";
+                }
+                refreshNavLinks();
+                render_calendar_addon();
+            })
+        })
+    });
 }
 
 // util function to make element from HTML
@@ -617,7 +666,7 @@ function loadAnnouncementCards() {
                     <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
                         ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
                     </div>
-                    <h2 class="mdl-card__title-text" style="font-size: 20px">${card1info.title}</h2>
+                    <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card1info.title}</h2>
                 </div>
                 <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: left;">
                     ${courseIds[courseId]}
@@ -639,7 +688,7 @@ function loadAnnouncementCards() {
                         <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
                             ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
                         </div>
-                        <h2 class="mdl-card__title-text" style="font-size: 20px">${card2info.title}</h2>
+                        <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card2info.title}</h2>
                     </div>
                     <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: right;">
                         ${courseIds[courseId]}
