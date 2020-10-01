@@ -224,17 +224,17 @@ function checkLatestRelease() {
                 // appVersion = verToNumber("1.0.5");
 
                 if(appVersion < latestVersion) {
-                    document.querySelector("#stableUpdate").innerText = "Update Available!";
+                    document.querySelector("#stableUpdate").innerText = "Major Update Available!";
                     document.querySelector("#stableUpdate").href = release.assets[0].browser_download_url;
                     document.querySelector("#stableUpdate").style.color = "rgb(255, 78, 103)";
                     document.querySelector("#stableUpdate").style.borderColor = "rgba(255,3,3,70%)";
                 } else if (appVersion < betaVersion) {
-                    document.querySelector("#stableUpdate").innerText = "Beta Available";
+                    document.querySelector("#stableUpdate").innerText = "Beta Available!";
                     document.querySelector("#stableUpdate").href = "https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip";
                     // document.querySelector("#stableUpdate").style.color = "rgb(78, 255, 103)";
                     // document.querySelector("#stableUpdate").style.borderColor = "rgba(3,255,3,70%)";
-                    document.querySelector("#stableUpdate").color = "rgb(0, 78, 103)";
-                    document.querySelector("#stableUpdate").style.borderColor = "initial";
+                    document.querySelector("#stableUpdate").style.color = "rgb(144, 255, 101, 0.7)";
+                    document.querySelector("#stableUpdate").style.borderColor = "rgb(144, 255, 101, 0.7)";
                 } else if (appVersion > betaVersion) {
                     // easter egg : )
                     document.querySelector("#stableUpdate").innerText = "Developer Mode";
@@ -243,7 +243,7 @@ function checkLatestRelease() {
                     document.querySelector("#stableUpdate").style.color = "yellow";
                 } else {
                     document.querySelector("#stableUpdate").innerText = "On Latest Version";
-                    document.querySelector("#stableUpdate").color = "rgb(0, 78, 103)";
+                    document.querySelector("#stableUpdate").style.color = "rgb(0, 78, 103)";
                     document.querySelector("#stableUpdate").style.borderColor = "initial";
                 }
                 refreshNavLinks();
