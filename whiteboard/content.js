@@ -118,7 +118,7 @@ function replacePage() {
         replaceUrl = "iframe";
     } else if (href.startsWith("https://elearning.utdallas.edu/webapps/discussionboard/")) {
         courseId = href.split("course_id=")[1].split("&")[0];
-        if(href.includes("conf_id") || href.includes("forum_id")) {
+        if (href.includes("conf_id") || href.includes("forum_id")) {
             iframeSrc = href;
             title = "Discussion";
             replaceUrl = "iframe";
@@ -161,25 +161,25 @@ function replacePage() {
         });
 }
 
-function refreshNavLinks(def = true) {
-    var names = def ? "" : ".newSubnav";
-    var navListWithSubNav = document.querySelectorAll('.mdl-navigation__list .has-subnav' + names);
+function refreshNavLinks() {
+    var navListWithSubNav = document.querySelectorAll('.mdl-navigation__list .has-subnav');
     Array.from(navListWithSubNav).forEach(function (item) {
         var listItem = item;
         var toggleButton = item.querySelector('.js-toggle-subnav');
         var subnav = item.querySelector('.mdl-navigation__list');
-        toggleButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            if (listItem.classList.contains('is-opened')) {
-                listItem.classList.remove('is-opened');
-
-                toggleButton.classList.remove('is-active');
-            } else {
-                // open this one
-                listItem.classList.add('is-opened');
-                toggleButton.classList.add('is-active');
-            }
-        })
+        if (item.getAttribute('has-click-listener') !== 'true') {
+            item.setAttribute('has-click-listener', 'true');
+            toggleButton.addEventListener('click', function (event) {
+                if (listItem.classList.contains('is-opened')) {
+                    listItem.classList.remove('is-opened');
+                    toggleButton.classList.remove('is-active');
+                } else {
+                    // open this one
+                    listItem.classList.add('is-opened');
+                    toggleButton.classList.add('is-active');
+                }
+            })
+        }
     })
 }
 
@@ -203,7 +203,7 @@ function processTemplate(template, main) {
 function verToNumber(str) {
     var arr = str.split(".");
     var res = 0;
-    for(var i = 0; i < arr.length; i++)
+    for (var i = 0; i < arr.length; i++)
         res += Math.pow(100, arr.length - 1 - i) * arr[i];
     return res;
 }
@@ -223,7 +223,7 @@ function checkLatestRelease() {
                 // betaVersion = verToNumber("1.0.7");
                 // appVersion = verToNumber("1.0.5");
 
-                if(appVersion < latestVersion) {
+                if (appVersion < latestVersion) {
                     document.querySelector("#stableUpdate").innerText = "Major Update Available!";
                     document.querySelector("#stableUpdate").href = release.assets[0].browser_download_url;
                     document.querySelector("#stableUpdate").style.color = "rgb(255, 78, 103)";
@@ -386,7 +386,7 @@ var home_main = `
             <div class="grid-calendar" style="margin: auto;">
             </div>
             <div class="grid-calendar" style="margin: auto;">
-              <div class="row calendar-week" id="style-9">
+              <div class="row calendar-week" id="agenda-container">
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
                     <div>
@@ -533,15 +533,15 @@ function home(template) {
 
 function gradeToColor(grade, def, convert = false) {
     var colorClass = def;
-    if(grade === "N/A") 
+    if (grade === "N/A")
         return def;
-    
+
     var checkLetter = grade.trim();
     var matches = checkLetter.match("([A-Z])\+");
-    if(matches) {
+    if (matches) {
         var cat = matches[0];
-        if(cat === 'A') colorClass = def;
-        else if(cat === 'B') colorClass = "success2";
+        if (cat === 'A') colorClass = def;
+        else if (cat === 'B') colorClass = "success2";
         else colorClass = "success3";
         return { "grade": grade, "color": colorClass };
     }
@@ -922,7 +922,7 @@ function fetchSidebarCourses(courseId = "") {
         var currentCourse;
         uiCourses = courses;
         for (var c of uiCourses) {
-            var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav newSubnav"' : "";
+            var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav"' : "";
             var nav_uls = "";
             if (classes)
                 nav_uls = '<ul class="mdl-navigation__list"></ul>';
@@ -999,7 +999,7 @@ function fetchSidebarCourses(courseId = "") {
                 // refreshNavLinks(false);
             }));
         }
-        refreshNavLinks(false);
+        refreshNavLinks();
         Promise.all(promises);
     });
 }
@@ -1138,7 +1138,7 @@ function discussion(template, courseId) {
         console.log(doc);
         var boards = doc.getElementById("listContainer_databody");
         boards = boards ? boards.children : [];
-        for(var board of boards) {
+        for (var board of boards) {
             var title = board.querySelector(".dbheading").textContent.trim();
             var link = board.querySelector(".dbheading > a").href;
             var html = board.querySelector(".vtbegenerated");
