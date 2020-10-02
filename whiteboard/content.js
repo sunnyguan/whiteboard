@@ -511,6 +511,7 @@ function home(template) {
             document.querySelector(".courseAll").appendChild(newElement);
         }
         // add the other stuff at the bottom
+        // TODO: work on groups
         /* for (var course of courseArr) {
             // NOTE: this could break if the 2208 pattern changes!
             if (course.course.courseId.startsWith('2208-')) continue;
@@ -1030,6 +1031,7 @@ function fetchCourseList() {
                 var courses = [];
                 for (var c of courseArr) {
                     // NOTE: this could break if the 2208 pattern changes!
+                    // TODO find better way to separate course/group
                     // console.log(c.course.availability);
                     // console.log(c.course.name);
                     if (!c.course.courseId.startsWith('2208-') || c.course.availability.available === "No")
