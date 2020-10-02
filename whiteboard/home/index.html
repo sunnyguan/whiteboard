@@ -352,6 +352,24 @@
       -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
       flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    #style-3::-webkit-scrollbar-track
+    {
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      background-color: #F5F5F5;
+    }
+
+    #style-3::-webkit-scrollbar
+    {
+      width: 6px;
+      background-color: #F5F5F5;
+    }
+
+    #style-3::-webkit-scrollbar-thumb
+    {
+      background-color: #000000;
     }
 
     .demo-layout .demo-navigation .mdl-navigation__link {
@@ -1024,7 +1042,7 @@
       </div>
     </header>
 
-    <div class="mdl-layout__drawer">
+    <div class="mdl-layout__drawer" id="style-3">
       <header class="mdl-navheader">
         <div class="m-navheader__user">
           <img id="student-avatar" src="" class="mdl-navheader__image" alt=""><br>
@@ -1033,7 +1051,7 @@
         </div>
       </header>
 
-      <nav class="mdl-navigation">
+      <nav class="mdl-navigation" >
         <ul class="mdl-navigation__list">
           <li>
             <a href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1"
