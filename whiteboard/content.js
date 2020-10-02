@@ -469,7 +469,9 @@ var home_main = `
           </div>
         </div>
         <div class="courseAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"></div>
-        <div class="groupAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"></div>
+        <div class="groupAll demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+            <h3 style="font-weight: 200;width: 100%;text-align: center;">Group support coming soon!</h3>
+        </div>
     </div>
 `;
 
@@ -509,7 +511,7 @@ function home(template) {
             document.querySelector(".courseAll").appendChild(newElement);
         }
         // add the other stuff at the bottom
-        for (var course of courseArr) {
+        /* for (var course of courseArr) {
             // NOTE: this could break if the 2208 pattern changes!
             if (course.course.courseId.startsWith('2208-')) continue;
 
@@ -525,7 +527,7 @@ function home(template) {
             );
             // newElement.querySelector(".groupContent").textContent = "Course content goes here"; // what to put here?
             document.querySelector(".groupAll").appendChild(newElement);
-        }
+        }*/
 
         return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
     })
@@ -986,14 +988,24 @@ function fetchSidebarCourses(courseId = "") {
                                     </a>
                                 </li>
                             `);
-                            currentCourse.querySelector(".mdl-navigation__list").appendChild(element);
+                            if(currentCourse) {
+                                var sideNav = currentCourse.querySelector(".mdl-navigation__list");
+                                if(sideNav)
+                                    sideNav.appendChild(element);
+                            }
                         } else {
-                            var divider = createElementFromHTML(`<hr>`);
-                            currentCourse.querySelector(".mdl-navigation__list").appendChild(divider);
+                            if(currentCourse) {
+                                var divider = createElementFromHTML(`<hr>`);
+                                var sideNav = currentCourse.querySelector(".mdl-navigation__list");
+                                if(sideNav)
+                                    sideNav.appendChild(divider);
+                            }
                         }
                     }
-                    currentCourse.classList.add('is-opened');
-                    currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
+                    if(currentCourse) {
+                        currentCourse.classList.add('is-opened');
+                        currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
+                    }
                 }
                 // allLinks.appendChild(newElement);
                 // refreshNavLinks(false);
