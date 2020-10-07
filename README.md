@@ -1,5 +1,7 @@
 # Whiteboard
 
+![vis.jpg](https://visitor-badge.glitch.me/badge?page_id=sunnyguan.whiteboard)
+
 ![Dashboard](screenshots/sidebar_and_grades.PNG)
 
 ### Two main goals of this project:
@@ -65,5 +67,3 @@ For beta versions, read the next section.
 
 ### Quick Add to Calendar
 1. On every page in Whiteboard, there will be an add icon on the top right of the page. Clicking on that icon will allow users to quickly add an event to their calendar. Fields include title, description, start time, and end time.
-
-![vis.jpg](https://visitor-badge.glitch.me/badge?page_id=sunnyguan.whiteboard)
