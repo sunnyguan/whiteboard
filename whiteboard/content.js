@@ -186,9 +186,72 @@ function processTemplate(template, main) {
     nameElement.innerText = username;
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
+    
+    Array.from(document.querySelectorAll('.notification-tab')).forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            if (e.currentTarget.parentNode.classList.contains('expanded')) {
+                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
+            }
+            else {
+                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
+                e.currentTarget.parentNode.classList.toggle('expanded');
+            }
+        })
+    })
+
+    return chrome.storage.local.get({ reads: [] }, function (result) {
+        readAlready = result.reads;
+        Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                e.preventDefault();
+    
+                var el = e.target;
+    
+                document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
+    
+                var container = e.currentTarget.parentNode;
+                var dropdown = document.querySelector('.dropdown');
+                var containerWidth = container.offsetWidth
+                var containerHeight = container.offsetHeight
+    
+                dropdown.style.right = containerWidth / 2 + 'px';
+    
+                if(container.classList.contains("expanded")) {
+                    container.classList.remove("expanded");
+                    readAllAnnouncements()
+    
+                } else {
+                    container.classList.add("expanded")
+                }
+            })
+            return checkLatestRelease();
+        })
+    });
+    
 
     // check latest versions
-    return checkLatestRelease();
+    
+}
+
+function readAllAnnouncements() {
+    chrome.storage.local.get({ reads: [] }, function (result) {
+        console.log(result);
+        var newReads = result.reads;
+        for(var anmt of allAnnouncements)
+            if(!newReads.includes(anmt)) 
+                newReads.push(anmt);
+	console.log(newReads)
+        newReads = newReads.slice(-50)
+        readAlready = newReads
+        allAnnouncements = []
+
+        chrome.storage.local.set({
+            reads: newReads
+        }, function () {
+            console.log("added read announcements");
+            console.log(newReads);
+        });
+    });
 }
 
 // converts version number "xx.xx.xx" into an integer
@@ -522,8 +585,151 @@ function home(template) {
             document.querySelector(".groupAll").appendChild(newElement);
         }*/
 
-        return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
+        return fetchSidebarCourses().then(data => { return processNotifications().then(resp => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) }) });
     })
+}
+
+function processNotifications() {
+    var head = {
+        "headers": {
+            "accept": "text/javascript, text/html, application/xml, text/xml, */*",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "x-prototype-version": "1.7",
+            "x-requested-with": "XMLHttpRequest"
+        },
+        "referrer": "https://elearning.utdallas.edu/webapps/streamViewer/streamViewer?cmd=view&streamName=alerts&globalNavigation=false",
+        "referrerPolicy": "no-referrer-when-downgrade",
+        "body": "cmd=loadStream&streamName=alerts&providers=%7B%7D&forOverview=false",
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "include"
+    }
+     
+    return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
+}
+
+function wait(delay){
+    return new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+function fetchRetry(url, delay, tries, fetchOptions = {}) {
+    function onError(err){
+        triesLeft = tries - 1;
+        if(!triesLeft){
+            console.log("error while fetching announcements");
+        }
+        console.log("tries left: " + triesLeft);
+        return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
+    }
+    return fetch(url,fetchOptions).then(resp => resp.json()).then(a => {
+        if(a["sv_streamEntries"].length == 0) 
+            onError(null);
+        else 
+            processRankedNotifications(a)
+    });
+}
+
+function timeSince(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+
+    var interval = seconds / 31536000;
+
+    if (interval > 1) {
+        return Math.floor(interval) + " years";
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+        return Math.floor(interval) + " months";
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+        return Math.floor(interval) + " days";
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+        return Math.floor(interval) + " hours";
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+        return Math.floor(interval) + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+}
+var aDay = 24 * 60 * 60 * 1000;
+
+var allAnnouncements = [];
+var readAlready = [];
+
+function processRankedNotifications(res) {
+    var updates = res["sv_streamEntries"];
+    updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
+    updates = updates.slice(0, 20);
+    console.log(updates);
+
+    var messages = document.getElementById("messages");
+    var anmts = document.getElementById("announcements");
+    var msgCount = 0;
+    var anmtCount = 0;
+    var unreadCount = 0;
+    for (var update of updates) {
+        var time = timeSince(new Date(update.se_timestamp))
+        var courseName = ("se_courseId" in update && update.se_courseId in courseIds) ? courseIds[update.se_courseId] : "No course info.";
+        var innerInfo = createElementFromHTML("<div>" + update.se_context + "</div>");
+        if(innerInfo.querySelector(".inlineContextMenu")) {
+            var remove = innerInfo.querySelector(".inlineContextMenu");
+            remove.parentNode.removeChild(remove);
+        }
+
+        var infoHTML = "";
+        var appElement = messages;
+        var id = "se_id" in update ? update.se_id : "";
+        if(id !== "")
+            allAnnouncements.push(id);
+        if(innerInfo.textContent.trim().startsWith("Content")) {
+            // content ... available
+            var eventTitle = innerInfo.querySelector(".eventTitle");
+            infoHTML = eventTitle.innerHTML;
+            msgCount++;
+        } else if (innerInfo.querySelector(".announcementTitle")) {
+            // announcement
+            infoHTML = innerInfo.querySelector(".announcementTitle").innerHTML
+            appElement = anmts;
+            anmtCount++;
+        } else {
+            infoHTML = innerInfo.innerHTML
+            msgCount++;
+        }
+
+        var style = "";
+        if(!readAlready.includes(id)) {
+            style = "style='background: lightpink'";
+            unreadCount++;
+        }
+        var element = createElementFromHTML(`
+            <li class="notification-list-item" id="${id}" ${style}>
+                <p class="message">${infoHTML}</p>
+                <div class="item-footer">
+                <span class="from"><a href="#">${courseName}</a></span>
+                <span class="date">${time} ago</span>
+                </div>
+            </li>
+        `)
+        appElement.appendChild(element);
+        console.log(update.se_context);
+    }
+
+    if(unreadCount !== 0) {
+        document.querySelector(".circle").textContent = unreadCount;
+        document.querySelector(".circle").style.backgroundColor = "red";
+    }
+
+    document.querySelector("#announcementsCount").textContent = anmtCount;
+    document.querySelector("#messagesCount").textContent = msgCount;
 }
 
 function gradeToColor(grade, def, convert = false) {
