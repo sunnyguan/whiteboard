@@ -28,7 +28,7 @@ function start() {
         });
 
     console.log("Fetching your unique id...")
-    fetch(urlPrefix+"/webapps/blackboard/execute/personalInfo")
+    fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => getUserId(result))
         .catch(error => console.log("you're not logged in."));
@@ -65,21 +65,21 @@ function replacePage() {
     var iframeSrc = "";
     var title = "";
 
-    if (href.startsWith(urlPrefix+"/webapps/portal/execute/tabs/tabAction")) {
+    if (href.startsWith(urlPrefix + "/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/listContent")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/listContent")) {
         if (urlParams.get('content_id') != null) {
             replaceUrl = "content";
         } else {
             replaceUrl = "course";
         }
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/execute/announcement")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/execute/announcement")) {
         replaceUrl = "announcement";
-    } else if (href.startsWith(urlPrefix+"/webapps/calendar")) {
-        iframeSrc = urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false";
+    } else if (href.startsWith(urlPrefix + "/webapps/calendar")) {
+        iframeSrc = urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false";
         title = "Calendar";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/assignment/uploadAssignment")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/assignment/uploadAssignment")) {
         iframeSrc = href;
         title = "Assignment";
         replaceUrl = "iframe";
@@ -87,27 +87,27 @@ function replacePage() {
         iframeSrc = href;
         title = "Discussion Board";
         replaceUrl = "iframe";
-    }*/ else if (href.startsWith(urlPrefix+"/webapps/collab-ultra/tool/collabultra")) {
+    }*/ else if (href.startsWith(urlPrefix + "/webapps/collab-ultra/tool/collabultra")) {
         iframeSrc = href;
         title = "BlackBoard Collab";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/assessment/take/launchAssessment")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/assessment/take/launchAssessment")) {
         iframeSrc = href;
         title = "Assessment";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/bb-mygrades-BBLEARN")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/bb-mygrades-BBLEARN")) {
         iframeSrc = href;
         title = "My Grades";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/gradebook")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/gradebook")) {
         iframeSrc = href;
         title = "Gradebook";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/contentWrapper")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/contentWrapper")) {
         iframeSrc = href;
         title = "Content";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/discussionboard/")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/discussionboard/")) {
         if (href.includes("conf_id") || href.includes("forum_id")) {
             iframeSrc = href;
             title = "Discussion";
@@ -186,7 +186,7 @@ function processTemplate(template, main) {
     nameElement.innerText = username;
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
-    
+
     Array.from(document.querySelectorAll('.notification-tab')).forEach(function (a) {
         a.addEventListener('click', function (e) {
             if (e.currentTarget.parentNode.classList.contains('expanded')) {
@@ -204,43 +204,43 @@ function processTemplate(template, main) {
         Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
             a.addEventListener('click', function (e) {
                 e.preventDefault();
-    
+
                 var el = e.target;
-    
+
                 document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
-    
+
                 var container = e.currentTarget.parentNode;
                 var dropdown = document.querySelector('.dropdown');
                 var containerWidth = container.offsetWidth
                 var containerHeight = container.offsetHeight
-    
+
                 dropdown.style.right = containerWidth / 2 + 'px';
-    
-                if(container.classList.contains("expanded")) {
+
+                if (container.classList.contains("expanded")) {
                     container.classList.remove("expanded");
                     readAllAnnouncements()
-    
+
                 } else {
                     container.classList.add("expanded")
                 }
             })
-            return checkLatestRelease();
+            return checkLatestRelease().then(a => { return processNotifications() });
         })
     });
-    
+
 
     // check latest versions
-    
+
 }
 
 function readAllAnnouncements() {
     chrome.storage.local.get({ reads: [] }, function (result) {
         console.log(result);
         var newReads = result.reads;
-        for(var anmt of allAnnouncements)
-            if(!newReads.includes(anmt)) 
+        for (var anmt of allAnnouncements)
+            if (!newReads.includes(anmt))
                 newReads.push(anmt);
-	console.log(newReads)
+        console.log(newReads)
         newReads = newReads.slice(-50)
         readAlready = newReads
         allAnnouncements = []
@@ -340,7 +340,7 @@ function processAgenda() {
     lastSun = new Date(lastSunday);
     var nextSun = new Date(nextSunday);
 
-    return fetch(urlPrefix+"/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
+    return fetch(urlPrefix + "/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
         if ("results" in data) {
             // console.log(data);
             for (var cls of data["results"]) {
@@ -389,9 +389,9 @@ function render_calendar_addon() {
         var desc = document.getElementById("last").value;
         var start = document.getElementById("start").value + ":00"; // 2020-09-17T16:30:00
         var end = document.getElementById("end").value + ":01"; // 2020-09-17T17:00:00
-        return fetch(urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
+        return fetch(urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
             var id = data.match("nonceVal = \"(.*?)\"")[1];
-            return fetch(urlPrefix+"/webapps/calendar/calendarData/event", {
+            return fetch(urlPrefix + "/webapps/calendar/calendarData/event", {
                 "headers": {
                     "accept": "application/json, text/javascript, */*; q=0.01",
                     "accept-language": "en-US,en;q=0.9",
@@ -402,7 +402,7 @@ function render_calendar_addon() {
                     "sec-fetch-site": "same-origin",
                     "x-requested-with": "XMLHttpRequest"
                 },
-                "referrer": urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false",
+                "referrer": urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false",
                 "referrerPolicy": "no-referrer-when-downgrade",
                 "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}",
                     "allDay":false,"recur":false,"freq":"WEEKLY","interval":"1","byDay":["TH"],"monthRepeatBy":"BYMONTHDAY",
@@ -533,12 +533,12 @@ var home_main = `
 // dashboard page (home)
 function home(template) {
     console.log(user_id);
-    fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template, home_main);
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
-        bbScrape.src = urlPrefix+"/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
+        bbScrape.src = urlPrefix + "/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
         document.getElementsByTagName("body")[0].appendChild(bbScrape);
         document.title = "Dashboard";
 
@@ -585,7 +585,7 @@ function home(template) {
             document.querySelector(".groupAll").appendChild(newElement);
         }*/
 
-        return fetchSidebarCourses().then(data => { return processNotifications().then(resp => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) }) });
+        return fetchSidebarCourses().then(data => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) });
     })
 }
 
@@ -608,27 +608,27 @@ function processNotifications() {
         "mode": "cors",
         "credentials": "include"
     }
-     
+
     return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
 }
 
-function wait(delay){
+function wait(delay) {
     return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 function fetchRetry(url, delay, tries, fetchOptions = {}) {
-    function onError(err){
+    function onError(err) {
         triesLeft = tries - 1;
-        if(!triesLeft){
+        if (!triesLeft) {
             console.log("error while fetching announcements");
         }
         console.log("tries left: " + triesLeft);
         return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
     }
-    return fetch(url,fetchOptions).then(resp => resp.json()).then(a => {
-        if(a["sv_streamEntries"].length == 0) 
+    return fetch(url, fetchOptions).then(resp => resp.json()).then(a => {
+        if (a["sv_streamEntries"].length == 0)
             onError(null);
-        else 
+        else
             processRankedNotifications(a)
     });
 }
@@ -680,7 +680,7 @@ function processRankedNotifications(res) {
         var time = timeSince(new Date(update.se_timestamp))
         var courseName = ("se_courseId" in update && update.se_courseId in courseIds) ? courseIds[update.se_courseId] : "No course info.";
         var innerInfo = createElementFromHTML("<div>" + update.se_context + "</div>");
-        if(innerInfo.querySelector(".inlineContextMenu")) {
+        if (innerInfo.querySelector(".inlineContextMenu")) {
             var remove = innerInfo.querySelector(".inlineContextMenu");
             remove.parentNode.removeChild(remove);
         }
@@ -688,9 +688,9 @@ function processRankedNotifications(res) {
         var infoHTML = "";
         var appElement = messages;
         var id = "se_id" in update ? update.se_id : "";
-        if(id !== "")
+        if (id !== "")
             allAnnouncements.push(id);
-        if(innerInfo.textContent.trim().startsWith("Content")) {
+        if (innerInfo.textContent.trim().startsWith("Content")) {
             // content ... available
             var eventTitle = innerInfo.querySelector(".eventTitle");
             infoHTML = eventTitle.innerHTML;
@@ -706,7 +706,7 @@ function processRankedNotifications(res) {
         }
 
         var style = "";
-        if(!readAlready.includes(id)) {
+        if (!readAlready.includes(id)) {
             style = "style='background: lightpink'";
             unreadCount++;
         }
@@ -723,7 +723,7 @@ function processRankedNotifications(res) {
         console.log(update.se_context);
     }
 
-    if(unreadCount !== 0) {
+    if (unreadCount !== 0) {
         document.querySelector(".circle").textContent = unreadCount;
         document.querySelector(".circle").style.backgroundColor = "red";
     }
@@ -845,7 +845,7 @@ function loadAnnouncementCards() {
     var announcement_fetches = [];
     var announcements = document.getElementById("announcementDiv");
     for (var courseId of Object.keys(courseIds)) {
-        announcement_fetches.push(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
+        announcement_fetches.push(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
     }
     document.querySelector("#announcementLoad").style.display = 'none';
 
@@ -927,9 +927,9 @@ var course_main = `
 // load course contents
 function course(template, courseId) {
     var courseName = "";
-    fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+    fetch(urlPrefix + "/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
         courseName = data["name"]
-        return fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
+        return fetch(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
     }).then(data => {
         processTemplate(template, course_main);
         document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
@@ -937,7 +937,7 @@ function course(template, courseId) {
 
         var allLinks = document.querySelector(".contents");
         for (var res of data["results"]) {
-            var href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
+            var href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
             var newElement = createElementFromHTML(`
                 <div class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
@@ -974,7 +974,7 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
-    fetch(urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
+    fetch(urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
@@ -1170,7 +1170,7 @@ function fetchSidebarCourses(courseId = "") {
 
         var promises = [];
         if (courseId !== "") {
-            promises.push(fetch(urlPrefix+"/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
+            promises.push(fetch(urlPrefix + "/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
                 var xmlString = html;
                 var doc = new DOMParser().parseFromString(xmlString, "text/html");
                 var ul = doc.getElementById("courseMenuPalette_contents");
@@ -1187,21 +1187,21 @@ function fetchSidebarCourses(courseId = "") {
                                     </a>
                                 </li>
                             `);
-                            if(currentCourse) {
+                            if (currentCourse) {
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(element);
                             }
                         } else {
-                            if(currentCourse) {
+                            if (currentCourse) {
                                 var divider = createElementFromHTML(`<hr>`);
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(divider);
                             }
                         }
                     }
-                    if(currentCourse) {
+                    if (currentCourse) {
                         currentCourse.classList.add('is-opened');
                         currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
                     }
@@ -1219,7 +1219,7 @@ var courseIds = {};
 
 // fetch list of courses
 function fetchCourseList() {
-    return fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    return fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
@@ -1236,7 +1236,7 @@ function fetchCourseList() {
                         continue;
                     var newElement = {};
                     newElement.id = c.course.id;
-                    newElement.href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+                    newElement.href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
                     newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
                     newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
                     courses.push(newElement);
@@ -1260,7 +1260,7 @@ var announcement_main = `
 
 // announcement page (very similar to content, might improve later)
 function announcement(template, courseId) {
-    fetch(urlPrefix+"/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
+    fetch(urlPrefix + "/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
         .then(resp => resp.text()).then(data => {
             processTemplate(template, announcement_main);
             var xmlString = data;
