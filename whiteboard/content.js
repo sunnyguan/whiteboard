@@ -1,15 +1,24 @@
 console.log('Whiteboard extension loaded!');
 
-// only replace page if starts with /webapps
-if (window.location.href.startsWith("https://elearning.utdallas.edu/webapps")) {
-    start();
-}
-
 // for displaying user info, might add more uses later
 var user_id = "";
 var email = "";
 var username = "";
 var avatar_link = "";
+
+var enabled = true;
+const urlPrefix = "https://elearning.utdallas.edu";
+
+// logic to determine if we should activate whiteboard on this page
+chrome.storage.local.get(['enabled'], function (result) {
+    enabled = !!result.enabled;
+    console.log("Extension has been " + (enabled ? "en" : "dis") + "abled from the popup.");
+
+    // only replace page if extension enabled and url starts with /webapps
+    if (enabled && window.location.href.startsWith(urlPrefix)) {
+        start();
+    }
+});
 
 function start() {
     fetch(chrome.extension.getURL("loading.html"))
@@ -19,7 +28,7 @@ function start() {
         });
 
     console.log("Fetching your unique id...")
-    fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/personalInfo")
+    fetch(urlPrefix+"/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => getUserId(result))
         .catch(error => console.log("you're not logged in."));
@@ -49,75 +58,56 @@ function getUserId(result) {
 // logic for choosing page to replace
 function replacePage() {
     var href = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    var courseId = urlParams.get("course_id");
     var replaceUrl = "home";
-    var courseId = "";
     var contentId = "";
     var iframeSrc = "";
     var title = "";
 
-    if (href.startsWith("https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction")) {
+    if (href.startsWith(urlPrefix+"/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/content/listContent")) {
-        if (href.includes("content_id")) {
-            var courseAndContent = href.split("?")[1].split("&");
-
-            // deals with external links switching course_id and content_id
-            if (courseAndContent[0].includes("course_id")) {
-                courseId = courseAndContent[0].split("=")[1];
-                contentId = courseAndContent[1].split("=")[1];
-            } else {
-                courseId = courseAndContent[1].split("=")[1];
-                contentId = courseAndContent[0].split("=")[1];
-            }
-
+    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/listContent")) {
+        if (urlParams.get('content_id') != null) {
             replaceUrl = "content";
         } else {
-            courseId = href.split("?")[1].split("=")[1];
             replaceUrl = "course";
         }
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement")) {
-        courseId = href.split("?")[1].split("&");
-        for (var id of courseId) {
-            if (id.includes("course_id")) {
-                courseId = id.split("=")[1];
-                break;
-            }
-        }
+    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/execute/announcement")) {
         replaceUrl = "announcement";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/calendar")) {
-        iframeSrc = "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false";
+    } else if (href.startsWith(urlPrefix+"/webapps/calendar")) {
+        iframeSrc = urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false";
         title = "Calendar";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/assignment/uploadAssignment")) {
+    } else if (href.startsWith(urlPrefix+"/webapps/assignment/uploadAssignment")) {
         iframeSrc = href;
         title = "Assignment";
         replaceUrl = "iframe";
-    }/* else if (href.startsWith("https://elearning.utdallas.edu/webapps/discussionboard")) {
+    }/* else if (href.startsWith(urlPrefix+"/webapps/discussionboard")) {
         iframeSrc = href;
         title = "Discussion Board";
         replaceUrl = "iframe";
-    }*/ else if (href.startsWith("https://elearning.utdallas.edu/webapps/collab-ultra/tool/collabultra")) {
+    }*/ else if (href.startsWith(urlPrefix+"/webapps/collab-ultra/tool/collabultra")) {
         iframeSrc = href;
         title = "BlackBoard Collab";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/assessment/take/launchAssessment")) {
+    } else if (href.startsWith(urlPrefix+"/webapps/assessment/take/launchAssessment")) {
         iframeSrc = href;
         title = "Assessment";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN")) {
+    } else if (href.startsWith(urlPrefix+"/webapps/bb-mygrades-BBLEARN")) {
         iframeSrc = href;
         title = "My Grades";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/gradebook")) {
+    } else if (href.startsWith(urlPrefix+"/webapps/gradebook")) {
         iframeSrc = href;
         title = "Gradebook";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/blackboard/content/contentWrapper")) {
+    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/contentWrapper")) {
         iframeSrc = href;
         title = "Content";
         replaceUrl = "iframe";
-    } else if (href.startsWith("https://elearning.utdallas.edu/webapps/discussionboard/")) {
-        courseId = href.split("course_id=")[1].split("&")[0];
+    } else if (href.startsWith(urlPrefix+"/webapps/discussionboard/")) {
         if (href.includes("conf_id") || href.includes("forum_id")) {
             iframeSrc = href;
             title = "Discussion";
@@ -132,6 +122,8 @@ function replacePage() {
         title = "Blackboard";
         replaceUrl = "iframe";
     }
+
+    if (courseId == null) courseId = "";
 
     fetch(chrome.extension.getURL("home/index.html"))
         .then(function (response) {
@@ -152,7 +144,7 @@ function replacePage() {
             else if (replaceUrl === "announcement")
                 announcement(template, courseId);
             else if (replaceUrl === "iframe")
-                iframe(template, iframeSrc, title);
+                iframe(template, iframeSrc, title, courseId);
             else if (replaceUrl === "discussion")
                 discussion(template, courseId);
         })
@@ -194,72 +186,9 @@ function processTemplate(template, main) {
     nameElement.innerText = username;
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
-    
-    Array.from(document.querySelectorAll('.notification-tab')).forEach(function (a) {
-        a.addEventListener('click', function (e) {
-            if (e.currentTarget.parentNode.classList.contains('expanded')) {
-                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
-            }
-            else {
-                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
-                e.currentTarget.parentNode.classList.toggle('expanded');
-            }
-        })
-    })
-
-    return chrome.storage.local.get({ reads: [] }, function (result) {
-        readAlready = result.reads;
-        Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
-            a.addEventListener('click', function (e) {
-                e.preventDefault();
-    
-                var el = e.target;
-    
-                document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
-    
-                var container = e.currentTarget.parentNode;
-                var dropdown = document.querySelector('.dropdown');
-                var containerWidth = container.offsetWidth
-                var containerHeight = container.offsetHeight
-    
-                dropdown.style.right = containerWidth / 2 + 'px';
-    
-                if(container.classList.contains("expanded")) {
-                    container.classList.remove("expanded");
-                    readAllAnnouncements()
-    
-                } else {
-                    container.classList.add("expanded")
-                }
-            })
-            return checkLatestRelease();
-        })
-    });
-    
 
     // check latest versions
-    
-}
-
-function readAllAnnouncements() {
-    chrome.storage.local.get({ reads: [] }, function (result) {
-        console.log(result);
-        var newReads = result.reads;
-        for(var anmt of allAnnouncements)
-            if(!newReads.includes(anmt)) 
-                newReads.push(anmt);
-	console.log(newReads)
-        newReads = newReads.slice(-50)
-        readAlready = newReads
-        allAnnouncements = []
-
-        chrome.storage.local.set({
-            reads: newReads
-        }, function () {
-            console.log("added read announcements");
-            console.log(newReads);
-        });
-    });
+    return checkLatestRelease();
 }
 
 // converts version number "xx.xx.xx" into an integer
@@ -348,7 +277,7 @@ function processAgenda() {
     lastSun = new Date(lastSunday);
     var nextSun = new Date(nextSunday);
 
-    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
+    return fetch(urlPrefix+"/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
         if ("results" in data) {
             // console.log(data);
             for (var cls of data["results"]) {
@@ -368,7 +297,7 @@ function processAgenda() {
                     var newElement = createElementFromHTML(`
                         <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
                             <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
-                                href="https://elearning.utdallas.edu/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
+                                href=urlPrefix+"/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
                         </p>
                     `);
                     if ("dynamicCalendarItemProps" in cls) {
@@ -397,9 +326,9 @@ function render_calendar_addon() {
         var desc = document.getElementById("last").value;
         var start = document.getElementById("start").value + ":00"; // 2020-09-17T16:30:00
         var end = document.getElementById("end").value + ":01"; // 2020-09-17T17:00:00
-        return fetch("https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
+        return fetch(urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
             var id = data.match("nonceVal = \"(.*?)\"")[1];
-            return fetch("https://elearning.utdallas.edu/webapps/calendar/calendarData/event", {
+            return fetch(urlPrefix+"/webapps/calendar/calendarData/event", {
                 "headers": {
                     "accept": "application/json, text/javascript, */*; q=0.01",
                     "accept-language": "en-US,en;q=0.9",
@@ -410,7 +339,7 @@ function render_calendar_addon() {
                     "sec-fetch-site": "same-origin",
                     "x-requested-with": "XMLHttpRequest"
                 },
-                "referrer": "https://elearning.utdallas.edu/webapps/calendar/viewMyBb?globalNavigation=false",
+                "referrer": urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false",
                 "referrerPolicy": "no-referrer-when-downgrade",
                 "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}",
                     "allDay":false,"recur":false,"freq":"WEEKLY","interval":"1","byDay":["TH"],"monthRepeatBy":"BYMONTHDAY",
@@ -421,14 +350,14 @@ function render_calendar_addon() {
             }).then(resp => resp.text()).then(data => {
                 // console.log(data);
                 alert("Added!");
-                document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
+                document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
             }).catch(err => { console.log(err); alert("Error!"); })
         });
     });
 
     document.getElementById("hdrbtn").addEventListener('click', function (event) {
         event.preventDefault();
-        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
+        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
     })
 }
 
@@ -541,12 +470,12 @@ var home_main = `
 // dashboard page (home)
 function home(template) {
     console.log(user_id);
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template, home_main);
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
-        bbScrape.src = "https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
+        bbScrape.src = urlPrefix+"/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
         document.getElementsByTagName("body")[0].appendChild(bbScrape);
         document.title = "Dashboard";
 
@@ -565,8 +494,8 @@ function home(template) {
                         <h2 class="courseTitle mdl-card__title-text">${course.course.name}</h2>
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
-                        <a href="https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
-                        <a href="https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${course.course.id}" class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
+                        <a href=urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
+                        <a href=urlPrefix+"/webapps/blackboard/execute/announcement?course_id=${course.course.id}" class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
                     </div>
                 </div>`
             );
@@ -585,7 +514,7 @@ function home(template) {
                         <h2 class="groupTitle mdl-card__title-text">${course.course.name}</h2>
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
-                        <a href="https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="groupLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
+                        <a href=urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="groupLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
                     </div>
                 </div>`
             );
@@ -593,151 +522,8 @@ function home(template) {
             document.querySelector(".groupAll").appendChild(newElement);
         }*/
 
-        return fetchSidebarCourses().then(data => { return processNotifications().then(resp => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) }) });
+        return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
     })
-}
-
-function processNotifications() {
-    var head = {
-        "headers": {
-            "accept": "text/javascript, text/html, application/xml, text/xml, */*",
-            "accept-language": "en-US,en;q=0.9",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "x-prototype-version": "1.7",
-            "x-requested-with": "XMLHttpRequest"
-        },
-        "referrer": "https://elearning.utdallas.edu/webapps/streamViewer/streamViewer?cmd=view&streamName=alerts&globalNavigation=false",
-        "referrerPolicy": "no-referrer-when-downgrade",
-        "body": "cmd=loadStream&streamName=alerts&providers=%7B%7D&forOverview=false",
-        "method": "POST",
-        "mode": "cors",
-        "credentials": "include"
-    }
-     
-    return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
-}
-
-function wait(delay){
-    return new Promise((resolve) => setTimeout(resolve, delay));
-}
-
-function fetchRetry(url, delay, tries, fetchOptions = {}) {
-    function onError(err){
-        triesLeft = tries - 1;
-        if(!triesLeft){
-            console.log("error while fetching announcements");
-        }
-        console.log("tries left: " + triesLeft);
-        return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
-    }
-    return fetch(url,fetchOptions).then(resp => resp.json()).then(a => {
-        if(a["sv_streamEntries"].length == 0) 
-            onError(null);
-        else 
-            processRankedNotifications(a)
-    });
-}
-
-function timeSince(date) {
-
-    var seconds = Math.floor((new Date() - date) / 1000);
-
-    var interval = seconds / 31536000;
-
-    if (interval > 1) {
-        return Math.floor(interval) + " years";
-    }
-    interval = seconds / 2592000;
-    if (interval > 1) {
-        return Math.floor(interval) + " months";
-    }
-    interval = seconds / 86400;
-    if (interval > 1) {
-        return Math.floor(interval) + " days";
-    }
-    interval = seconds / 3600;
-    if (interval > 1) {
-        return Math.floor(interval) + " hours";
-    }
-    interval = seconds / 60;
-    if (interval > 1) {
-        return Math.floor(interval) + " minutes";
-    }
-    return Math.floor(seconds) + " seconds";
-}
-var aDay = 24 * 60 * 60 * 1000;
-
-var allAnnouncements = [];
-var readAlready = [];
-
-function processRankedNotifications(res) {
-    var updates = res["sv_streamEntries"];
-    updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
-    updates = updates.slice(0, 20);
-    console.log(updates);
-
-    var messages = document.getElementById("messages");
-    var anmts = document.getElementById("announcements");
-    var msgCount = 0;
-    var anmtCount = 0;
-    var unreadCount = 0;
-    for (var update of updates) {
-        var time = timeSince(new Date(update.se_timestamp))
-        var courseName = ("se_courseId" in update && update.se_courseId in courseIds) ? courseIds[update.se_courseId] : "No course info.";
-        var innerInfo = createElementFromHTML("<div>" + update.se_context + "</div>");
-        if(innerInfo.querySelector(".inlineContextMenu")) {
-            var remove = innerInfo.querySelector(".inlineContextMenu");
-            remove.parentNode.removeChild(remove);
-        }
-
-        var infoHTML = "";
-        var appElement = messages;
-        var id = "se_id" in update ? update.se_id : "";
-        if(id !== "")
-            allAnnouncements.push(id);
-        if(innerInfo.textContent.trim().startsWith("Content")) {
-            // content ... available
-            var eventTitle = innerInfo.querySelector(".eventTitle");
-            infoHTML = eventTitle.innerHTML;
-            msgCount++;
-        } else if (innerInfo.querySelector(".announcementTitle")) {
-            // announcement
-            infoHTML = innerInfo.querySelector(".announcementTitle").innerHTML
-            appElement = anmts;
-            anmtCount++;
-        } else {
-            infoHTML = innerInfo.innerHTML
-            msgCount++;
-        }
-
-        var style = "";
-        if(!readAlready.includes(id)) {
-            style = "style='background: lightpink'";
-            unreadCount++;
-        }
-        var element = createElementFromHTML(`
-            <li class="notification-list-item" id="${id}" ${style}>
-                <p class="message">${infoHTML}</p>
-                <div class="item-footer">
-                <span class="from"><a href="#">${courseName}</a></span>
-                <span class="date">${time} ago</span>
-                </div>
-            </li>
-        `)
-        appElement.appendChild(element);
-        console.log(update.se_context);
-    }
-
-    if(unreadCount !== 0) {
-        document.querySelector(".circle").textContent = unreadCount;
-        document.querySelector(".circle").style.backgroundColor = "red";
-    }
-
-    document.querySelector("#announcementsCount").textContent = anmtCount;
-    document.querySelector("#messagesCount").textContent = msgCount;
 }
 
 function gradeToColor(grade, def, convert = false) {
@@ -772,7 +558,7 @@ function fetchGrades() {
     // console.log(courseIds);
     var promises = [];
     for (var courseId in courseIds) {
-        promises.push(`https://elearning.utdallas.edu/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
+        promises.push(`${urlPrefix}/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
     }
 
     return Promise.all(promises.map(url => fetch(url).then(resp => resp.text()).then(res => {
@@ -853,7 +639,7 @@ function loadAnnouncementCards() {
     var announcement_fetches = [];
     var announcements = document.getElementById("announcementDiv");
     for (var courseId of Object.keys(courseIds)) {
-        announcement_fetches.push("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
+        announcement_fetches.push(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
     }
     document.querySelector("#announcementLoad").style.display = 'none';
 
@@ -871,7 +657,7 @@ function loadAnnouncementCards() {
             `<div class="first card">
                 <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
                     style="background-color: orange !important; background: none; min-height: 120px;"
-                    onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${courseId}'">
+                    onclick="location.href='${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${courseId}'">
                     <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
                         ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
                     </div>
@@ -893,7 +679,7 @@ function loadAnnouncementCards() {
                 `<div class="second card">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
                         style="background-color: orange !important; background: none; min-height: 120px;"
-                        onclick="location.href='https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?course_id=${courseId}'">
+                        onclick="location.href='${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${courseId}'">
                         <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
                             ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
                         </div>
@@ -935,9 +721,9 @@ var course_main = `
 // load course contents
 function course(template, courseId) {
     var courseName = "";
-    fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+    fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
         courseName = data["name"]
-        return fetch("https://elearning.utdallas.edu/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
+        return fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
     }).then(data => {
         processTemplate(template, course_main);
         document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
@@ -945,7 +731,7 @@ function course(template, courseId) {
 
         var allLinks = document.querySelector(".contents");
         for (var res of data["results"]) {
-            var href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
+            var href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
             var newElement = createElementFromHTML(`
                 <div class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
@@ -982,7 +768,7 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
-    fetch("https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
+    fetch(urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
@@ -1178,7 +964,7 @@ function fetchSidebarCourses(courseId = "") {
 
         var promises = [];
         if (courseId !== "") {
-            promises.push(fetch("https://elearning.utdallas.edu/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
+            promises.push(fetch(urlPrefix+"/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
                 var xmlString = html;
                 var doc = new DOMParser().parseFromString(xmlString, "text/html");
                 var ul = doc.getElementById("courseMenuPalette_contents");
@@ -1195,21 +981,21 @@ function fetchSidebarCourses(courseId = "") {
                                     </a>
                                 </li>
                             `);
-                            if (currentCourse) {
+                            if(currentCourse) {
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if (sideNav)
+                                if(sideNav)
                                     sideNav.appendChild(element);
                             }
                         } else {
-                            if (currentCourse) {
+                            if(currentCourse) {
                                 var divider = createElementFromHTML(`<hr>`);
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if (sideNav)
+                                if(sideNav)
                                     sideNav.appendChild(divider);
                             }
                         }
                     }
-                    if (currentCourse) {
+                    if(currentCourse) {
                         currentCourse.classList.add('is-opened');
                         currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
                     }
@@ -1227,7 +1013,7 @@ var courseIds = {};
 
 // fetch list of courses
 function fetchCourseList() {
-    return fetch("https://elearning.utdallas.edu/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    return fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
@@ -1244,7 +1030,7 @@ function fetchCourseList() {
                         continue;
                     var newElement = {};
                     newElement.id = c.course.id;
-                    newElement.href = "https://elearning.utdallas.edu/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+                    newElement.href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
                     newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
                     newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
                     courses.push(newElement);
@@ -1268,7 +1054,7 @@ var announcement_main = `
 
 // announcement page (very similar to content, might improve later)
 function announcement(template, courseId) {
-    fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
+    fetch(urlPrefix+"/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
         .then(resp => resp.text()).then(data => {
             processTemplate(template, announcement_main);
             var xmlString = data;
@@ -1309,7 +1095,7 @@ var iframe_main = `
 `;
 
 // fallback to links not implemented
-function iframe(template, iframeSrc, title) {
+function iframe(template, iframeSrc, title, courseId) {
     processTemplate(template, iframe_main);
     document.getElementById('header_title').textContent = title;
     document.title = title;
@@ -1338,7 +1124,7 @@ function iframe(template, iframeSrc, title) {
             });
         }
     }
-    return fetchSidebarCourses();
+    return fetchSidebarCourses(courseId);
 }
 
 
@@ -1350,7 +1136,7 @@ var discussion_main = `
 `;
 
 function discussion(template, courseId) {
-    fetch(`https://elearning.utdallas.edu/webapps/discussionboard/do/conference?toggle_mode=read&action=list_forums&course_id=${courseId}&nav=discussion_board_entry&mode=view`).then(resp => resp.text()).then(data => {
+    fetch(`${urlPrefix}/webapps/discussionboard/do/conference?toggle_mode=read&action=list_forums&course_id=${courseId}&nav=discussion_board_entry&mode=view`).then(resp => resp.text()).then(data => {
         processTemplate(template, discussion_main);
         // document.getElementById('header_title').textContent = title;
         // document.title = title;

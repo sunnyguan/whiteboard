@@ -1,32 +1,33 @@
-/*function restore_options() {
-    console.log('hi');
-    chrome.storage.sync.get(['id', 'interval'], function (result) {
-        if(result.id){
-            var url = "https://coolapis.herokuapp.com/ics?ptg=" + result.id;
-            document.getElementById("text").innerHTML = "URL: <a href=\"" + url + "\">" + url + "</a>";
-        }
-        if(result.interval){
-            document.getElementById("alert").textContent = "Current update interval: " + result.interval;
+const urlPrefix = "https://elearning.utdallas.edu/webapps";
+
+// set checkbox
+chrome.storage.local.get(['enabled'], function (result) {
+    document.getElementById("enabledCheckbox").checked = !!result.enabled;
+});
+
+function checkEnabled(element) {
+    var isChecked = document.getElementById("enabledCheckbox").checked;
+    chrome.storage.local.get(['enabled'], function (result) {
+        var enabled = !!result.enabled;
+        if (enabled != isChecked) {
+            // checkbox was updated
+            // update local storage 
+            chrome.storage.local.set({enabled: isChecked}, function() {
+                console.log('Value is set to ' + isChecked);
+            });
+            // reload if we are on elearning
+            chrome.tabs.query({active: true}, function (tab) {
+                if (tab[0].url.startsWith(urlPrefix)) {
+                    chrome.tabs.reload();
+                }
+            });
         }
     });
-    document.getElementById("input").addEventListener("keyup", save_interval);
     
 }
 
-function save_interval() {
-    event.preventDefault();
-    if (event.keyCode === 13) {
-        var val = document.getElementById("input").value;
-        console.log(val);
-        if(!isNaN(val)){
-            chrome.storage.sync.set({
-                interval: +val
-            }, function () {
-                console.log("Interval updated to " + val);
-                document.getElementById("alert").textContent = "Current update interval: " + val;
-            });
-        }
-    }
+function init() {
+    document.getElementById("enabledCheckbox").addEventListener('click', checkEnabled);
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);*/
+document.addEventListener('DOMContentLoaded', init);
