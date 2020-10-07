@@ -195,6 +195,37 @@ function processTemplate(template, main) {
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
 
+    Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            var el = e.target;
+
+            document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
+
+            var container = e.currentTarget.parentNode;
+            var dropdown = document.querySelector('.dropdown');
+            var containerWidth = container.offsetWidth
+            var containerHeight = container.offsetHeight
+
+            dropdown.style.right = containerWidth / 2 + 'px';
+
+            container.classList.toggle('expanded')
+        })
+    })
+    //Dropdown collapsile tabs
+    Array.from(document.querySelectorAll('.notification-tab')).forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            if (e.currentTarget.parentNode.classList.contains('expanded')) {
+                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
+            }
+            else {
+                Array.from(document.querySelectorAll('.notification-group')).forEach(function (a) { a.classList.remove('expanded'); })
+                e.currentTarget.parentNode.classList.toggle('expanded');
+            }
+        })
+    })
+
     // check latest versions
     return checkLatestRelease();
 }
@@ -530,8 +561,95 @@ function home(template) {
             document.querySelector(".groupAll").appendChild(newElement);
         }*/
 
-        return fetchSidebarCourses().then(data => { return loadAnnouncementCards().then(resp => { return fetchGrades().then(text => { return processAgenda(); }) }) });
+        return fetchSidebarCourses().then(data => { return processNotifications().then(resp => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) }) });
     })
+}
+
+function processNotifications() {
+    var head = {
+        "headers": {
+            "accept": "text/javascript, text/html, application/xml, text/xml, */*",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "x-prototype-version": "1.7",
+            "x-requested-with": "XMLHttpRequest"
+        },
+        "referrer": "https://elearning.utdallas.edu/webapps/streamViewer/streamViewer?cmd=view&streamName=alerts&globalNavigation=false",
+        "referrerPolicy": "no-referrer-when-downgrade",
+        "body": "cmd=loadStream&streamName=alerts&providers=%7B%7D&forOverview=false",
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "include"
+    }
+    return fetch("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", head).then(data => data.json()).then(res => {
+        if (res["sv_streamEntries"].length == 0) {
+            return fetch("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", head).then(data2 => data2.json()).then(res2 => {
+                processRankedNotifications(res2)
+            })
+        } else {
+            processRankedNotifications(res)
+        }
+    })
+}
+
+function timeSince(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+
+    var interval = seconds / 31536000;
+
+    if (interval > 1) {
+        return Math.floor(interval) + " years";
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+        return Math.floor(interval) + " months";
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+        return Math.floor(interval) + " days";
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+        return Math.floor(interval) + " hours";
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+        return Math.floor(interval) + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+}
+var aDay = 24 * 60 * 60 * 1000;
+
+
+function processRankedNotifications(res) {
+    var updates = res["sv_streamEntries"];
+    updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
+    updates = updates.slice(0, 10);
+    var messages = document.getElementById("messages");
+    for (var update of updates) {
+        var time = timeSince(new Date(update.se_timestamp))
+        var courseName = ("se_courseId" in update && update.se_courseId in courseIds) ? courseIds[update.se_courseId] : "No course info.";
+        var innerInfo = createElementFromHTML("<div>" + update.se_context + "</div>");
+        if(innerInfo.querySelector(".inlineContextMenu")) {
+            var remove = innerInfo.querySelector(".inlineContextMenu");
+            remove.parentNode.removeChild(remove);
+        }
+        var element = createElementFromHTML(`
+            <li class="notification-list-item">
+                <p class="message">${innerInfo ? innerInfo.innerHTML : ""}</p>
+                <div class="item-footer">
+                <span class="from"><a href="#">${courseName}</a></span>
+                <span class="date">${time} ago</span>
+                </div>
+            </li>
+        `)
+        messages.appendChild(element);
+        console.log(update.se_context);
+    }
 }
 
 function gradeToColor(grade, def, convert = false) {
@@ -989,21 +1107,21 @@ function fetchSidebarCourses(courseId = "") {
                                     </a>
                                 </li>
                             `);
-                            if(currentCourse) {
+                            if (currentCourse) {
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(element);
                             }
                         } else {
-                            if(currentCourse) {
+                            if (currentCourse) {
                                 var divider = createElementFromHTML(`<hr>`);
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(divider);
                             }
                         }
                     }
-                    if(currentCourse) {
+                    if (currentCourse) {
                         currentCourse.classList.add('is-opened');
                         currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
                     }

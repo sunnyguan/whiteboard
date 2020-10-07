@@ -354,20 +354,17 @@
       overflow-y: auto;
     }
 
-    #style-3::-webkit-scrollbar-track
-    {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    #style-3::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
       background-color: #F5F5F5;
     }
 
-    #style-3::-webkit-scrollbar
-    {
+    #style-3::-webkit-scrollbar {
       width: 6px;
       background-color: #F5F5F5;
     }
 
-    #style-3::-webkit-scrollbar-thumb
-    {
+    #style-3::-webkit-scrollbar-thumb {
       background-color: #000000;
     }
 
@@ -981,9 +978,559 @@
       display: none;
     }
   </style>
+
+
+  <style>
+    @import "https://fonts.googleapis.com/css?family=Open+Sans";
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .content {
+      padding: 15px;
+      margin-top: 60px;
+      color: #333;
+    }
+
+    .navigation {
+      position: fixed;
+      top: 0;
+      right: 100px;
+      height: 60px;
+      z-index: 10;
+    }
+
+    .navigation .inner-navigation {
+      padding: 0;
+      margin: 0;
+    }
+
+    .navigation .inner-navigation li {
+      list-style-type: none;
+    }
+
+    .navigation .inner-navigation li .menu-link {
+      color: #ff5252;
+      line-height: 3.7em;
+      padding: 20px 18px;
+      text-decoration: none;
+      transition: background .5s, color .5s;
+    }
+
+    .navigation .inner-navigation li .menu-link.menu-anchor {
+      padding: 20px;
+      margin: 0;
+      background: #ff5252;
+      color: #FFF;
+    }
+
+    .navigation .inner-navigation li .menu-link.has-notifications {
+      background: #ff5252;
+      color: #FFF;
+    }
+
+    .navigation .inner-navigation li .menu-link.circle {
+      line-height: 3.8em;
+      padding: 14px 18px;
+      border-radius: 50%;
+    }
+
+    .navigation .inner-navigation li .menu-link.circle:hover {
+      background: #ff5252;
+      color: #FFF;
+    }
+
+    .navigation .inner-navigation li .menu-link.square:hover {
+      background: #ff5252;
+      color: #FFF;
+      transition: background .5s, color .5s;
+    }
+
+    .dropdown-container {
+      overflow-y: hidden;
+    }
+
+    .dropdown-container.expanded .dropdown {
+      -webkit-animation: fadein .5s;
+      -moz-animation: fadein .5s;
+      -ms-animation: fadein .5s;
+      -o-animation: fadein .5s;
+      animation: fadein .5s;
+      display: block;
+    }
+
+    .dropdown-container .dropdown {
+      -webkit-animation: fadeout .5s;
+      -moz-animation: fadeout .5s;
+      -ms-animation: fadeout .5s;
+      -o-animation: fadeout .5s;
+      animation: fadeout .5s;
+      display: none;
+      position: absolute;
+      width: 300px;
+      height: auto;
+      max-height: 600px;
+      overflow-y: hidden;
+      padding: 0;
+      margin: 0;
+      background: #eee;
+      margin-top: 3px;
+      margin-right: -15px;
+      border-top: 4px solid #ff5252;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+      -webkit-box-shadow: 2px 2px 15px -5px rgba(0, 0, 0, 0.75);
+      -moz-box-shadow: 2px 2px 15px -5px rgba(0, 0, 0, 0.75);
+      box-shadow: 2px 2px 15px -5px rgba(0, 0, 0, 0.75);
+      /*
+  &:before{
+    position: absolute;
+    content: ' ';
+    width: 0; 
+    height: 0; 
+    top: -13px;
+    right: 7px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid $secondary-color; 
+  }
+  */
+    }
+
+    .dropdown-container .dropdown .notification-group {
+      border-bottom: 1px solid #e3e3e3;
+      overflow: hidden;
+      min-height: 65px;
+    }
+
+    .dropdown-container .dropdown .notification-group:last-child {
+      border-bottom: 0;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-tab {
+      padding: 0px 25px;
+      min-height: 65px;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-tab:hover {
+      cursor: pointer;
+      background: #3f51b5;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-tab:hover .fa,
+    .dropdown-container .dropdown .notification-group .notification-tab:hover h4,
+    .dropdown-container .dropdown .notification-group .notification-tab:hover .label {
+      color: #FFF;
+      display: inline-block;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-tab:hover .label {
+      background: #ff5252;
+      border-color: #ff5252;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list {
+      padding: 0;
+      overflow-y: auto;
+      height: 0px;
+      max-height: 250px;
+      transition: height .5s;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item {
+      padding: 5px 25px;
+      border-bottom: 1px solid #e3e3e3;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item .message {
+      margin: 5px 5px 10px;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item .item-footer a {
+      color: #3f51b5;
+      text-decoration: none;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item .item-footer .date {
+      float: right;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item:nth-of-type(odd) {
+      background: #e3e3e3;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item:hover {
+      cursor: pointer;
+    }
+
+    .dropdown-container .dropdown .notification-group .notification-list .notification-list-item:last-child {
+      border-bottom: 0;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+    }
+
+    .dropdown-container .dropdown .notification-group.expanded .notification-tab {
+      background: #3f51b5;
+    }
+
+    .dropdown-container .dropdown .notification-group.expanded .notification-tab .fa,
+    .dropdown-container .dropdown .notification-group.expanded .notification-tab h4,
+    .dropdown-container .dropdown .notification-group.expanded .notification-tab .label {
+      color: #FFF;
+      display: inline-block;
+    }
+
+    .dropdown-container .dropdown .notification-group.expanded .notification-tab .label {
+      background: #ff5252;
+      border-color: #ff5252;
+    }
+
+    .dropdown-container .dropdown .notification-group.expanded .notification-list {
+      height: 250px;
+      max-height: 250px;
+      transition: height .5s;
+    }
+
+    .dropdown-container .dropdown .notification-group .fa,
+    .dropdown-container .dropdown .notification-group h4,
+    .dropdown-container .dropdown .notification-group .label {
+      color: #333;
+      display: inline-block;
+    }
+
+    .dropdown-container .dropdown .notification-group .fa {
+      margin-right: 5px;
+      margin-top: 25px;
+    }
+
+    .dropdown-container .dropdown .notification-group .label {
+      float: right;
+      margin-top: 20px;
+      color: #3f51b5;
+      border: 1px solid #3f51b5;
+      padding: 0px 7px;
+      border-radius: 15px;
+    }
+
+    .right {
+      float: right;
+    }
+
+    .left {
+      float: left;
+    }
+
+    @media only screen and (max-width: 321px) {
+      .dropdown-container .dropdown .notification-group .notification-tab h4 {
+        display: none;
+      }
+
+      .dropdown-container .dropdown .notification-group .notification-tab:hover h4 {
+        display: none;
+      }
+
+      .dropdown-container .dropdown .notification-group.expanded .notification-tab h4 {
+        display: none;
+      }
+    }
+
+    @media only screen and (max-width: 514px) {
+      .dropdown-container .dropdown {
+        width: 100%;
+        margin: 0px;
+        left: 0;
+      }
+    }
+
+    @keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @-moz-keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @-webkit-keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @-ms-keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @-o-keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeout {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    @-moz-keyframes fadeout {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    @-webkit-keyframes fadeout {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    @-ms-keyframes fadeout {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    @-o-keyframes fadeout {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <nav class="navigation">
+    <ul class="inner-navigation">
+
+      <li class="right">
+        <!--span class="notification-label"></span-->
+        <div class="dropdown-container">
+          <a href="#" data-dropdown="notificationMenu" class="menu-link has-notifications circle">
+            <i class="fa fa-bell"></i>
+          </a>
+          <ul class="dropdown" name="notificationMenu">
+            <li class="notification-group">
+              <div class="notification-tab">
+                <i class="fa fa-flag"></i>
+                <h4>Tasks</h4>
+                <span class="label">4</span>
+              </div>
+              <!-- tab -->
+              <ul class="notification-list">
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">project3</a></span>
+                    <span class="date">2 minutes ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">project2</a></span>
+                    <span class="date">12 hours ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">project6</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">project2</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+
+              </ul>
+            </li>
+            <li class="notification-group">
+              <div class="notification-tab">
+                <i class="fa fa-bug"></i>
+                <h4>Bugs</h4>
+                <span class="label">2/8</span>
+              </div> <!-- tab -->
+              <ul class="notification-list">
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project1</a></span>
+                    <span class="date">2 minutes ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project2</a></span>
+                    <span class="date">12 hours ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project3</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project4</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project5</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project6</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project7</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@project8</a></span>
+                    <span class="date">2 days ago</span>
+                  </div>
+                </li>
+
+              </ul>
+              <!-- list -->
+            </li>
+            <li class="notification-group expanded">
+              <div class="notification-tab">
+                <i class="fa fa-envelope"></i>
+                <h4>Messages</h4>
+                <span class="label">3</span>
+              </div>
+              <ul class="notification-list" id="messages">
+              </ul>
+            </li>
+            <li class="notification-group">
+              <div class="notification-tab">
+                <i class="fa fa-calendar"></i>
+                <h4>Calendar</h4>
+                <span class="label">2</span>
+              </div>
+              <ul class="notification-list">
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@mstrlaw</a></span>
+                    <span class="date">tomorrow</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">@mstrlaw</a></span>
+                    <span class="date">in 2 days</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+            <li class="notification-group">
+              <div class="notification-tab">
+                <i class="fa fa-trophy"></i>
+                <h4>Badges</h4>
+                <span class="label">2</span>
+              </div>
+              <ul class="notification-list">
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">technical</a></span>
+                    <span class="date">2 weeks ago</span>
+                  </div>
+                </li>
+                <li class="notification-list-item">
+                  <p class="message">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+                  <div class="item-footer">
+                    <span class="from"><a href="#">personal</a></span>
+                    <span class="date">3 weeks ago</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+    </ul>
+  </nav>
+
+
   <div id="mycard">
     <div class="demo-card-wide mdl-card mdl-shadow--2dp">
       <div class="mdl-card__title">
@@ -1050,7 +1597,7 @@
         </div>
       </header>
 
-      <nav class="mdl-navigation" >
+      <nav class="mdl-navigation">
         <ul class="mdl-navigation__list">
           <li>
             <a href="https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1"
