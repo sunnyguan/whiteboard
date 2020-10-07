@@ -24,6 +24,11 @@
 + Global pins
 + Tree-style sidebar
 
+## Chrome Webstore
+
+Stable version: [Link](https://chrome.google.com/webstore/detail/whiteboard/hgoiijmhpdjkmecnlkpdcflgfjebpbhe?hl=en&authuser=1)
+
+For beta versions, read the next section.
 
 ## Installing Whiteboard
 1. Download the [zipped source](https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip) from GitHub and extract it on your computer.  
