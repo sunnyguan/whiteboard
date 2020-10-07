@@ -248,7 +248,8 @@ function readAllAnnouncements() {
         for(var anmt of allAnnouncements)
             if(!newReads.includes(anmt)) 
                 newReads.push(anmt);
-        newReads = newReads.slice(newReads.length - 25, newReads.length)
+	console.log(newReads)
+        newReads = newReads.slice(-50)
         readAlready = newReads
         allAnnouncements = []
 
@@ -637,7 +638,7 @@ function fetchRetry(url, delay, tries, fetchOptions = {}) {
             onError(null);
         else 
             processRankedNotifications(a)
-    }).catch(onError);
+    });
 }
 
 function timeSince(date) {
