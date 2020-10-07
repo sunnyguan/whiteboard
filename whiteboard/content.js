@@ -615,15 +615,29 @@ function processNotifications() {
         "mode": "cors",
         "credentials": "include"
     }
-    return fetch("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", head).then(data => data.json()).then(res => {
-        if (res["sv_streamEntries"].length == 0) {
-            return fetch("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", head).then(data2 => data2.json()).then(res2 => {
-                processRankedNotifications(res2)
-            })
-        } else {
-            processRankedNotifications(res)
+     
+    return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
+}
+
+function wait(delay){
+    return new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+function fetchRetry(url, delay, tries, fetchOptions = {}) {
+    function onError(err){
+        triesLeft = tries - 1;
+        if(!triesLeft){
+            console.log("error while fetching announcements");
         }
-    })
+        console.log("tries left: " + triesLeft);
+        return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
+    }
+    return fetch(url,fetchOptions).then(resp => resp.json()).then(a => {
+        if(a["sv_streamEntries"].length == 0) 
+            onError(null);
+        else 
+            processRankedNotifications(a)
+    }).catch(onError);
 }
 
 function timeSince(date) {
