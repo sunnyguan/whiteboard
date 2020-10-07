@@ -58,8 +58,9 @@ function getUserId(result) {
 // logic for choosing page to replace
 function replacePage() {
     var href = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    var courseId = urlParams.get("course_id");
     var replaceUrl = "home";
-    var courseId = "";
     var contentId = "";
     var iframeSrc = "";
     var title = "";
@@ -67,31 +68,12 @@ function replacePage() {
     if (href.startsWith(urlPrefix+"/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
     } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/listContent")) {
-        if (href.includes("content_id")) {
-            var courseAndContent = href.split("?")[1].split("&");
-
-            // deals with external links switching course_id and content_id
-            if (courseAndContent[0].includes("course_id")) {
-                courseId = courseAndContent[0].split("=")[1];
-                contentId = courseAndContent[1].split("=")[1];
-            } else {
-                courseId = courseAndContent[1].split("=")[1];
-                contentId = courseAndContent[0].split("=")[1];
-            }
-
+        if (urlParams.get('content_id') != null) {
             replaceUrl = "content";
         } else {
-            courseId = href.split("?")[1].split("=")[1];
             replaceUrl = "course";
         }
     } else if (href.startsWith(urlPrefix+"/webapps/blackboard/execute/announcement")) {
-        courseId = href.split("?")[1].split("&");
-        for (var id of courseId) {
-            if (id.includes("course_id")) {
-                courseId = id.split("=")[1];
-                break;
-            }
-        }
         replaceUrl = "announcement";
     } else if (href.startsWith(urlPrefix+"/webapps/calendar")) {
         iframeSrc = urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false";
@@ -126,7 +108,6 @@ function replacePage() {
         title = "Content";
         replaceUrl = "iframe";
     } else if (href.startsWith(urlPrefix+"/webapps/discussionboard/")) {
-        courseId = href.split("course_id=")[1].split("&")[0];
         if (href.includes("conf_id") || href.includes("forum_id")) {
             iframeSrc = href;
             title = "Discussion";
@@ -141,6 +122,8 @@ function replacePage() {
         title = "Blackboard";
         replaceUrl = "iframe";
     }
+
+    if (courseId == null) courseId = "";
 
     fetch(chrome.extension.getURL("home/index.html"))
         .then(function (response) {
@@ -161,7 +144,7 @@ function replacePage() {
             else if (replaceUrl === "announcement")
                 announcement(template, courseId);
             else if (replaceUrl === "iframe")
-                iframe(template, iframeSrc, title);
+                iframe(template, iframeSrc, title, courseId);
             else if (replaceUrl === "discussion")
                 discussion(template, courseId);
         })
@@ -1112,7 +1095,7 @@ var iframe_main = `
 `;
 
 // fallback to links not implemented
-function iframe(template, iframeSrc, title) {
+function iframe(template, iframeSrc, title, courseId) {
     processTemplate(template, iframe_main);
     document.getElementById('header_title').textContent = title;
     document.title = title;
@@ -1141,7 +1124,7 @@ function iframe(template, iframeSrc, title) {
             });
         }
     }
-    return fetchSidebarCourses();
+    return fetchSidebarCourses(courseId);
 }
 
 
