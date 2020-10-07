@@ -1,5 +1,7 @@
 # Whiteboard
 
+![vis.jpg](https://visitor-badge.glitch.me/badge?page_id=sunnyguan.whiteboard)
+
 ![Dashboard](screenshots/sidebar_and_grades.PNG)
 
 ### Two main goals of this project:
@@ -24,6 +26,11 @@
 + Global pins
 + Tree-style sidebar
 
+## Chrome Webstore
+
+Stable version: [Link](https://chrome.google.com/webstore/detail/whiteboard/hgoiijmhpdjkmecnlkpdcflgfjebpbhe?hl=en&authuser=1)
+
+For beta versions, read the next section.
 
 ## Installing Whiteboard
 1. Download the [zipped source](https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip) from GitHub and extract it on your computer.  
@@ -60,5 +67,3 @@
 
 ### Quick Add to Calendar
 1. On every page in Whiteboard, there will be an add icon on the top right of the page. Clicking on that icon will allow users to quickly add an event to their calendar. Fields include title, description, start time, and end time.
-
-![vis.jpg](https://visitor-badge.glitch.me/badge?page_id=sunnyguan.whiteboard)
