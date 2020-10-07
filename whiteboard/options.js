@@ -11,7 +11,7 @@ function checkEnabled(element) {
         var enabled = !!result.enabled;
         if (enabled != isChecked) {
             // checkbox was updated
-            // update local storage
+            // update local storage 
             chrome.storage.local.set({enabled: isChecked}, function() {
                 console.log('Value is set to ' + isChecked);
             });
@@ -25,3 +25,9 @@ function checkEnabled(element) {
     });
     
 }
+
+function init() {
+    document.getElementById("enabledCheckbox").addEventListener('click', checkEnabled);
+}
+
+document.addEventListener('DOMContentLoaded', init);
