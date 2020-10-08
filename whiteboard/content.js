@@ -1281,12 +1281,10 @@ function toggleLink(element, courseId) {
         links: {}
     }, function (result) {
         var newlinks = result.links;
-        if(courseId in newlinks) {
-            if(newlinks[courseId].includes(link)) {
-                removeFromLinks(element, courseId);
-            } else {
-                addToLinks(element, courseId);
-            }
+        if(courseId in newlinks && newlinks[courseId].includes(link)) {
+            removeFromLinks(element, courseId);
+        } else {
+            addToLinks(element, courseId);
         }
     });
 }
