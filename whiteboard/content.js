@@ -232,6 +232,7 @@ function replacePage() {
     } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/listContent")) {
         if (urlParams.get('content_id') != null) {
             replaceUrl = "content";
+            contentId = href.split("content_id=")[1].split("&")[0];
         } else {
             replaceUrl = "course";
         }
@@ -522,7 +523,7 @@ function processAgenda() {
                     var newElement = createElementFromHTML(`
                         <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
                             <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
-                                href=urlPrefix+"/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
+                                href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
                         </p>
                     `);
                     if ("dynamicCalendarItemProps" in cls) {
@@ -1136,6 +1137,7 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
+    console.log("course: " + courseId + "; content: " + contentId);
     fetch(urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
