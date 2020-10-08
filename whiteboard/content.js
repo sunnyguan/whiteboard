@@ -367,10 +367,12 @@ function processTemplate(template, main) {
         Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
             a.addEventListener('click', function (e) {
                 e.preventDefault();
-
                 var el = e.target;
 
-                document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
+                document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+                    container.classList.remove("expanded");
+                    document.querySelector("#dropdownOverlay").style.display = "none";
+                });
 
                 var container = e.currentTarget.parentNode;
                 var dropdown = document.querySelector('.dropdown');
@@ -381,10 +383,12 @@ function processTemplate(template, main) {
 
                 if (container.classList.contains("expanded")) {
                     container.classList.remove("expanded");
+                    document.querySelector("#dropdownOverlay").style.display = "none";
                     readAllAnnouncements()
 
                 } else {
                     container.classList.add("expanded")
+                    document.querySelector("#dropdownOverlay").style.display = "block";
                 }
             })
             return checkLatestRelease().then(a => { return processNotifications() });
@@ -583,7 +587,14 @@ function render_calendar_addon() {
 
     document.getElementById("hdrbtn").addEventListener('click', function (event) {
         event.preventDefault();
-        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
+        
+        document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+            document.getElementById("dropdownOverlay").style.display = 'none';
+            document.getElementById("mycard").style.display = "none";
+        })
+        console.log(document.getElementById("mycard").style.display);
+        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
+        document.querySelector("#dropdownOverlay").style.display = document.getElementById("mycard").style.display === 'none' ? 'none' : 'block';
     })
 }
 
