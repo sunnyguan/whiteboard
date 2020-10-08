@@ -423,10 +423,12 @@ function readAllAnnouncements() {
 
 // converts version number "xx.xx.xx" into an integer
 function verToNumber(str) {
+    
     var arr = str.split(".");
     var res = 0;
     for (var i = 0; i < arr.length; i++)
         res += Math.pow(100, arr.length - 1 - i) * arr[i];
+    console.log("string: " + str + "; res: " + res)
     return res;
 }
 
@@ -592,7 +594,7 @@ function render_calendar_addon() {
             document.getElementById("dropdownOverlay").style.display = 'none';
             document.getElementById("mycard").style.display = "none";
         })
-        console.log(document.getElementById("mycard").style.display);
+        // console.log(document.getElementById("mycard").style.display);
         document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
         document.querySelector("#dropdownOverlay").style.display = document.getElementById("mycard").style.display === 'none' ? 'none' : 'block';
     })
@@ -843,7 +845,7 @@ function processRankedNotifications(res) {
     var updates = res["sv_streamEntries"];
     updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
     updates = updates.slice(0, 20);
-    console.log(updates);
+    // console.log(updates);
 
     var messages = document.getElementById("messages");
     var anmts = document.getElementById("announcements");
@@ -894,7 +896,7 @@ function processRankedNotifications(res) {
             </li>
         `)
         appElement.appendChild(element);
-        console.log(update.se_context);
+        // console.log(update.se_context);
     }
 
     if (unreadCount !== 0) {
@@ -1148,7 +1150,7 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
-    console.log("course: " + courseId + "; content: " + contentId);
+    // console.log("course: " + courseId + "; content: " + contentId);
     fetch(urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
@@ -1189,7 +1191,7 @@ function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").setAttribute("title", item.querySelector("div > h3").textContent);
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
-                    console.log(t);
+                    // console.log(t);
                     addToLinks(t, courseId);
                 });
                 newElement.querySelector(".informationLinks").appendChild(read_more);
@@ -1221,7 +1223,7 @@ function addToLinks(element, courseId) {
     var name = element.getAttribute("title");
 
     chrome.storage.local.get({ links: {} }, function (result) {
-        console.log(result);
+        // console.log(result);
         var newlinks = {};
         var add_new = false;
         if (result.links !== {}) {
