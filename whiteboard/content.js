@@ -975,7 +975,7 @@ function fetchGrades() {
             if (dateElement) {
                 date = dateElement.textContent;
             }
-            lastHW = lastGradeRow.querySelector("div.cell.gradable > a").textContent.trim();
+            lastHW = lastGradeRow.querySelector("div.cell.gradable > a") ? lastGradeRow.querySelector("div.cell.gradable > a").textContent.trim() : "";
             if (lastHW.length > 35) lastHW = lastHW.substring(0, 35) + "...";
         }
 
