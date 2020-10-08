@@ -1118,7 +1118,7 @@ function course(template, courseId) {
             newElement.querySelector(".pin").addEventListener('click', function (event) {
                 var t = event.target;
                 console.log(t);
-                addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"), courseId);
             });
 
             allLinks.appendChild(newElement);
@@ -1177,7 +1177,7 @@ function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
                     console.log(t);
-                    addToLinks(t);
+                    addToLinks(t, courseId);
                 });
                 newElement.querySelector(".informationLinks").appendChild(read_more);
             }
@@ -1202,7 +1202,7 @@ function content(template, courseId, contentId) {
 }
 
 // add link to pinned
-function addToLinks(element) {
+function addToLinks(element, courseId) {
     var link = element.getAttribute("href");
     var courseId = element.getAttribute("courseid");
     var name = element.getAttribute("title");
@@ -1228,33 +1228,13 @@ function addToLinks(element) {
         }, function () {
             console.log("new link added");
             console.log(newlinks);
-            if (add_new) {
-                var newLink = createElementFromHTML(`
-                    <li>
-                        <div class="mdl-navigation__link">
-                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                                style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" 
-                                href="${link}" courseid="${courseId}" title="${name}">
-                                    push_pin
-                            </i>
-                            <a href="${link}" class="no-dec-link">
-                                ${name}
-                            </a>
-                        </div>
-                    </li>
-                `);
-                newLink.querySelector(".pin").addEventListener('click', function (event) {
-                    var t = event.target;
-                    removeFromLinks(t);
-                });
-                document.querySelector(`li[course="${courseId}"] > ul`).prepend(newLink);
-            }
+            fetchSidebarCourses(courseId);
         });
     });
 }
 
 // remove link from pinned
-function removeFromLinks(element) {
+function removeFromLinks(element, courseId) {
     var link = element.getAttribute("href");
     var courseId = element.getAttribute("courseid");
     var name = element.getAttribute("title");
@@ -1273,13 +1253,34 @@ function removeFromLinks(element) {
         }, function () {
             console.log("link removed");
             console.log(newlinks);
-            element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
+            fetchSidebarCourses(courseId);
+            // element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
         });
+    });
+}
+
+function toggleLink(element, courseId) {
+    var link = element.getAttribute("href");
+    var courseId = element.getAttribute("courseid");
+    var name = element.getAttribute("title");
+
+    chrome.storage.local.get({
+        links: {}
+    }, function (result) {
+        var newlinks = result.links;
+        if(courseId in newlinks) {
+            if(newlinks[courseId].includes(link)) {
+                removeFromLinks(element, courseId);
+            } else {
+                addToLinks(element, courseId);
+            }
+        }
     });
 }
 
 // fetch list of courses for sidebar (home page and iframe)
 function fetchSidebarCourses(courseId = "") {
+    document.querySelector('.allLinks').innerHTML = ""; 
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
@@ -1321,7 +1322,7 @@ function fetchSidebarCourses(courseId = "") {
                 `);
                 newLink.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
-                    removeFromLinks(t);
+                    removeFromLinks(t, courseId);
                 });
                 newElement.querySelector(".mdl-navigation__list").appendChild(newLink);
             }
@@ -1342,13 +1343,23 @@ function fetchSidebarCourses(courseId = "") {
                         var a = i.querySelector('a');
                         if (a) {
                             var element = createElementFromHTML(`
-                                <li>
-                                    <a href="${a.href}" class="mdl-navigation__link no-dec-link">
-                                        <i class="material-icons" role="presentation">assistant</i>
-                                        ${a.textContent}
-                                    </a>
+                                <li style="position: relative">
+                                    <div class="mdl-navigation__link">
+                                        <a href="${a.href}" class="no-dec-link">
+                                            <i class="material-icons" role="presentation">assistant</i>
+                                            ${a.textContent}
+                                        </a>
+                                        <i class="mdl-color-text--blue-grey-400 material-icons pin" style="padding: 0;color: green !important; cursor: pointer; position: absolute;right: 0;top: 7px;" 
+                                            href="${a.href}" courseid="${courseId}" title="${a.textContent}">
+                                            push_pin
+                                        </i>
+                                    </div>
                                 </li>
                             `);
+                            element.querySelector(".pin").addEventListener('click', function (event) {
+                                var t = event.target;
+                                toggleLink(t);
+                            });
                             if (currentCourse) {
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
                                 if (sideNav)
