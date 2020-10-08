@@ -5,7 +5,8 @@
 	"content_scripts": [
 		{
 			"matches": [
-				"https://elearning.utdallas.edu/*"
+				"https://elearning.utdallas.edu/*",
+				"https://coursebook.utdallas.edu/*"
 			],
 			"js": [
 				"content.js"
@@ -16,6 +17,12 @@
 	"web_accessible_resources": [
 		"*"
 	],
+	"background": {
+		"scripts": [
+			"bg_page.js"
+		],
+		"persistent": false
+	},
 	"permissions": [
 		"storage",
 		"cookies",
