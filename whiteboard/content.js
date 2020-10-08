@@ -17,8 +17,170 @@ chrome.storage.local.get(['enabled'], function (result) {
     // only replace page if extension enabled and url starts with /webapps
     if (enabled && window.location.href.startsWith(urlPrefix)) {
         start();
+    } else if (enabled && window.location.href.includes("coursebook.utdallas.edu")) {
+        document.addEventListener('DOMContentLoaded', function () {
+            startCB();
+        });
     }
 });
+
+/* Coursebook Enhancement */
+// console.log('Coursebook extension loaded!');
+
+// change "cs xxx" to "csxxx" for coursebook searching
+/* document.querySelector("#classsearch > a").onclick = function() {
+    console.log('hi');
+    var search = document.querySelector("#srch").value;
+    if(search.startsWith("cs ")) document.querySelector("#srch").value = search.replace("cs ", "cs");
+}*/
+flag = false;
+waiting = false;
+function startCB() {
+    viewport = document.querySelector("meta[name=viewport]");
+    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+    // document.querySelector('#page-middle').style.width = "100%";
+    // document.querySelector('#page-all').style.width = "100%";
+    chrome.storage.sync.get({
+        desktop: [],
+        mobile: []
+    }, function (items) {
+
+        var styles = '@media (max-width: 767px) {';
+
+        for(var i = 0; i < items.mobile.length; i++){
+            if(!items.mobile[i]){
+                styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
+            }
+        }
+        styles += `}@media (min-width: 767px) {`;
+
+        for(var i = 0; i < items.desktop.length; i++){
+            if(!items.desktop[i]){
+                styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
+            }
+        }
+
+        styles += "}";
+        var styleSheet = document.createElement("style")
+        styleSheet.type = "text/css"
+        styleSheet.innerText = styles
+        document.head.appendChild(styleSheet)
+
+        console.log(styles);
+    });
+    checkFlag();
+}
+
+
+function checkFlag() {
+    flag = document.querySelector("#sr > div > table > tbody") != null && document.querySelector("#sr > div > table > tbody").rows.length != 0 && document.querySelectorAll("#sr > div > table > thead > tr > th").length == 7;
+    if (flag == false || waiting == true) {
+        // console.log('checking...');
+        window.setTimeout(checkFlag, 1000);
+    } else {
+        document.querySelector("#sr > div > table").classList.add('table-responsive-full');
+        var rows = document.querySelector("#sr > div > table > tbody").rows
+        var len = document.querySelector("#sr > div > table > tbody").rows.length
+        var names = [];
+        for (var i = 0; i < len; i++) {
+            var element = rows[i]["cells"][4];
+            var text = element.textContent;
+            names.push(text);
+        }
+        multipleCalls(names);
+        flag = false;
+        window.setTimeout(checkFlag, 1000);
+    }
+}
+
+function multipleCalls(names) {
+    console.log('calling!');
+    var uri = "https://utdrmp.herokuapp.com/api/rmp?";
+    for (var name of names) {
+        uri += "names=" + name + "&";
+    }
+    chrome.runtime.sendMessage(uri, data => process(data));
+    console.log('done calling!');
+    waiting = true;
+}
+
+function process(data) {
+    var k = JSON.parse(data);
+    console.log(k);
+    insertColumn(4, 'RMP');
+    insertColumn(5, 'GPA');
+    for (var i = 0; i < k.length; i++) {
+        var element = document.querySelector("#sr > div > table > tbody").rows[i]["cells"];
+        let heading1 = document.createElement('a');
+        console.log(k[i].rating);
+        heading1.textContent = k[i].rating.replace("based on ", "(").replace(" ratings", ")");
+        if (k[i].link == 'N/A') {
+            heading1 = document.createElement('p');
+            heading1.textContent = "0 (N/A)";
+        } else {
+            heading1.href = `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${k[i].link}`
+        }
+
+        let heading2 = document.createElement('a');
+        if (k[i].avgGPA.includes("0 Records")) {
+            heading2 = document.createElement('p');
+        } else {
+            heading2.href = `https://saitanayd.github.io/utd-grades/?prof=${k[i].name}`;
+        }
+        heading2.textContent = k[i].avgGPA.replace("with ", "(").replace(" students", ")").replace("0 Records Found", "0 (N/A)");
+
+        element[4].append(heading1);
+        element[5].append(heading2);
+    }
+
+    document.querySelectorAll('td:nth-child(2)').forEach(el => {
+        el.textContent = el.textContent.replace("Semester Credit", " ");
+    })
+    waiting = false;
+}
+
+function insertColumn(index, name) {
+    for (var k of document.querySelectorAll(`#sr div table tbody td:nth-child(${index})`)) {
+        k.insertAdjacentElement('afterend', document.createElement('td'));
+    }
+    let heading = document.createElement('th');
+    heading.onclick = function () { sort(index) };
+    heading.textContent = name;
+    document.querySelector(`#sr > div > table > thead > tr > th:nth-child(${index-1})`).insertAdjacentElement('afterend', heading);
+}
+
+getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+    v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+)(this.getCellValue(asc ? a : b, idx), this.getCellValue(asc ? b : a, idx));
+var asc = true;
+function sort(thid) {
+    var th = document.querySelector(`#sr > div > table > thead > tr > th:nth-child(${thid + 1})`)
+    const table = th.closest('table').querySelector('tbody');
+    Array.from(table.querySelectorAll('tr:nth-child(n+1)'))
+        .sort(this.comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+        .forEach(tr => table.appendChild(tr));
+    var odd = false;
+    for (var c of document.querySelector("#sr > div > table > tbody").rows) {
+        if (odd) {
+            c.classList.remove("odd");
+            c.classList.add("even");
+        } else {
+            c.classList.add("odd");
+            c.classList.remove("even");
+        }
+        odd = !odd;
+    }
+}
+
+function show(id, block) {
+    document.querySelectorAll(`td:nth-child(${id}), th:nth-child(${id})`).forEach(el => {
+        el.style.display = block ? "table-cell" : "none";
+    })
+}
+
+/* End coursebook enhancement */
 
 function start() {
     fetch(chrome.extension.getURL("loading.html"))
@@ -28,7 +190,7 @@ function start() {
         });
 
     console.log("Fetching your unique id...")
-    fetch(urlPrefix+"/webapps/blackboard/execute/personalInfo")
+    fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => getUserId(result))
         .catch(error => console.log("you're not logged in."));
@@ -65,21 +227,22 @@ function replacePage() {
     var iframeSrc = "";
     var title = "";
 
-    if (href.startsWith(urlPrefix+"/webapps/portal/execute/tabs/tabAction")) {
+    if (href.startsWith(urlPrefix + "/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/listContent")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/listContent")) {
         if (urlParams.get('content_id') != null) {
             replaceUrl = "content";
+            contentId = href.split("content_id=")[1].split("&")[0];
         } else {
             replaceUrl = "course";
         }
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/execute/announcement")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/execute/announcement")) {
         replaceUrl = "announcement";
-    } else if (href.startsWith(urlPrefix+"/webapps/calendar")) {
-        iframeSrc = urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false";
+    } else if (href.startsWith(urlPrefix + "/webapps/calendar")) {
+        iframeSrc = urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false";
         title = "Calendar";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/assignment/uploadAssignment")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/assignment/uploadAssignment")) {
         iframeSrc = href;
         title = "Assignment";
         replaceUrl = "iframe";
@@ -87,27 +250,27 @@ function replacePage() {
         iframeSrc = href;
         title = "Discussion Board";
         replaceUrl = "iframe";
-    }*/ else if (href.startsWith(urlPrefix+"/webapps/collab-ultra/tool/collabultra")) {
+    }*/ else if (href.startsWith(urlPrefix + "/webapps/collab-ultra/tool/collabultra")) {
         iframeSrc = href;
         title = "BlackBoard Collab";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/assessment/take/launchAssessment")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/assessment/take/launchAssessment")) {
         iframeSrc = href;
         title = "Assessment";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/bb-mygrades-BBLEARN")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/bb-mygrades-BBLEARN")) {
         iframeSrc = href;
         title = "My Grades";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/gradebook")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/gradebook")) {
         iframeSrc = href;
         title = "Gradebook";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/blackboard/content/contentWrapper")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/contentWrapper")) {
         iframeSrc = href;
         title = "Content";
         replaceUrl = "iframe";
-    } else if (href.startsWith(urlPrefix+"/webapps/discussionboard/")) {
+    } else if (href.startsWith(urlPrefix + "/webapps/discussionboard/")) {
         if (href.includes("conf_id") || href.includes("forum_id")) {
             iframeSrc = href;
             title = "Discussion";
@@ -186,7 +349,7 @@ function processTemplate(template, main) {
     nameElement.innerText = username;
     var avatarElement = document.getElementById("student-avatar");
     avatarElement.src = avatar_link;
-    
+
     Array.from(document.querySelectorAll('.notification-tab')).forEach(function (a) {
         a.addEventListener('click', function (e) {
             if (e.currentTarget.parentNode.classList.contains('expanded')) {
@@ -204,43 +367,47 @@ function processTemplate(template, main) {
         Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
             a.addEventListener('click', function (e) {
                 e.preventDefault();
-    
                 var el = e.target;
-    
-                document.querySelector("body").prepend(createElementFromHTML('<div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;"></div>'))
-    
+
+                document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+                    container.classList.remove("expanded");
+                    document.querySelector("#dropdownOverlay").style.display = "none";
+                });
+
                 var container = e.currentTarget.parentNode;
                 var dropdown = document.querySelector('.dropdown');
                 var containerWidth = container.offsetWidth
                 var containerHeight = container.offsetHeight
-    
+
                 dropdown.style.right = containerWidth / 2 + 'px';
-    
-                if(container.classList.contains("expanded")) {
+
+                if (container.classList.contains("expanded")) {
                     container.classList.remove("expanded");
+                    document.querySelector("#dropdownOverlay").style.display = "none";
                     readAllAnnouncements()
-    
+
                 } else {
                     container.classList.add("expanded")
+                    document.querySelector("#dropdownOverlay").style.display = "block";
                 }
             })
-            return checkLatestRelease();
+            return checkLatestRelease().then(a => { return processNotifications() });
         })
     });
-    
+
 
     // check latest versions
-    
+
 }
 
 function readAllAnnouncements() {
     chrome.storage.local.get({ reads: [] }, function (result) {
         console.log(result);
         var newReads = result.reads;
-        for(var anmt of allAnnouncements)
-            if(!newReads.includes(anmt)) 
+        for (var anmt of allAnnouncements)
+            if (!newReads.includes(anmt))
                 newReads.push(anmt);
-	console.log(newReads)
+        console.log(newReads)
         newReads = newReads.slice(-50)
         readAlready = newReads
         allAnnouncements = []
@@ -340,7 +507,7 @@ function processAgenda() {
     lastSun = new Date(lastSunday);
     var nextSun = new Date(nextSunday);
 
-    return fetch(urlPrefix+"/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
+    return fetch(urlPrefix + "/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
         if ("results" in data) {
             // console.log(data);
             for (var cls of data["results"]) {
@@ -360,7 +527,7 @@ function processAgenda() {
                     var newElement = createElementFromHTML(`
                         <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
                             <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
-                                href=urlPrefix+"/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
+                                href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
                         </p>
                     `);
                     if ("dynamicCalendarItemProps" in cls) {
@@ -389,9 +556,9 @@ function render_calendar_addon() {
         var desc = document.getElementById("last").value;
         var start = document.getElementById("start").value + ":00"; // 2020-09-17T16:30:00
         var end = document.getElementById("end").value + ":01"; // 2020-09-17T17:00:00
-        return fetch(urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
+        return fetch(urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false").then(resp => resp.text()).then(data => {
             var id = data.match("nonceVal = \"(.*?)\"")[1];
-            return fetch(urlPrefix+"/webapps/calendar/calendarData/event", {
+            return fetch(urlPrefix + "/webapps/calendar/calendarData/event", {
                 "headers": {
                     "accept": "application/json, text/javascript, */*; q=0.01",
                     "accept-language": "en-US,en;q=0.9",
@@ -402,7 +569,7 @@ function render_calendar_addon() {
                     "sec-fetch-site": "same-origin",
                     "x-requested-with": "XMLHttpRequest"
                 },
-                "referrer": urlPrefix+"/webapps/calendar/viewMyBb?globalNavigation=false",
+                "referrer": urlPrefix + "/webapps/calendar/viewMyBb?globalNavigation=false",
                 "referrerPolicy": "no-referrer-when-downgrade",
                 "body": `{"calendarId":"PERSONAL","title":"${title}","description":"${desc}","start":"${start}","end":"${end}",
                     "allDay":false,"recur":false,"freq":"WEEKLY","interval":"1","byDay":["TH"],"monthRepeatBy":"BYMONTHDAY",
@@ -420,7 +587,14 @@ function render_calendar_addon() {
 
     document.getElementById("hdrbtn").addEventListener('click', function (event) {
         event.preventDefault();
-        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
+        
+        document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+            document.getElementById("dropdownOverlay").style.display = 'none';
+            document.getElementById("mycard").style.display = "none";
+        })
+        console.log(document.getElementById("mycard").style.display);
+        document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
+        document.querySelector("#dropdownOverlay").style.display = document.getElementById("mycard").style.display === 'none' ? 'none' : 'block';
     })
 }
 
@@ -533,12 +707,12 @@ var home_main = `
 // dashboard page (home)
 function home(template) {
     console.log(user_id);
-    fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template, home_main);
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
-        bbScrape.src = urlPrefix+"/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
+        bbScrape.src = urlPrefix + "/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
         document.getElementsByTagName("body")[0].appendChild(bbScrape);
         document.title = "Dashboard";
 
@@ -585,7 +759,7 @@ function home(template) {
             document.querySelector(".groupAll").appendChild(newElement);
         }*/
 
-        return fetchSidebarCourses().then(data => { return processNotifications().then(resp => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) }) });
+        return fetchSidebarCourses().then(data => { return fetchGrades().then(text => { return processAgenda().then(ss => { return loadAnnouncementCards() }) }) });
     })
 }
 
@@ -608,27 +782,27 @@ function processNotifications() {
         "mode": "cors",
         "credentials": "include"
     }
-     
+
     return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
 }
 
-function wait(delay){
+function wait(delay) {
     return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 function fetchRetry(url, delay, tries, fetchOptions = {}) {
-    function onError(err){
+    function onError(err) {
         triesLeft = tries - 1;
-        if(!triesLeft){
+        if (!triesLeft) {
             console.log("error while fetching announcements");
         }
         console.log("tries left: " + triesLeft);
         return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
     }
-    return fetch(url,fetchOptions).then(resp => resp.json()).then(a => {
-        if(a["sv_streamEntries"].length == 0) 
+    return fetch(url, fetchOptions).then(resp => resp.json()).then(a => {
+        if (a["sv_streamEntries"].length == 0)
             onError(null);
-        else 
+        else
             processRankedNotifications(a)
     });
 }
@@ -680,7 +854,7 @@ function processRankedNotifications(res) {
         var time = timeSince(new Date(update.se_timestamp))
         var courseName = ("se_courseId" in update && update.se_courseId in courseIds) ? courseIds[update.se_courseId] : "No course info.";
         var innerInfo = createElementFromHTML("<div>" + update.se_context + "</div>");
-        if(innerInfo.querySelector(".inlineContextMenu")) {
+        if (innerInfo.querySelector(".inlineContextMenu")) {
             var remove = innerInfo.querySelector(".inlineContextMenu");
             remove.parentNode.removeChild(remove);
         }
@@ -688,9 +862,9 @@ function processRankedNotifications(res) {
         var infoHTML = "";
         var appElement = messages;
         var id = "se_id" in update ? update.se_id : "";
-        if(id !== "")
+        if (id !== "")
             allAnnouncements.push(id);
-        if(innerInfo.textContent.trim().startsWith("Content")) {
+        if (innerInfo.textContent.trim().startsWith("Content")) {
             // content ... available
             var eventTitle = innerInfo.querySelector(".eventTitle");
             infoHTML = eventTitle.innerHTML;
@@ -706,7 +880,7 @@ function processRankedNotifications(res) {
         }
 
         var style = "";
-        if(!readAlready.includes(id)) {
+        if (!readAlready.includes(id)) {
             style = "style='background: lightpink'";
             unreadCount++;
         }
@@ -723,7 +897,7 @@ function processRankedNotifications(res) {
         console.log(update.se_context);
     }
 
-    if(unreadCount !== 0) {
+    if (unreadCount !== 0) {
         document.querySelector(".circle").textContent = unreadCount;
         document.querySelector(".circle").style.backgroundColor = "red";
     }
@@ -845,7 +1019,7 @@ function loadAnnouncementCards() {
     var announcement_fetches = [];
     var announcements = document.getElementById("announcementDiv");
     for (var courseId of Object.keys(courseIds)) {
-        announcement_fetches.push(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
+        announcement_fetches.push(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
     }
     document.querySelector("#announcementLoad").style.display = 'none';
 
@@ -927,9 +1101,9 @@ var course_main = `
 // load course contents
 function course(template, courseId) {
     var courseName = "";
-    fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
+    fetch(urlPrefix + "/learn/api/public/v1/courses/" + courseId).then(response => response.json()).then(data => {
         courseName = data["name"]
-        return fetch(urlPrefix+"/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
+        return fetch(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/contents").then(response => response.json());
     }).then(data => {
         processTemplate(template, course_main);
         document.getElementsByClassName("mdl-layout-title")[0].textContent = courseName;
@@ -937,7 +1111,7 @@ function course(template, courseId) {
 
         var allLinks = document.querySelector(".contents");
         for (var res of data["results"]) {
-            var href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
+            var href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + res.id;
             var newElement = createElementFromHTML(`
                 <div class="content demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
@@ -956,7 +1130,7 @@ function course(template, courseId) {
             newElement.querySelector(".pin").addEventListener('click', function (event) {
                 var t = event.target;
                 console.log(t);
-                addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"));
+                addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"), courseId);
             });
 
             allLinks.appendChild(newElement);
@@ -974,7 +1148,8 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 function content(template, courseId, contentId) {
-    fetch(urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
+    console.log("course: " + courseId + "; content: " + contentId);
+    fetch(urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
         var doc = new DOMParser().parseFromString(xmlString, "text/html");
@@ -1015,7 +1190,7 @@ function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
                     console.log(t);
-                    addToLinks(t);
+                    addToLinks(t, courseId);
                 });
                 newElement.querySelector(".informationLinks").appendChild(read_more);
             }
@@ -1040,7 +1215,7 @@ function content(template, courseId, contentId) {
 }
 
 // add link to pinned
-function addToLinks(element) {
+function addToLinks(element, courseId) {
     var link = element.getAttribute("href");
     var courseId = element.getAttribute("courseid");
     var name = element.getAttribute("title");
@@ -1066,33 +1241,13 @@ function addToLinks(element) {
         }, function () {
             console.log("new link added");
             console.log(newlinks);
-            if (add_new) {
-                var newLink = createElementFromHTML(`
-                    <li>
-                        <div class="mdl-navigation__link">
-                            <i class="mdl-color-text--blue-grey-400 material-icons pin" 
-                                style="padding: 0; color: red !important; cursor: pointer; transform: rotate(-90deg);" 
-                                href="${link}" courseid="${courseId}" title="${name}">
-                                    push_pin
-                            </i>
-                            <a href="${link}" class="no-dec-link">
-                                ${name}
-                            </a>
-                        </div>
-                    </li>
-                `);
-                newLink.querySelector(".pin").addEventListener('click', function (event) {
-                    var t = event.target;
-                    removeFromLinks(t);
-                });
-                document.querySelector(`li[course="${courseId}"] > ul`).prepend(newLink);
-            }
+            fetchSidebarCourses(courseId);
         });
     });
 }
 
 // remove link from pinned
-function removeFromLinks(element) {
+function removeFromLinks(element, courseId) {
     var link = element.getAttribute("href");
     var courseId = element.getAttribute("courseid");
     var name = element.getAttribute("title");
@@ -1111,13 +1266,32 @@ function removeFromLinks(element) {
         }, function () {
             console.log("link removed");
             console.log(newlinks);
-            element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
+            fetchSidebarCourses(courseId);
+            // element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
         });
+    });
+}
+
+function toggleLink(element, courseId) {
+    var link = element.getAttribute("href");
+    var courseId = element.getAttribute("courseid");
+    var name = element.getAttribute("title");
+
+    chrome.storage.local.get({
+        links: {}
+    }, function (result) {
+        var newlinks = result.links;
+        if(courseId in newlinks && newlinks[courseId].includes(link)) {
+            removeFromLinks(element, courseId);
+        } else {
+            addToLinks(element, courseId);
+        }
     });
 }
 
 // fetch list of courses for sidebar (home page and iframe)
 function fetchSidebarCourses(courseId = "") {
+    document.querySelector('.allLinks').innerHTML = ""; 
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
@@ -1159,7 +1333,7 @@ function fetchSidebarCourses(courseId = "") {
                 `);
                 newLink.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
-                    removeFromLinks(t);
+                    removeFromLinks(t, courseId);
                 });
                 newElement.querySelector(".mdl-navigation__list").appendChild(newLink);
             }
@@ -1170,7 +1344,7 @@ function fetchSidebarCourses(courseId = "") {
 
         var promises = [];
         if (courseId !== "") {
-            promises.push(fetch(urlPrefix+"/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
+            promises.push(fetch(urlPrefix + "/webapps/blackboard/content/courseMenu.jsp?course_id=" + courseId).then(response => response.text()).then(html => {
                 var xmlString = html;
                 var doc = new DOMParser().parseFromString(xmlString, "text/html");
                 var ul = doc.getElementById("courseMenuPalette_contents");
@@ -1180,28 +1354,38 @@ function fetchSidebarCourses(courseId = "") {
                         var a = i.querySelector('a');
                         if (a) {
                             var element = createElementFromHTML(`
-                                <li>
-                                    <a href="${a.href}" class="mdl-navigation__link no-dec-link">
-                                        <i class="material-icons" role="presentation">assistant</i>
-                                        ${a.textContent}
-                                    </a>
+                                <li style="position: relative">
+                                    <div class="mdl-navigation__link">
+                                        <a href="${a.href}" class="no-dec-link">
+                                            <i class="material-icons" role="presentation">assistant</i>
+                                            ${a.textContent}
+                                        </a>
+                                        <i class="mdl-color-text--blue-grey-400 material-icons pin" style="padding: 0;color: green !important; cursor: pointer; position: absolute;right: 0;top: 7px;" 
+                                            href="${a.href}" courseid="${courseId}" title="${a.textContent}">
+                                            push_pin
+                                        </i>
+                                    </div>
                                 </li>
                             `);
-                            if(currentCourse) {
+                            element.querySelector(".pin").addEventListener('click', function (event) {
+                                var t = event.target;
+                                toggleLink(t);
+                            });
+                            if (currentCourse) {
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(element);
                             }
                         } else {
-                            if(currentCourse) {
+                            if (currentCourse) {
                                 var divider = createElementFromHTML(`<hr>`);
                                 var sideNav = currentCourse.querySelector(".mdl-navigation__list");
-                                if(sideNav)
+                                if (sideNav)
                                     sideNav.appendChild(divider);
                             }
                         }
                     }
-                    if(currentCourse) {
+                    if (currentCourse) {
                         currentCourse.classList.add('is-opened');
                         currentCourse.querySelector(".mdl-navigation__list").classList.add('is-active');
                     }
@@ -1219,7 +1403,7 @@ var courseIds = {};
 
 // fetch list of courses
 function fetchCourseList() {
-    return fetch(urlPrefix+"/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    return fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
@@ -1236,7 +1420,7 @@ function fetchCourseList() {
                         continue;
                     var newElement = {};
                     newElement.id = c.course.id;
-                    newElement.href = urlPrefix+"/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
+                    newElement.href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
                     newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
                     newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
                     courses.push(newElement);
@@ -1260,7 +1444,7 @@ var announcement_main = `
 
 // announcement page (very similar to content, might improve later)
 function announcement(template, courseId) {
-    fetch(urlPrefix+"/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
+    fetch(urlPrefix + "/webapps/blackboard/execute/announcement?method=search&context=course_entry&course_id=" + courseId + "&handle=announcements_entry&mode=view")
         .then(resp => resp.text()).then(data => {
             processTemplate(template, announcement_main);
             var xmlString = data;

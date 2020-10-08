@@ -976,7 +976,6 @@
       top: 4em;
       /* left: 0; */
       z-index: 100;
-      display: none;
     }
   </style>
 
@@ -1029,7 +1028,7 @@
     }
 
     .navigation .inner-navigation li .menu-link.has-notifications {
-      background: #52ff6f;
+      background: #259c39;
       color: #FFF;
     }
 
@@ -1359,7 +1358,7 @@
 
 <body>
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-
+  <div id="dropdownOverlay" style="background: transparent; height:100%;width:100%;position:fixed;z-index:10;display:none"></div>
   <nav class="navigation">
     <ul class="inner-navigation">
 
@@ -1396,7 +1395,7 @@
   </nav>
 
 
-  <div id="mycard">
+  <div id="mycard" style="z-index:20; display:none">
     <div class="demo-card-wide mdl-card mdl-shadow--2dp">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Add Event</h2>
