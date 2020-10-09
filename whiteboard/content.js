@@ -372,6 +372,7 @@ function processTemplate(template, main) {
                 document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
                     container.classList.remove("expanded");
                     document.querySelector("#dropdownOverlay").style.display = "none";
+                    readAllAnnouncements();
                 });
 
                 var container = e.currentTarget.parentNode;
@@ -384,8 +385,6 @@ function processTemplate(template, main) {
                 if (container.classList.contains("expanded")) {
                     container.classList.remove("expanded");
                     document.querySelector("#dropdownOverlay").style.display = "none";
-                    readAllAnnouncements()
-
                 } else {
                     container.classList.add("expanded")
                     document.querySelector("#dropdownOverlay").style.display = "block";
