@@ -4,6 +4,11 @@
 
 ![Dashboard](screenshots/sidebar_and_grades.PNG)
 
+### Links:
+
+1. [Chrome Webstore Link](https://chrome.google.com/webstore/detail/whiteboard/hgoiijmhpdjkmecnlkpdcflgfjebpbhe?hl=en&authuser=1) (stable version)
+2. [Behind-the-Scenes](MOREINFO.md)
+
 ### Two main goals of this project:
 1. Improve the UI of Blackboard
 2. Add non-intrusive features that speed up workflow
@@ -21,18 +26,11 @@
 	- Add-to-Calendar popup
 	- Pin course content
 	- Add grade percentage
+	- Grades overview
+	- Notifications
+	- Advance sidebar
 
-### Planned:
-+ Global pins
-+ Tree-style sidebar
-
-## Chrome Webstore
-
-Stable version: [Link](https://chrome.google.com/webstore/detail/whiteboard/hgoiijmhpdjkmecnlkpdcflgfjebpbhe?hl=en&authuser=1)
-
-For beta versions, read the next section.
-
-## Installing Whiteboard
+## Installing Whiteboard (beta versions)
 1. Download the [zipped source](https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip) from GitHub and extract it on your computer.  
 2. Navigate to <chrome://extensions> and enable developer mode at the top right.  
 ![](https://i.imgur.com/eGRctOG.png)  
