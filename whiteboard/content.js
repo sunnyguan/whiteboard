@@ -78,6 +78,7 @@ function checkFlag() {
         // console.log('checking...');
         window.setTimeout(checkFlag, 1000);
     } else {
+        debugger
         document.querySelector("#sr > div > table").classList.add('table-responsive-full');
         var rows = document.querySelector("#sr > div > table > tbody").rows
         var len = document.querySelector("#sr > div > table > tbody").rows.length
@@ -133,7 +134,7 @@ function process(data) {
         element[5].append(heading2);
     }
 
-    document.querySelectorAll('td:nth-child(2)').forEach(el => {
+    document.querySelectorAll('#sr > div > table > tbody > td:nth-child(2)').forEach(el => {
         el.textContent = el.textContent.replace("Semester Credit", " ");
     })
     waiting = false;
@@ -844,7 +845,7 @@ function processRankedNotifications(res) {
     var updates = res["sv_streamEntries"];
     updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
     updates = updates.slice(0, 20);
-    // console.log(updates);
+    console.log(updates);
 
     var messages = document.getElementById("messages");
     var anmts = document.getElementById("announcements");
@@ -863,6 +864,9 @@ function processRankedNotifications(res) {
         var infoHTML = "";
         var appElement = messages;
         var id = "se_id" in update ? update.se_id : "";
+        var url = "";
+        if("se_itemUri" in update)
+            url = update["se_itemUri"];
         if (id !== "")
             allAnnouncements.push(id);
         if (innerInfo.textContent.trim().startsWith("Content")) {
@@ -889,7 +893,7 @@ function processRankedNotifications(res) {
             <li class="notification-list-item" id="${id}" ${style}>
                 <p class="message">${infoHTML}</p>
                 <div class="item-footer">
-                <span class="from"><a href="#">${courseName}</a></span>
+                <span class="from"><a href="${url}">${courseName}</a></span>
                 <span class="date">${time} ago</span>
                 </div>
             </li>
