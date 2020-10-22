@@ -11,7 +11,7 @@ const urlPrefix = "https://elearning.utdallas.edu";
 
 // logic to determine if we should activate whiteboard on this page
 chrome.storage.local.get(['enabled'], function (result) {
-    enabled = !!result.enabled;
+    enabled = result.enabled !== false;
     console.log("Extension has been " + (enabled ? "en" : "dis") + "abled from the popup.");
 
     // only replace page if extension enabled and url starts with /webapps
@@ -38,36 +38,6 @@ waiting = false;
 function startCB() {
     viewport = document.querySelector("meta[name=viewport]");
     viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
-    // document.querySelector('#page-middle').style.width = "100%";
-    // document.querySelector('#page-all').style.width = "100%";
-    chrome.storage.sync.get({
-        desktop: [],
-        mobile: []
-    }, function (items) {
-
-        var styles = '@media (max-width: 767px) {';
-
-        for(var i = 0; i < items.mobile.length; i++){
-            if(!items.mobile[i]){
-                styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
-            }
-        }
-        styles += `}@media (min-width: 767px) {`;
-
-        for(var i = 0; i < items.desktop.length; i++){
-            if(!items.desktop[i]){
-                styles += `tr.cb-row > td:nth-child(${i+1}), th:nth-child(${i+1}) {display: none;}`;
-            }
-        }
-
-        styles += "}";
-        var styleSheet = document.createElement("style")
-        styleSheet.type = "text/css"
-        styleSheet.innerText = styles
-        document.head.appendChild(styleSheet)
-
-        console.log(styles);
-    });
     checkFlag();
 }
 

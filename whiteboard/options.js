@@ -2,13 +2,13 @@ const urlPrefix = "https://elearning.utdallas.edu/webapps";
 
 // set checkbox
 chrome.storage.local.get(['enabled'], function (result) {
-    document.getElementById("enabledCheckbox").checked = !!result.enabled;
+    document.getElementById("enabledCheckbox").checked = result.enabled !== false;
 });
 
 function checkEnabled(element) {
     var isChecked = document.getElementById("enabledCheckbox").checked;
     chrome.storage.local.get(['enabled'], function (result) {
-        var enabled = !!result.enabled;
+        var enabled = result.enabled !== false;
         if (enabled != isChecked) {
             // checkbox was updated
             // update local storage 
