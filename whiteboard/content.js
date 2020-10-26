@@ -45,10 +45,8 @@ function startCB() {
 function checkFlag() {
     flag = document.querySelector("#sr > div > table > tbody") != null && document.querySelector("#sr > div > table > tbody").rows.length != 0 && document.querySelectorAll("#sr > div > table > thead > tr > th").length == 7;
     if (flag == false || waiting == true) {
-        // console.log('checking...');
         window.setTimeout(checkFlag, 1000);
     } else {
-        debugger
         document.querySelector("#sr > div > table").classList.add('table-responsive-full');
         var rows = document.querySelector("#sr > div > table > tbody").rows
         var len = document.querySelector("#sr > div > table > tbody").rows.length
@@ -164,7 +162,10 @@ function start() {
     fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => getUserId(result))
-        .catch(error => console.log("you're not logged in."));
+        .catch(error => {
+            console.log("you're not logged in.")
+            alert("You're not logged in; try turning off Whiteboard, logging in the normal way, and turning on Whiteboard again");
+        });
 }
 
 // save user ID for API calls
@@ -900,6 +901,7 @@ function gradeToColor(grade, def, convert = false) {
         var evaluated = eval(grade);
         evaluated = Math.round((evaluated + Number.EPSILON) * 10000) / 10000
         var newGrade = evaluated * 100;
+        newGrade = Math.round(newGrade * 100) / 100;
         if (newGrade < 80)
             colorClass = "success3";
         else if (newGrade < 90)
@@ -1467,10 +1469,14 @@ function iframe(template, iframeSrc, title, courseId) {
     var iframe = document.getElementById("iframe");
     iframe.src = iframeSrc;
     iframe.onload = function () {
-        iframe.contentDocument.getElementById('contentPanel').style.margin = "0";
-        iframe.contentDocument.getElementById('navigationPane').style.display = "none";
-        iframe.contentDocument.getElementById('breadcrumbs').style.display = "none";
-        iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
+        if(iframe.contentDocument.getElementById('contentPanel'))
+            iframe.contentDocument.getElementById('contentPanel').style.margin = "0";
+        if(iframe.contentDocument.getElementById('navigationPane'))
+            iframe.contentDocument.getElementById('navigationPane').style.display = "none";
+        if(iframe.contentDocument.getElementById('breadcrumbs'))
+            iframe.contentDocument.getElementById('breadcrumbs').style.display = "none";
+        if(iframe.contentDocument.getElementById('learn-oe-body'))
+            iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
 
         // add grade percentage logic
         if (title === "My Grades") {
