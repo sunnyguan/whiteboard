@@ -152,19 +152,21 @@ function show(id, block) {
 /* End coursebook enhancement */
 
 function start() {
+    var originalHTML = "Please turn off Whiteboard, log in normally, and turn on Whiteboard.";
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
         .then(template => {
+            originalHTML = document.getElementsByTagName("html")[0].innerHTML;
             document.getElementsByTagName("html")[0].innerHTML = template;
         });
-
     console.log("Fetching your unique id...")
     fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
-        .then(result => getUserId(result))
-        .catch(error => {
+        .then(result => {
+            getUserId(result)
+        }).catch(error => {
             console.log("you're not logged in.")
-            alert("You're not logged in; try turning off Whiteboard, logging in the normal way, and turning on Whiteboard again");
+            document.getElementsByTagName("html")[0].innerHTML = originalHTML;
         });
 }
 
@@ -179,6 +181,7 @@ function getUserId(result) {
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
+        throw 404;
     } else {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
         console.log(email);
@@ -773,7 +776,7 @@ function fetchRetry(url, delay, tries, fetchOptions = {}) {
         return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
     }
     return fetch(url, fetchOptions).then(resp => resp.json()).then(a => {
-        if (a["sv_streamEntries"].length == 0)
+        if (a["sv_streamEntries"].length <= 1)
             onError(null);
         else
             processRankedNotifications(a)
