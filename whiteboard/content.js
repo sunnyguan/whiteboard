@@ -819,7 +819,7 @@ async function runZuck() {
         paginationArrows: currentSkin['params']['paginationArrows'],
         list: currentSkin['params']['list'],
         cubeEffect: currentSkin['params']['cubeEffect'],
-        localStorage: true,
+        localStorage: false,
         stories: all_stories,
         template: {
             viewerItemBody(index, currentIndex, item) {
