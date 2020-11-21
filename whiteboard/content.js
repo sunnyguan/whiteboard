@@ -808,29 +808,26 @@ const get = function (array, what) {
 async function runZuck() {
     var currentSkin = getCurrentSkin();
     var json_stories = await getStories();
-    var all_stories = [];
-    for (var jss of json_stories) {
-        all_stories.push(Zuck.buildTimelineItem(...jss));
-    }
+    var all_stories = json_stories;
     var stories = new Zuck('stories', {
         backNative: true,
         previousTap: true,
+        reactive: false,
         skin: currentSkin['name'],
         autoFullScreen: currentSkin['params']['autoFullScreen'],
         avatars: currentSkin['params']['avatars'],
         paginationArrows: currentSkin['params']['paginationArrows'],
         list: currentSkin['params']['list'],
         cubeEffect: currentSkin['params']['cubeEffect'],
-        localStorage: false,
+        localStorage: true,
         stories: all_stories,
         template: {
             viewerItemBody(index, currentIndex, item) {
                 return `<div 
                           class="item ${get(item, 'seen') === true ? 'seen' : ''} ${currentIndex === index ? 'active' : ''}"
                           data-time="${get(item, 'time')}" data-type="${get(item, 'type')}" data-index="${index}" data-item-id="${get(item, 'id')}">
-                          ${get(item, 'type') === 'video'
-                        ? `<video class="media" muted webkit-playsinline playsinline preload="auto" src="${get(item, 'src')}" ${get(item, 'type')}></video>
-                              <b class="tip muted">Unmute</b>`
+                          ${get(item, 'type') === 'photo'
+                        ? `<img loading="auto" class="media" src="${get(item, 'src')}" ${get(item, 'type')}>${get(item, 'src')} />`
                         : `<h4 style="color: white; display: flex; text-align: center; align-items: center;" loading="auto" class="media" src="${get(item, 'src')}" ${get(item, 'type')}>${get(item, 'src')}</h4>
                           `}
                           ${get(item, 'link')
