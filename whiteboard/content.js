@@ -778,7 +778,7 @@ var getCurrentSkin = function () {
 
 
 function loadZuck() {
-    fetch(chrome.runtime.getURL("zuck.js_files/zuck.min.js.download"))
+    fetch(chrome.runtime.getURL("zuck_js/zuck.min.js"))
         .then(resp => resp.text())
         .then(js => {
             eval(js);
@@ -850,7 +850,7 @@ function home(template) {
     console.log(user_id);
     fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template, home_main);
-        addCSS("zuck.js_files", ["style.css", "zuck.min.css", "snapgram.css"]);
+        addCSS("zuck_js", ["style.css", "zuck.min.css", "snapgram.css"]);
         loadZuck();
 
         var bbScrape = document.createElement("iframe");
