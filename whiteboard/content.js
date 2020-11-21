@@ -115,7 +115,7 @@ function insertColumn(index, name) {
     let heading = document.createElement('th');
     heading.onclick = function () { sort(index) };
     heading.textContent = name;
-    document.querySelector(`#sr > div > table > thead > tr > th:nth-child(${index-1})`).insertAdjacentElement('afterend', heading);
+    document.querySelector(`#sr > div > table > thead > tr > th:nth-child(${index - 1})`).insertAdjacentElement('afterend', heading);
 }
 
 getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
@@ -344,7 +344,7 @@ function processTemplate(template, main) {
                 e.preventDefault();
                 var el = e.target;
 
-                document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+                document.querySelector("#dropdownOverlay").addEventListener('click', function (e) {
                     container.classList.remove("expanded");
                     document.querySelector("#dropdownOverlay").style.display = "none";
                     readAllAnnouncements();
@@ -397,7 +397,7 @@ function readAllAnnouncements() {
 
 // converts version number "xx.xx.xx" into an integer
 function verToNumber(str) {
-    
+
     var arr = str.split(".");
     var res = 0;
     for (var i = 0; i < arr.length; i++)
@@ -563,8 +563,8 @@ function render_calendar_addon() {
 
     document.getElementById("hdrbtn").addEventListener('click', function (event) {
         event.preventDefault();
-        
-        document.querySelector("#dropdownOverlay").addEventListener('click', function(e) {
+
+        document.querySelector("#dropdownOverlay").addEventListener('click', function (e) {
             document.getElementById("dropdownOverlay").style.display = 'none';
             document.getElementById("mycard").style.display = "none";
         })
@@ -576,6 +576,10 @@ function render_calendar_addon() {
 
 var home_main = `
     <div class="mdl-grid demo-content">
+        <div id="zuckjs">
+            <div id="stories" class="storiesWrapper stories user-icon carousel snapgram">
+            </div>
+        </div>
         <div id="announcementDiv"
           class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div id="announcementLoad" style="width: 100%; text-align: center;">
@@ -680,11 +684,189 @@ var home_main = `
     </div>
 `;
 
+function addCSS(pre, filenames) {
+    for (var filename of filenames) {
+        var link = document.createElement("link");
+        link.href = chrome.extension.getURL(pre + "/" + filename);
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        document.getElementsByTagName("head")[0].appendChild(link);
+    }
+}
+
+var timestamp = function () {
+    var timeIndex = 0;
+    var shifts = [35, 60, 60 * 3, 60 * 60 * 2, 60 * 60 * 25, 60 * 60 * 24 * 4, 60 * 60 * 24 * 10];
+
+    var now = new Date();
+    var shift = shifts[timeIndex++] || 0;
+    var date = new Date(now - shift * 1000);
+
+    return date.getTime() / 1000;
+};
+
+var changeSkin = function (skin) {
+    location.href = location.href.split('#')[0].split('?')[0] + '?skin=' + skin;
+};
+
+var getCurrentSkin = function () {
+    var header = document.getElementById('header');
+    var skin = location.href.split('skin=')[1];
+
+    if (!skin) {
+        skin = 'Snapgram';
+    }
+
+    if (skin.indexOf('#') !== -1) {
+        skin = skin.split('#')[0];
+    }
+
+    var skins = {
+        Snapgram: {
+            avatars: true,
+            list: false,
+            autoFullScreen: false,
+            cubeEffect: true,
+            paginationArrows: false
+        },
+
+        VemDeZAP: {
+            avatars: false,
+            list: true,
+            autoFullScreen: false,
+            cubeEffect: false,
+            paginationArrows: true
+        },
+
+        FaceSnap: {
+            avatars: true,
+            list: false,
+            autoFullScreen: true,
+            cubeEffect: false,
+            paginationArrows: true
+        },
+
+        Snapssenger: {
+            avatars: false,
+            list: false,
+            autoFullScreen: false,
+            cubeEffect: false,
+            paginationArrows: false
+        }
+    };
+
+    var el = document.querySelectorAll('#skin option');
+    var total = el.length;
+    for (var i = 0; i < total; i++) {
+        var what = skin == el[i].value ? true : false;
+
+        if (what) {
+            el[i].setAttribute('selected', 'selected');
+
+            header.innerHTML = skin;
+            header.className = skin;
+        } else {
+            el[i].removeAttribute('selected');
+        }
+    }
+
+    return {
+        name: skin,
+        params: skins[skin]
+    };
+};
+
+
+function loadZuck() {
+    fetch(chrome.runtime.getURL("zuck.js_files/zuck.min.js.download"))
+        .then(resp => resp.text())
+        .then(js => {
+            eval(js);
+            console.log('Zuck loaded!');
+            runZuck();
+        })
+        .catch(console.error)
+}
+
+function runZuck() {
+    var currentSkin = getCurrentSkin();
+    var stories = new Zuck('stories', {
+        backNative: true,
+        previousTap: true,
+        skin: currentSkin['name'],
+        autoFullScreen: currentSkin['params']['autoFullScreen'],
+        avatars: currentSkin['params']['avatars'],
+        paginationArrows: currentSkin['params']['paginationArrows'],
+        list: currentSkin['params']['list'],
+        cubeEffect: currentSkin['params']['cubeEffect'],
+        localStorage: false,
+        stories: [
+          Zuck.buildTimelineItem(
+            "ramon",
+            "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/users/1.jpg",
+            "Ramon",
+            "https://ramon.codes",
+            timestamp(),
+            [
+              ["ramon-1", "photo", 3, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/1.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/1.jpg", '', false, false, timestamp()],
+              ["ramon-2", "video", 0, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/2.mp4", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/2.jpg", '', false, false, timestamp()],
+              ["ramon-3", "photo", 3, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/3.png", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/3.png", 'https://ramon.codes', 'Visit my Portfolio', false, timestamp()]
+            ]
+          ),
+          Zuck.buildTimelineItem(
+            "gorillaz",
+            "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/users/2.jpg",
+            "Gorillaz",
+            "",
+            timestamp(),
+            [
+              ["gorillaz-1", "video", 0, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/4.mp4", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/4.jpg", '', false, false, timestamp()],
+              ["gorillaz-2", "photo", 3, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/5.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/5.jpg", '', false, false, timestamp()],
+            ]
+          ),
+          Zuck.buildTimelineItem(
+            "ladygaga",
+            "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/users/3.jpg",
+            "Lady Gaga",
+            "",
+            timestamp(),
+            [
+              ["ladygaga-1", "photo", 5, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/6.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/6.jpg", '', false, false, timestamp()],
+              ["ladygaga-2", "photo", 3, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/7.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/7.jpg", 'http://ladygaga.com', false, false, timestamp()],
+            ]
+          ),
+          Zuck.buildTimelineItem(
+            "starboy",
+            "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/users/4.jpg",
+            "The Weeknd",
+            "",
+            timestamp(),
+            [
+              ["starboy-1", "photo", 5, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/8.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/8.jpg", '', false, false, timestamp()]
+            ]
+          ),
+          Zuck.buildTimelineItem(
+            "riversquomo",
+            "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/users/5.jpg",
+            "Rivers Cuomo",
+            "",
+            timestamp(),
+            [
+              ["riverscuomo", "photo", 10, "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/9.jpg", "https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/9.jpg", '', false, false, timestamp()]
+            ]
+          )
+        ]
+      });
+}
+
 // dashboard page (home)
 function home(template) {
     console.log(user_id);
     fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         processTemplate(template, home_main);
+        addCSS("zuck.js_files", ["style.css", "zuck.min.css", "snapgram.css"]);
+        loadZuck();
+
         var bbScrape = document.createElement("iframe");
         bbScrape.id = "bbFrame";
         bbScrape.style.display = 'none';
@@ -839,7 +1021,7 @@ function processRankedNotifications(res) {
         var appElement = messages;
         var id = "se_id" in update ? update.se_id : "";
         var url = "";
-        if("se_itemUri" in update)
+        if ("se_itemUri" in update)
             url = update["se_itemUri"];
         if (id !== "")
             allAnnouncements.push(id);
@@ -1261,7 +1443,7 @@ function toggleLink(element, courseId) {
         links: {}
     }, function (result) {
         var newlinks = result.links;
-        if(courseId in newlinks && newlinks[courseId].includes(link)) {
+        if (courseId in newlinks && newlinks[courseId].includes(link)) {
             removeFromLinks(element, courseId);
         } else {
             addToLinks(element, courseId);
@@ -1271,7 +1453,7 @@ function toggleLink(element, courseId) {
 
 // fetch list of courses for sidebar (home page and iframe)
 function fetchSidebarCourses(courseId = "") {
-    document.querySelector('.allLinks').innerHTML = ""; 
+    document.querySelector('.allLinks').innerHTML = "";
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
@@ -1472,13 +1654,13 @@ function iframe(template, iframeSrc, title, courseId) {
     var iframe = document.getElementById("iframe");
     iframe.src = iframeSrc;
     iframe.onload = function () {
-        if(iframe.contentDocument.getElementById('contentPanel'))
+        if (iframe.contentDocument.getElementById('contentPanel'))
             iframe.contentDocument.getElementById('contentPanel').style.margin = "0";
-        if(iframe.contentDocument.getElementById('navigationPane'))
+        if (iframe.contentDocument.getElementById('navigationPane'))
             iframe.contentDocument.getElementById('navigationPane').style.display = "none";
-        if(iframe.contentDocument.getElementById('breadcrumbs'))
+        if (iframe.contentDocument.getElementById('breadcrumbs'))
             iframe.contentDocument.getElementById('breadcrumbs').style.display = "none";
-        if(iframe.contentDocument.getElementById('learn-oe-body'))
+        if (iframe.contentDocument.getElementById('learn-oe-body'))
             iframe.contentDocument.getElementById('learn-oe-body').style.backgroundColor = "white";
 
         // add grade percentage logic
