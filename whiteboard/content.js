@@ -789,7 +789,7 @@ function loadZuck() {
 }
 
 async function getStories() {
-    var stories = await fetch("https://mewyolkthymes.herokuapp.com/https://pastebin.com/raw/y8GqBR7C")
+    var stories = await fetch("https://whiteboard-stories.herokuapp.com/stories")
         .then(resp => resp.text())
         .then(text => {
             return JSON.parse(text);
@@ -797,11 +797,19 @@ async function getStories() {
     return stories;
 }
 
+const get = function (array, what) {
+    if (array) {
+        return array[what] || '';
+    } else {
+        return '';
+    }
+};
+
 async function runZuck() {
     var currentSkin = getCurrentSkin();
     var json_stories = await getStories();
     var all_stories = [];
-    for(var jss of json_stories) {
+    for (var jss of json_stories) {
         all_stories.push(Zuck.buildTimelineItem(...jss));
     }
     var stories = new Zuck('stories', {
@@ -814,8 +822,27 @@ async function runZuck() {
         list: currentSkin['params']['list'],
         cubeEffect: currentSkin['params']['cubeEffect'],
         localStorage: false,
-        stories: all_stories
-      });
+        stories: all_stories,
+        template: {
+            viewerItemBody(index, currentIndex, item) {
+                return `<div 
+                          class="item ${get(item, 'seen') === true ? 'seen' : ''} ${currentIndex === index ? 'active' : ''}"
+                          data-time="${get(item, 'time')}" data-type="${get(item, 'type')}" data-index="${index}" data-item-id="${get(item, 'id')}">
+                          ${get(item, 'type') === 'video'
+                        ? `<video class="media" muted webkit-playsinline playsinline preload="auto" src="${get(item, 'src')}" ${get(item, 'type')}></video>
+                              <b class="tip muted">Unmute</b>`
+                        : `<h4 style="color: white; display: flex; text-align: center; align-items: center;" loading="auto" class="media" src="${get(item, 'src')}" ${get(item, 'type')}>${get(item, 'src')}</h4>
+                          `}
+                          ${get(item, 'link')
+                        ? `<a class="tip link" href="${get(item, 'link')}" rel="noopener" target="_blank">
+                                  ${!get(item, 'linkText') || get(item, 'linkText') === '' ? "Visit Link" : get(item, 'linkText')}
+                                </a>`
+                        : ''
+                    }
+                        </div>`;
+            }
+        }
+    });
 }
 
 // dashboard page (home)
