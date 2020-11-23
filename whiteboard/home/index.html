@@ -263,8 +263,12 @@
 
     /* separator */
 
-    .mdl-layout__header-row {
+    .mdl-layout__header-row.padded {
       padding-left: 256px !important;
+    }
+
+    .mdl-layout__header-row.no-padded {
+      padding-left: 0px !important;
     }
 
     .float-left {
@@ -1353,6 +1357,10 @@
       line-height: inherit;
       margin: inherit;
     }
+
+    #expand_sidebar {
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -1432,7 +1440,8 @@
 
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
-      <div class="mdl-layout__header-row">
+      <div class="mdl-layout__header-row padded">
+        <i class="material-icons" id="expand_sidebar">arrow_left</i>
         <span id="header_title" class="mdl-layout-title">Home</span>
         <div class="mdl-layout-spacer"></div>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">

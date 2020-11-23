@@ -337,6 +337,28 @@ function processTemplate(template, main) {
         })
     })
 
+    var toggle_sidebar = document.getElementById('expand_sidebar');
+    var sidebar = document.getElementById("style-3");
+    var header = document.querySelector(".mdl-layout__header-row");
+    var main_content = document.querySelector("main.mdl-layout__content");
+    toggle_sidebar.addEventListener('click', function(e) {
+        e.preventDefault();
+        if(sidebar.style.display === 'none') {
+            sidebar.style.display = 'initial';
+            header.classList.add('padded');
+            header.classList.remove('no-padded');
+            main_content.style.marginLeft = "240px";
+            toggle_sidebar.textContent = "arrow_left";
+        } else {
+            sidebar.style.display = 'none';
+            header.style.paddingLeft = "0px";
+            header.classList.add('no-padded');
+            header.classList.remove('padded');
+            main_content.style.marginLeft = "0px";
+            toggle_sidebar.textContent = "arrow_right";
+        }
+    })
+
     return chrome.storage.local.get({ reads: [] }, function (result) {
         readAlready = result.reads;
         Array.from(document.querySelectorAll("a[data-dropdown='notificationMenu']")).forEach(function (a) {
@@ -759,7 +781,7 @@ function processNotifications() {
         "credentials": "include"
     }
 
-    return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 100, 5, head)
+    return fetchRetry("https://elearning.utdallas.edu/webapps/streamViewer/streamViewer", 10, 5, head)
 }
 
 function wait(delay) {
@@ -767,20 +789,22 @@ function wait(delay) {
 }
 
 function fetchRetry(url, delay, tries, fetchOptions = {}) {
-    function onError(err) {
-        triesLeft = tries - 1;
-        if (!triesLeft) {
-            console.log("error while fetching announcements");
-        }
-        console.log("tries left: " + triesLeft);
-        return wait(delay).then(() => fetchRetry(url, delay, triesLeft, fetchOptions));
+    var pms = [];
+    for(var i = 0; i < tries; i++) {
+        pms.push(wait(delay).then(() => fetch(url, fetchOptions).then(resp => resp.json())));
     }
-    return fetch(url, fetchOptions).then(resp => resp.json()).then(a => {
-        if (a["sv_streamEntries"].length <= 1)
-            onError(null);
-        else
-            processRankedNotifications(a)
-    });
+
+    return Promise.all(pms).then(arr => {
+        var largest = arr[0];
+        console.log("size: " + arr[0]["sv_streamEntries"].length);
+        for(var j = 1; j < arr.length; j++) {
+            console.log("size: " + arr[j]["sv_streamEntries"].length);
+            if(arr[j]["sv_streamEntries"].length > largest["sv_streamEntries"].length) {
+                largest = arr[j];
+            }
+        }
+        processRankedNotifications(largest)
+    })
 }
 
 function timeSince(date) {
