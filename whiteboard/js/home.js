@@ -253,7 +253,9 @@ function fetchGrades() {
         promises.push(`${urlPrefix}/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
     }
 
-    return Promise.all(promises.map(url => fetch(url).then(resp => resp.text()).then(res => {
+    return Promise.all(promises.map(url => fetch(url)
+                                              .then(resp => resp.text())
+                                              .then(res => {
         var doc = new DOMParser().parseFromString(res, "text/html");
         var script = doc.createElement("script");
         script.text = "mygrades.sort('sortByLastActivity', true)";
@@ -318,9 +320,19 @@ function fetchGrades() {
                     </div>
                 </div>`
             );
-            document.querySelector(".gradeAll").appendChild(newElement);
+            // document.querySelector(".gradeAll").appendChild(newElement);
+            var checkDate = new Date(date);
+            var dateNumber = isNaN(checkDate) ? 0 : checkDate.getTime();
+            return {"date": dateNumber, "element": newElement};
         }
-    })));
+    }))).then(arr => {
+      arr.sort((t1, t2) => {
+        return t2["date"] - t1["date"];
+      })
+      for(var obj of arr) 
+        if(obj && obj["element"])
+          document.querySelector(".gradeAll").appendChild(obj["element"]);
+    });
 }
 
 // load the top announcement card sliders
