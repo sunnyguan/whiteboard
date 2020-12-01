@@ -26,24 +26,33 @@ export default function discussion(template, courseId) {
             var unreadToMe = board.querySelectorAll(".unread-count")[1].textContent.trim();
             var partCount = board.querySelector(".participants-count").textContent.trim();
             var newElement = createElementFromHTML(`
-            <div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop" style="min-height: 153px">
-                <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px; max-height: 100px">
-                    <h2 class="informationTitle mdl-card__title-text">${title}</h2>
+                <div class="information demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop" style="min-height: 153px">
+                    <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" style="min-height: 100px; max-height: 100px">
+                        <h2 class="informationTitle mdl-card__title-text">${title}</h2>
+                    </div>
+                    <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%">
+                        ${html}
+                    </div>
+                    <div class="mdl-card__actions mdl-card--border">
+                        <a href="${link}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                            ${totalPosts} Posts
+                        </a>
+                        <a href="${link}" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="color: rebeccapurple">
+                            ${unreadToMe} Unread
+                        </a>
+                    </div>
                 </div>
-                <div class="informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%">
-                    ${html}
-                </div>
-                <div class="mdl-card__actions mdl-card--border">
-                    <a href="${link}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-                        ${totalPosts} Posts
-                    </a>
-                    <a href="${link}" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="color: rebeccapurple">
-                        ${unreadToMe} Unread
-                    </a>
-                </div>
-            </div>
-        `);
+            `);
             document.querySelector(".informationAll").appendChild(newElement);
+        }
+        if (!board || board.length === 0) {
+            document.querySelector(".informationAll").appendChild(createElementFromHTML(`
+            <h4 style="
+                width: 100%;
+                font-weight: 300;
+                text-align: center;
+            ">No information found.</h4>`)
+            );
         }
         fetchSidebarCourses(courseId);
     })
