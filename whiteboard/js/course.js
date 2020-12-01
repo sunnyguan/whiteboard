@@ -44,6 +44,15 @@ export default function course(template, courseId) {
 
             allLinks.appendChild(newElement);
         }
+        if (!data["results"] || data["results"].length === 0) {
+            document.querySelector(".contents").appendChild(createElementFromHTML(`
+                <h4 style="
+                    width: 100%;
+                    font-weight: 300;
+                    text-align: center;
+                ">No information found.</h4>`)
+            );
+        }
         return fetchSidebarCourses(courseId);
     })
 }

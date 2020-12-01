@@ -71,6 +71,15 @@ export default function content(template, courseId, contentId) {
 
             document.querySelector(".informationAll").appendChild(newElement);
         }
+        if (!list || list.length === 0) {
+            document.querySelector(".informationAll").appendChild(createElementFromHTML(`
+                <h4 style="
+                    width: 100%;
+                    font-weight: 300;
+                    text-align: center;
+                ">No information found.</h4>`)
+            );
+        }
         return fetchSidebarCourses(courseId);
     });
 }
