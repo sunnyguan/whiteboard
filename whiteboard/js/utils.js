@@ -416,11 +416,12 @@ export function formatDate(d) {
 
 // fetch list of courses for sidebar (home page and iframe)
 export function fetchSidebarCourses(courseId = "") {
-    document.querySelector('.allLinks').innerHTML = "";
     return fetchCourseList().then(courses => {
+        document.querySelector('.allLinks').innerHTML = "";
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
         var uiCourses = courses;
+        console.log(uiCourses);
         for (var c of uiCourses) {
             var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav"' : "";
             var nav_uls = "";
@@ -534,7 +535,6 @@ function fetchCourseList() {
         return new Promise(function (resolve, reject) {
             chrome.storage.local.get({ links: {} }, function (result) {
                 var courses = [];
-                console.log(courseArr);
                 for (var c of courseArr) {
                     // NOTE: this could break if the 2208 pattern changes!
                     // TODO find better way to separate course/group
@@ -557,6 +557,7 @@ function fetchCourseList() {
                         courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
                     }
                 }
+                console.log(courses);
                 resolve(courses);
             });
         });
