@@ -38,7 +38,7 @@
 ![](https://i.imgur.com/TLCx4qQ.png)  
 4. Whiteboard should now be in your extensions page. Navigate to [eLearning](https://elearning.utdallas.edu) to experience Whiteboard!  
 
-## Updating Whiteboard  
+## Updating Whiteboard (beta versions)
 1. Delete the original whiteboard folder you extracted.  
 2. Redownload the [zipped source](https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip) and extract it to the same location.  
 3. Navigate to <chrome://extensions> and reload the extension.  
