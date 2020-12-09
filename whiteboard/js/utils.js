@@ -90,7 +90,7 @@ export function processTemplate(template, main) {
                     document.querySelector("#dropdownOverlay").style.display = "block";
                 }
             })
-            return checkLatestRelease().then(a => { return processNotifications() });
+            return checkLatestRelease().then(_ => processNotifications());
         })
     });
 
@@ -132,48 +132,58 @@ function verToNumber(str) {
 }
 
 function checkLatestRelease() {
-    return fetch("https://api.github.com/repos/sunnyguan/whiteboard/releases/latest").then(d => d.json()).then(release => {
-        var latestVersion = verToNumber(release["tag_name"].substring(1));
-        return fetch("https://raw.githubusercontent.com/sunnyguan/whiteboard/master/whiteboard/manifest.json").then(data => data.json()).then(beta => {
-            var betaVersion = verToNumber(beta["version"]);
-            return fetch(chrome.extension.getURL("manifest.json")).then(data => data.json()).then(current => {
-                var appVersion = verToNumber(current["version"])
-                console.log("Latest: " + latestVersion);
-                console.log("Current: " + appVersion);
-
-                // testing
-                // latestVersion = verToNumber("1.0.0");
-                // betaVersion = verToNumber("1.0.7");
-                // appVersion = verToNumber("1.0.5");
-
-                if (appVersion < latestVersion) {
-                    document.querySelector("#stableUpdate").innerText = "Major Update Available!";
-                    document.querySelector("#stableUpdate").href = release.assets[0].browser_download_url;
-                    document.querySelector("#stableUpdate").style.color = "rgb(255, 78, 103)";
-                    document.querySelector("#stableUpdate").style.borderColor = "rgba(255,3,3,70%)";
-                } else if (appVersion < betaVersion) {
-                    document.querySelector("#stableUpdate").innerText = "Beta Available!";
-                    document.querySelector("#stableUpdate").href = "https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip";
-                    // document.querySelector("#stableUpdate").style.color = "rgb(78, 255, 103)";
-                    // document.querySelector("#stableUpdate").style.borderColor = "rgba(3,255,3,70%)";
-                    document.querySelector("#stableUpdate").style.color = "rgb(144, 255, 101, 0.7)";
-                    document.querySelector("#stableUpdate").style.borderColor = "rgb(144, 255, 101, 0.7)";
-                } else if (appVersion > betaVersion) {
-                    // easter egg : )
-                    document.querySelector("#stableUpdate").innerText = "Developer Mode";
-                    document.querySelector("#stableUpdate").style.borderImage = "linear-gradient(to right bottom, rgb(184, 39, 252) 0%, rgb(44, 144, 252) 25%, rgb(184, 253, 51) 50%, rgb(254, 200, 55) 75%, rgb(253, 24, 146) 100%) 1 / 1 / 0 stretch";
-                    document.querySelector("#stableUpdate").style.borderImageSlice = "1";
-                    document.querySelector("#stableUpdate").style.color = "yellow";
-                } else {
-                    document.querySelector("#stableUpdate").innerText = "On Latest Version";
-                    document.querySelector("#stableUpdate").style.color = "rgb(0, 78, 103)";
-                    document.querySelector("#stableUpdate").style.borderColor = "initial";
-                }
-                refreshNavLinks();
-                render_calendar_addon();
-            })
-        })
+    return fetch(chrome.extension.getURL("manifest.json")).then(data => data.json()).then(current => {
+        var appVersion = current["version"];
+        document.querySelector("#stableUpdate").innerText = "Version: " + appVersion;
+        document.querySelector("#stableUpdate").href = "#";
+        document.querySelector("#stableUpdate").style.color = "rgb(144, 255, 101, 0.7)";
+        document.querySelector("#stableUpdate").style.borderColor = "rgb(144, 255, 101, 0.7)";
+        refreshNavLinks();
+        render_calendar_addon();
     });
+    
+    // return fetch("https://api.github.com/repos/sunnyguan/whiteboard/releases/latest").then(d => d.json()).then(release => {
+    //     var latestVersion = verToNumber(release["tag_name"].substring(1));
+    //     return fetch("https://raw.githubusercontent.com/sunnyguan/whiteboard/master/whiteboard/manifest.json").then(data => data.json()).then(beta => {
+    //         var betaVersion = verToNumber(beta["version"]);
+    //         return fetch(chrome.extension.getURL("manifest.json")).then(data => data.json()).then(current => {
+    //             var appVersion = verToNumber(current["version"])
+    //             console.log("Latest: " + latestVersion);
+    //             console.log("Current: " + appVersion);
+
+    //             // testing
+    //             // latestVersion = verToNumber("1.0.0");
+    //             // betaVersion = verToNumber("1.0.7");
+    //             // appVersion = verToNumber("1.0.5");
+
+    //             if (appVersion < latestVersion) {
+    //                 document.querySelector("#stableUpdate").innerText = "Major Update Available!";
+    //                 document.querySelector("#stableUpdate").href = release.assets[0].browser_download_url;
+    //                 document.querySelector("#stableUpdate").style.color = "rgb(255, 78, 103)";
+    //                 document.querySelector("#stableUpdate").style.borderColor = "rgba(255,3,3,70%)";
+    //             } else if (appVersion < betaVersion) {
+    //                 document.querySelector("#stableUpdate").innerText = "Beta Available!";
+    //                 document.querySelector("#stableUpdate").href = "https://github.com/sunnyguan/whiteboard/raw/master/whiteboard.zip";
+    //                 // document.querySelector("#stableUpdate").style.color = "rgb(78, 255, 103)";
+    //                 // document.querySelector("#stableUpdate").style.borderColor = "rgba(3,255,3,70%)";
+    //                 document.querySelector("#stableUpdate").style.color = "rgb(144, 255, 101, 0.7)";
+    //                 document.querySelector("#stableUpdate").style.borderColor = "rgb(144, 255, 101, 0.7)";
+    //             } else if (appVersion > betaVersion) {
+    //                 // easter egg : )
+    //                 document.querySelector("#stableUpdate").innerText = "Developer Mode";
+    //                 document.querySelector("#stableUpdate").style.borderImage = "linear-gradient(to right bottom, rgb(184, 39, 252) 0%, rgb(44, 144, 252) 25%, rgb(184, 253, 51) 50%, rgb(254, 200, 55) 75%, rgb(253, 24, 146) 100%) 1 / 1 / 0 stretch";
+    //                 document.querySelector("#stableUpdate").style.borderImageSlice = "1";
+    //                 document.querySelector("#stableUpdate").style.color = "yellow";
+    //             } else {
+    //                 document.querySelector("#stableUpdate").innerText = "On Latest Version";
+    //                 document.querySelector("#stableUpdate").style.color = "rgb(0, 78, 103)";
+    //                 document.querySelector("#stableUpdate").style.borderColor = "initial";
+    //             }
+    //             refreshNavLinks();
+    //             render_calendar_addon();
+    //         })
+    //     })
+    // });
 }
 
 function refreshNavLinks() {
