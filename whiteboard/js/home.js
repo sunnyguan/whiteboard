@@ -357,71 +357,89 @@ function loadAnnouncementCards() {
     announcement_fetches.push(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
   }
   document.querySelector("#announcementLoad").style.display = 'none';
+  
+  var announcementCards = [];
 
-  return Promise.all(announcement_fetches.map(url => fetch(url).then(resp => resp.json()).then(res => {
-    if (!("results" in res && res["results"].length >= 1))
-      return;
+  return Promise.all(
+    announcement_fetches.map(url => 
+      fetch(url).then(resp => resp.json()).then(res => {
+        if (!("results" in res && res["results"].length >= 1))
+          return;
 
-    var card1info = res["results"][0];
-    var courseId = url.split("courses/")[1].split("/")[0];
-    var createdDate = new Date(card1info.created);
-    var newElement = createElementFromHTML(
-      `<div class="slide box zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--3-col-desktop"
-                style="min-height:170px; padding-top: 0px; padding-bottom: 0px;"></div>`);
-    var card1 = createElementFromHTML(
-      `<div class="first card">
-                <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
-                    style="background-color: orange !important; background: none; min-height: 120px;"
-                    onclick="location.href='${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${courseId}'">
-                    <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
-                        ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
-                    </div>
-                    <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card1info.title}</h2>
-                </div>
-                <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: left;">
-                    ${courseIds[courseId]}
-                    <i class="arrow material-icons" style="position: absolute; right: 10px; bottom: 13px;">arrow_right_alt</i>
-                </div>
-            </div>`
-    )
-    newElement.appendChild(card1);
-
-    // add second card
-    if (res["results"].length >= 2) {
-      var card2info = res["results"][1];
-      var createdDate = new Date(card2info.created);
-      var card2 = createElementFromHTML(
-        `<div class="second card">
+        var card1info = res["results"][0];
+        var courseId = url.split("courses/")[1].split("/")[0];
+        var createdDate = new Date(card1info.created);
+        var timestamp = 0;
+        var newElement = createElementFromHTML(
+          `<div class="slide box zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--3-col-desktop"
+                    style="min-height:170px; padding-top: 0px; padding-bottom: 0px;"></div>`);
+        var card1 = createElementFromHTML(
+          `<div class="first card">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
                         style="background-color: orange !important; background: none; min-height: 120px;"
                         onclick="location.href='${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${courseId}'">
                         <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
                             ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
                         </div>
-                        <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card2info.title}</h2>
+                        <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card1info.title}</h2>
                     </div>
-                    <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: right;">
+                    <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: left;">
                         ${courseIds[courseId]}
-                        <i class="material-icons" style="position: absolute; left: 10px; bottom: 13px; transform: rotate(180deg)">arrow_right_alt</i>
+                        <i class="arrow material-icons" style="position: absolute; right: 10px; bottom: 13px;">arrow_right_alt</i>
                     </div>
                 </div>`
-      )
-      card2.querySelector(".switch").onclick = function (e) {
-        card1.classList.toggle("animate");
-        card2.classList.toggle("animate");
-      }
-      card1.querySelector(".switch").onclick = function (e) {
-        card1.classList.toggle("animate");
-        card2.classList.toggle("animate");
-      }
-      newElement.appendChild(card2);
-    } else {
-      // remove sliding arrow indicator if only 1 card
-      card1.querySelector(".arrow").style.display = "none";
-    }
+        )
+        newElement.appendChild(card1);
 
-    announcements.appendChild(newElement);
-    window.getComputedStyle(newElement).opacity; // added animation
-    newElement.className += ' in';
-  })));
+        // add second card
+        if (res["results"].length >= 2) {
+          var card2info = res["results"][1];
+          var createdDate = new Date(card2info.created);
+          if(!isNaN(createdDate.getTime()))
+            timestamp = createdDate.getTime() / 1000;
+          var card2 = createElementFromHTML(
+            `<div class="second card">
+                        <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100" 
+                            style="background-color: orange !important; background: none; min-height: 120px;"
+                            onclick="location.href='${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${courseId}'">
+                            <div style="position: absolute; right: 0; top: 0; font-weight: 300; font-family: Roboto; font-size: 14px; margin: 8px;">
+                                ${(createdDate.getMonth() + 1) + "/" + createdDate.getDate()}
+                            </div>
+                            <h2 class="mdl-card__title-text" style="font-size: 20px; max-height: 88px; overflow-y: auto">${card2info.title}</h2>
+                        </div>
+                        <div class="switch mdl-card__supporting-text mdl-color-text--grey-600" style="width: 100%; text-align: right;">
+                            ${courseIds[courseId]}
+                            <i class="material-icons" style="position: absolute; left: 10px; bottom: 13px; transform: rotate(180deg)">arrow_right_alt</i>
+                        </div>
+                    </div>`
+          )
+          card2.querySelector(".switch").onclick = function (e) {
+            card1.classList.toggle("animate");
+            card2.classList.toggle("animate");
+          }
+          card1.querySelector(".switch").onclick = function (e) {
+            card1.classList.toggle("animate");
+            card2.classList.toggle("animate");
+          }
+          newElement.appendChild(card2);
+        } else {
+          // remove sliding arrow indicator if only 1 card
+          card1.querySelector(".arrow").style.display = "none";
+        }
+
+        return {"timestamp": timestamp, "element": newElement};
+  }))).then(allCards => {
+    allCards.sort((a, b) => {
+      return b.timestamp - a.timestamp;
+    })
+    console.log(allCards);
+
+    for(var card of allCards) {
+      if(card) {
+        announcements.appendChild(card.element);
+        window.getComputedStyle(card.element).opacity; // added animation
+        card.element.className += ' in';
+      }
+    }
+  });
 }
