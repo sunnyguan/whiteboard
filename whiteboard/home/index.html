@@ -161,7 +161,6 @@
 
     .employee {
       padding: 5px;
-      width: 130px;
       border-radius: 5%;
       color: #fff;
       transition: all 0.5s;
@@ -208,10 +207,6 @@
       content: " ";
     }
 
-    .grid-calendar {
-      min-width: 320px;
-    }
-
     .calendar-week {
       overflow-y: auto;
     }
@@ -252,6 +247,11 @@
       min-height: 1px;
       padding: 0;
       position: relative;
+      flex-basis: 100%;
+    }
+
+    .employee-wrapper {
+      width: 100%;
     }
 
     .grid-calendar .grid-cell>div {
@@ -1360,6 +1360,11 @@
 
     #expand_sidebar {
       cursor: pointer;
+    }
+
+    #agenda-container {
+      display: flex;
+      width: 100%;
     }
   </style>
 </head>

@@ -416,8 +416,8 @@ export function formatDate(d) {
 
 // fetch list of courses for sidebar (home page and iframe)
 export function fetchSidebarCourses(courseId = "") {
+    document.querySelector('.allLinks').innerHTML = "";
     return fetchCourseList().then(courses => {
-        document.querySelector('.allLinks').innerHTML = "";
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
         var uiCourses = courses;

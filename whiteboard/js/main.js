@@ -34,7 +34,6 @@ export function start() {
 
 // save user ID for API calls
 function getUserId(result) {
-    console.log(result);
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
     var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
     var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
@@ -50,7 +49,7 @@ function getUserId(result) {
         user_id = avatarid[1];
         username = nameMatch[1];
         avatar_link = avatarMatch[1];
-
+        console.log("RENDERING!!!!!");
         setUserInfo(email, user_id, username, avatar_link);
         replacePage();
     }

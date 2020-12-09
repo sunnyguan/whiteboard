@@ -62,59 +62,59 @@ var home_main = `
         </div>
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"
           style="padding: 15px">
-          <div class="container">
+          <div class="container" style="width: 100%">
             <header>
               <h3 style="font-family: Roboto; font-weight: 300;">Week at a Glance</h2>
             </header>
             <div class="grid-calendar" style="margin: auto;">
             </div>
-            <div class="grid-calendar" style="margin: auto;">
+            <div class="grid-calendar" style="margin: auto; width: 100%">
               <div class="row calendar-week" id="agenda-container">
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Sunday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Monday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Tuesday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Wednesday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Thursday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Friday</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
-                    <div>
+                    <div class="employee-wrapper">
                       <p class="employee design">Saturday</p>
                     </div>
                   </div>
