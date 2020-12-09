@@ -309,6 +309,7 @@ function processRankedNotifications(res) {
     updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
     updates = updates.slice(0, 20);
     console.log(updates);
+    console.log(courseIds);
 
     var messages = document.getElementById("messages");
     var anmts = document.getElementById("announcements");
@@ -431,6 +432,13 @@ export function fetchSidebarCourses(courseId = "") {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
         var uiCourses = courses;
+        uiCourses.sort((a, b) => {
+            var aIsCourse = a.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.");
+            var bIsCourse = b.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.");
+            if(aIsCourse && bIsCourse) return a.textContent.localeCompare(b.textContent);
+            if(!aIsCourse) return 1;
+            return -1;
+        })
         console.log(uiCourses);
         for (var c of uiCourses) {
             var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav"' : "";
@@ -554,7 +562,7 @@ function fetchCourseList() {
                     var f20 = c.course.courseId.startsWith('2208-');
                     var s21 = c.course.courseId.startsWith('2212-');
                     var group = c.dataSourceId === "_2_1";
-                    if (!(f20))
+                    if (!(f20 || group))
                         continue;
                     var newElement = {};
                     newElement.id = c.course.id;
