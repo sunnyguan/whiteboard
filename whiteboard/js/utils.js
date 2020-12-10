@@ -430,6 +430,9 @@ export function fetchSidebarCourses(courseId = "") {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
         var uiCourses = courses;
+        if(!options['showGroupSidebar']) {
+            uiCourses = uiCourses.filter(course => course.textContent.match("[A-Z]+ [0-9].[0-9]{2}\."));
+        }
         uiCourses.sort((a, b) => {
             var aIsCourse = a.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.");
             var bIsCourse = b.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.");

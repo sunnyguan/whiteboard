@@ -1,6 +1,6 @@
 (async () => {
     const urlPrefix = "https://elearning.utdallas.edu";
-    var options = ['enabled', 'showGroupGrades', 'showNotifications'];
+    var options = ['enabled', 'showGroupGrades', 'showNotifications', 'showGroupSidebar'];
 
     // logic to determine if we should activate whiteboard on this page
     chrome.storage.local.get(options, async function (result) {
