@@ -1,4 +1,4 @@
-import { urlPrefix, email, user_id, username, avatar_link, courseIds, processTemplate, createElementFromHTML, fetchSidebarCourses, formatDate } from './utils.js';
+import { urlPrefix, email, user_id, username, avatar_link, courseIds, processTemplate, createElementFromHTML, fetchSidebarCourses, formatDate, options } from './utils.js';
 
 // fetch week at a glance
 function processAgenda() {
@@ -13,7 +13,6 @@ function processAgenda() {
 
   return fetch(urlPrefix + "/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
     if ("results" in data) {
-      // console.log(data);
       for (var cls of data["results"]) {
         var name = cls.title;
         var course = cls.calendarName.split(".")[0];
@@ -160,7 +159,6 @@ var home_main = `
 
 // dashboard page (home)
 export default async function home(template) {
-  console.log(user_id);
   await fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
     processTemplate(template, home_main);
     var bbScrape = document.createElement("iframe");
@@ -253,14 +251,14 @@ function gradeToColor(grade, def, convert = false) {
 }
 
 function fetchGrades() {
-  // console.log(courseIds);
   var promises = [];
-  console.log(courseIds);
   for (var courseId in courseIds) {
 
     // logic for removing group from grades (TODO: add option in menu)
-    if(!courseIds[courseId].match("[A-Z]+ [0-9].[0-9]{2}\.")) continue;
-    
+    if(!options["showGroupGrades"]) {
+      if(!courseIds[courseId].match("[A-Z]+ [0-9].[0-9]{2}\.")) 
+        continue;
+    }
     promises.push(`${urlPrefix}/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
   }
 
@@ -432,7 +430,6 @@ function loadAnnouncementCards() {
     allCards.sort((a, b) => {
       return b.timestamp - a.timestamp;
     })
-    console.log(allCards);
 
     for(var card of allCards) {
       if(card) {

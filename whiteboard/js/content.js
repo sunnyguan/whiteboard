@@ -9,7 +9,6 @@ var content_main = `
 
 // load a content (can mean a lot of things! almost everything that is a "page" is a content)
 export default function content(template, courseId, contentId) {
-    // console.log("course: " + courseId + "; content: " + contentId);
     fetch(urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + courseId + "&content_id=" + contentId).then(resp => resp.text()).then(data => {
         processTemplate(template, content_main);
         var xmlString = data;
@@ -50,7 +49,6 @@ export default function content(template, courseId, contentId) {
                 newElement.querySelector(".pin").setAttribute("title", item.querySelector("div > h3").textContent);
                 newElement.querySelector(".pin").addEventListener('click', function (event) {
                     var t = event.target;
-                    // console.log(t);
                     addToLinks(t, courseId);
                 });
                 newElement.querySelector(".informationLinks").appendChild(read_more);

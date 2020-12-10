@@ -13,7 +13,6 @@ export default function discussion(template, courseId) {
         // document.getElementById('header_title').textContent = title;
         // document.title = title;
         var doc = new DOMParser().parseFromString(data, "text/html");
-        console.log(doc);
         var boards = doc.getElementById("listContainer_databody");
         boards = boards ? boards.children : [];
         for (var board of boards) {

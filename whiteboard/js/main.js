@@ -19,12 +19,12 @@ const urlPrefix = "https://elearning.utdallas.edu";
 var flag = false;
 var waiting = false;
 
-export function start() {
+export function start(options) {
     console.log("Fetching your unique id...")
     fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => {
-            getUserId(result)
+            getUserId(result, options)
         }).catch(error => {
             console.log(error);
             console.log("you're not logged in.")
@@ -33,7 +33,7 @@ export function start() {
 }
 
 // save user ID for API calls
-function getUserId(result) {
+function getUserId(result, options) {
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
     var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
     var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
@@ -45,12 +45,10 @@ function getUserId(result) {
         throw 404;
     } else {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
-        console.log(email);
         user_id = avatarid[1];
         username = nameMatch[1];
         avatar_link = avatarMatch[1];
-        console.log("RENDERING!!!!!");
-        setUserInfo(email, user_id, username, avatar_link);
+        setUserInfo(email, user_id, username, avatar_link, options);
         replacePage();
     }
 }

@@ -7,13 +7,15 @@ export let email = "";
 export let user_id = "";
 export let username = "";
 export let avatar_link = "";
+export let options = {};
 export let courseIds = {};
 
-export function setUserInfo(e, uid, un, avt) {
+export function setUserInfo(e, uid, un, avt, opt) {
     email = e;
     user_id = uid;
     username = un;
     avatar_link = avt;
+    options = opt;
 }
 
 // loads html from storage, puts in email, render quick add calendar popup
@@ -90,7 +92,13 @@ export function processTemplate(template, main) {
                     document.querySelector("#dropdownOverlay").style.display = "block";
                 }
             })
-            return checkLatestRelease().then(_ => processNotifications());
+            return checkLatestRelease().then(_ => {
+                if(options["showNotifications"]) {
+                    return processNotifications()
+                } else {
+                    document.getElementById("notifBell").outerHTML = "";
+                }
+            });
         })
     });
 
@@ -101,12 +109,10 @@ export function processTemplate(template, main) {
 
 function readAllAnnouncements() {
     chrome.storage.local.get({ reads: [] }, function (result) {
-        console.log(result);
         var newReads = result.reads;
         for (var anmt of allAnnouncements)
             if (!newReads.includes(anmt))
                 newReads.push(anmt);
-        console.log(newReads)
         newReads = newReads.slice(-50)
         readAlready = newReads
         allAnnouncements = []
@@ -115,7 +121,6 @@ function readAllAnnouncements() {
             reads: newReads
         }, function () {
             console.log("added read announcements");
-            console.log(newReads);
         });
     });
 }
@@ -127,7 +132,6 @@ function verToNumber(str) {
     var res = 0;
     for (var i = 0; i < arr.length; i++)
         res += Math.pow(100, arr.length - 1 - i) * arr[i];
-    console.log("string: " + str + "; res: " + res)
     return res;
 }
 
@@ -238,7 +242,6 @@ function render_calendar_addon() {
                 "mode": "cors",
                 "credentials": "include"
             }).then(resp => resp.text()).then(data => {
-                // console.log(data);
                 alert("Added!");
                 document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? '' : 'none';
             }).catch(err => { console.log(err); alert("Error!"); })
@@ -252,7 +255,6 @@ function render_calendar_addon() {
             document.getElementById("dropdownOverlay").style.display = 'none';
             document.getElementById("mycard").style.display = "none";
         })
-        // console.log(document.getElementById("mycard").style.display);
         document.getElementById("mycard").style.display = document.getElementById("mycard").style.display === 'none' ? 'block' : 'none';
         document.querySelector("#dropdownOverlay").style.display = document.getElementById("mycard").style.display === 'none' ? 'none' : 'block';
     })
@@ -293,7 +295,6 @@ function fetchRetry(url, delay, tries, fetchOptions = {}) {
 
     return Promise.all(pms).then(arr => {
         var largest = arr[0];
-        console.log("size: " + arr[0]["sv_streamEntries"].length);
         for (var j = 1; j < arr.length; j++) {
             console.log("size: " + arr[j]["sv_streamEntries"].length);
             if (arr[j]["sv_streamEntries"].length > largest["sv_streamEntries"].length) {
@@ -308,8 +309,6 @@ function processRankedNotifications(res) {
     var updates = res["sv_streamEntries"];
     updates.sort((a, b) => (a.se_timestamp > b.se_timestamp) ? -1 : ((b.se_timestamp > a.se_timestamp) ? 1 : 0));
     updates = updates.slice(0, 20);
-    console.log(updates);
-    console.log(courseIds);
 
     var messages = document.getElementById("messages");
     var anmts = document.getElementById("announcements");
@@ -363,7 +362,6 @@ function processRankedNotifications(res) {
             </li>
         `)
         appElement.appendChild(element);
-        // console.log(update.se_context);
     }
 
     if (unreadCount !== 0) {
@@ -439,7 +437,6 @@ export function fetchSidebarCourses(courseId = "") {
             if(!aIsCourse) return 1;
             return -1;
         })
-        console.log(uiCourses);
         for (var c of uiCourses) {
             var classes = c.links.length > 0 || courseId !== "" ? 'class="has-subnav"' : "";
             var nav_uls = "";
@@ -575,7 +572,6 @@ function fetchCourseList() {
                         courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
                     }
                 }
-                console.log(courses);
                 resolve(courses);
             });
         });
@@ -589,7 +585,6 @@ export function addToLinks(element, courseId) {
     var name = element.getAttribute("title");
 
     chrome.storage.local.get({ links: {} }, function (result) {
-        // console.log(result);
         var newlinks = {};
         var add_new = false;
         if (result.links !== {}) {
@@ -608,7 +603,6 @@ export function addToLinks(element, courseId) {
             links: newlinks
         }, function () {
             console.log("new link added");
-            console.log(newlinks);
             fetchSidebarCourses(courseId);
         });
     });
@@ -627,13 +621,10 @@ export function removeFromLinks(element, courseId) {
         if (!(courseId in newlinks))
             return;
         newlinks[courseId] = newlinks[courseId].filter(function (el) { return el.link != link; });
-        console.log(newlinks[courseId]);
-        console.log({ link: link, title: name });
         chrome.storage.local.set({
             links: newlinks
         }, function () {
             console.log("link removed");
-            console.log(newlinks);
             fetchSidebarCourses(courseId);
             // element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
         });

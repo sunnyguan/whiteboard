@@ -38,7 +38,6 @@ export default function course(template, courseId) {
 
             newElement.querySelector(".pin").addEventListener('click', function (event) {
                 var t = event.target;
-                console.log(t);
                 addToLinks(t.getAttribute("href"), t.getAttribute("courseid"), t.getAttribute("title"), courseId);
             });
 

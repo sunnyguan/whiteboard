@@ -1,15 +1,17 @@
 (async () => {
     const urlPrefix = "https://elearning.utdallas.edu";
-    
+    var options = ['enabled', 'showGroupGrades', 'showNotifications'];
+
     // logic to determine if we should activate whiteboard on this page
-    chrome.storage.local.get(['enabled'], async function (result) {
+    chrome.storage.local.get(options, async function (result) {
+        console.log(result);
         enabled = result.enabled !== false;
         console.log("Extension has been " + (enabled ? "en" : "dis") + "abled from the popup.");
 
         // only replace page if extension enabled and url starts with /webapps
         if (enabled) {
             if (window.location.href.startsWith(urlPrefix)) {
-                await start();
+                await start(result);
             } else if (window.location.href.includes("coursebook.utdallas.edu")) {
                 await startCoursebook();
             }
@@ -25,8 +27,7 @@ async function startCoursebook() {
     contentScript.startCB();
 }
 
-async function start() {
-    console.log('hi');
+async function start(options) {
     var originalHTML = "Please turn off Whiteboard, log in normally, and turn on Whiteboard.";
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
@@ -37,5 +38,5 @@ async function start() {
 
     const src = chrome.extension.getURL('js/main.js');
     const contentScript = await import(src);
-    contentScript.start();
+    contentScript.start(options);
 }

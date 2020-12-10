@@ -28,25 +28,21 @@ function checkFlag() {
 }
 
 function multipleCalls(names) {
-    console.log('calling!');
     var uri = "https://utdrmp.herokuapp.com/api/rmp?";
     for (var name of names) {
         uri += "names=" + name + "&";
     }
     chrome.runtime.sendMessage(uri, data => process(data));
-    console.log('done calling!');
     waiting = true;
 }
 
 function process(data) {
     var k = JSON.parse(data);
-    console.log(k);
     insertColumn(4, 'RMP');
     insertColumn(5, 'GPA');
     for (var i = 0; i < k.length; i++) {
         var element = document.querySelector("#sr > div > table > tbody").rows[i]["cells"];
         let heading1 = document.createElement('a');
-        console.log(k[i].rating);
         heading1.textContent = k[i].rating.replace("based on ", "(").replace(" ratings", ")");
         if (k[i].link == 'N/A') {
             heading1 = document.createElement('p');
