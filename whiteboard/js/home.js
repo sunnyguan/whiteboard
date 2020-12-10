@@ -53,6 +53,10 @@ function processAgenda() {
 
 var home_main = `
     <div class="mdl-grid demo-content">
+        <div id="zuckjs">
+            <div id="stories" class="storiesWrapper stories user-icon carousel snapgram">
+            </div>
+        </div>
         <div id="announcementDiv"
           class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <div id="announcementLoad" style="width: 100%; text-align: center;">
@@ -157,10 +161,173 @@ var home_main = `
     </div>
 `;
 
+function addCSS(pre, filenames) {
+  for (var filename of filenames) {
+    var link = document.createElement("link");
+    link.href = chrome.extension.getURL(pre + "/" + filename);
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    document.getElementsByTagName("head")[0].appendChild(link);
+  }
+}
+
+var timestamp = function () {
+  var timeIndex = 0;
+  var shifts = [35, 60, 60 * 3, 60 * 60 * 2, 60 * 60 * 25, 60 * 60 * 24 * 4, 60 * 60 * 24 * 10];
+
+  var now = new Date();
+  var shift = shifts[timeIndex++] || 0;
+  var date = new Date(now - shift * 1000);
+
+  return date.getTime() / 1000;
+};
+
+var changeSkin = function (skin) {
+  location.href = location.href.split('#')[0].split('?')[0] + '?skin=' + skin;
+};
+
+var getCurrentSkin = function () {
+  var header = document.getElementById('header');
+  var skin = location.href.split('skin=')[1];
+
+  if (!skin) {
+    skin = 'Snapgram';
+  }
+
+  if (skin.indexOf('#') !== -1) {
+    skin = skin.split('#')[0];
+  }
+
+  var skins = {
+    Snapgram: {
+      avatars: true,
+      list: false,
+      autoFullScreen: false,
+      cubeEffect: true,
+      paginationArrows: false
+    },
+
+    VemDeZAP: {
+      avatars: false,
+      list: true,
+      autoFullScreen: false,
+      cubeEffect: false,
+      paginationArrows: true
+    },
+
+    FaceSnap: {
+      avatars: true,
+      list: false,
+      autoFullScreen: true,
+      cubeEffect: false,
+      paginationArrows: true
+    },
+
+    Snapssenger: {
+      avatars: false,
+      list: false,
+      autoFullScreen: false,
+      cubeEffect: false,
+      paginationArrows: false
+    }
+  };
+
+  var el = document.querySelectorAll('#skin option');
+  var total = el.length;
+  for (var i = 0; i < total; i++) {
+    var what = skin == el[i].value ? true : false;
+
+    if (what) {
+      el[i].setAttribute('selected', 'selected');
+
+      header.innerHTML = skin;
+      header.className = skin;
+    } else {
+      el[i].removeAttribute('selected');
+    }
+  }
+
+  return {
+    name: skin,
+    params: skins[skin]
+  };
+};
+
+
+function loadZuck() {
+  fetch(chrome.runtime.getURL("zuck_js/zuck.min.js"))
+    .then(resp => resp.text())
+    .then(js => {
+      eval(js);
+      console.log('Zuck loaded!');
+      runZuck();
+    })
+    .catch(console.error)
+}
+
+async function getStories() {
+  var stories = await fetch("https://whiteboard-stories.herokuapp.com/stories")
+    .then(resp => resp.text())
+    .then(text => {
+      return JSON.parse(text);
+    });
+  return stories;
+}
+
+const get = function (array, what) {
+  if (array) {
+    return array[what] || '';
+  } else {
+    return '';
+  }
+};
+
+async function runZuck() {
+  var currentSkin = getCurrentSkin();
+  var json_stories = await getStories();
+  var all_stories = json_stories;
+  var stories = new Zuck('stories', {
+    backNative: true,
+    previousTap: true,
+    reactive: false,
+    skin: currentSkin['name'],
+    autoFullScreen: currentSkin['params']['autoFullScreen'],
+    avatars: currentSkin['params']['avatars'],
+    paginationArrows: currentSkin['params']['paginationArrows'],
+    list: currentSkin['params']['list'],
+    cubeEffect: currentSkin['params']['cubeEffect'],
+    localStorage: false,
+    stories: all_stories,
+    template: {
+      viewerItemBody(index, currentIndex, item) {
+        return `<div 
+                        class="item ${get(item, 'seen') === true ? 'seen' : ''} ${currentIndex === index ? 'active' : ''}"
+                        data-time="${get(item, 'time')}" data-type="${get(item, 'type')}" data-index="${index}" data-item-id="${get(item, 'id')}">
+                        ${get(item, 'type') === 'photo'
+            ? `<img loading="auto" class="media" src="${get(item, 'src')}" ${get(item, 'type')}>${get(item, 'src')} />`
+            : `<h4 style="color: white; display: flex; text-align: center; align-items: center;" loading="auto" class="media" src="${get(item, 'src')}" ${get(item, 'type')}>${get(item, 'src')}</h4>
+                        `}
+                        ${get(item, 'link')
+            ? `<a class="tip link" href="${get(item, 'link')}" rel="noopener" target="_blank">
+                                ${!get(item, 'linkText') || get(item, 'linkText') === '' ? "Visit Link" : get(item, 'linkText')}
+                              </a>`
+            : ''
+          }
+                      </div>`;
+      }
+    }
+  });
+}
+
 // dashboard page (home)
 export default async function home(template) {
   await fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
     processTemplate(template, home_main);
+    if(options["loadStories"]) {
+      addCSS("zuck_js", ["style.css", "zuck.min.css", "snapgram.css"]);
+      loadZuck();
+    }
+
     var bbScrape = document.createElement("iframe");
     bbScrape.id = "bbFrame";
     bbScrape.style.display = 'none';
@@ -255,8 +422,8 @@ function fetchGrades() {
   for (var courseId in courseIds) {
 
     // logic for removing group from grades (TODO: add option in menu)
-    if(!options["showGroupGrades"]) {
-      if(!courseIds[courseId].match("[A-Z]+ [0-9].[0-9]{2}\.")) 
+    if (!options["showGroupGrades"]) {
+      if (!courseIds[courseId].match("[A-Z]+ [0-9].[0-9]{2}\."))
         continue;
     }
     promises.push(`${urlPrefix}/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
@@ -355,11 +522,11 @@ function loadAnnouncementCards() {
     announcement_fetches.push(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
   }
   document.querySelector("#announcementLoad").style.display = 'none';
-  
+
   var announcementCards = [];
 
   return Promise.all(
-    announcement_fetches.map(url => 
+    announcement_fetches.map(url =>
       fetch(url).then(resp => resp.json()).then(res => {
         if (!("results" in res && res["results"].length >= 1))
           return;
@@ -393,7 +560,7 @@ function loadAnnouncementCards() {
         if (res["results"].length >= 2) {
           var card2info = res["results"][1];
           var createdDate = new Date(card2info.created);
-          if(!isNaN(createdDate.getTime()))
+          if (!isNaN(createdDate.getTime()))
             timestamp = createdDate.getTime() / 1000;
           var card2 = createElementFromHTML(
             `<div class="second card">
@@ -425,18 +592,18 @@ function loadAnnouncementCards() {
           card1.querySelector(".arrow").style.display = "none";
         }
 
-        return {"timestamp": timestamp, "element": newElement};
-  }))).then(allCards => {
-    allCards.sort((a, b) => {
-      return b.timestamp - a.timestamp;
-    })
+        return { "timestamp": timestamp, "element": newElement };
+      }))).then(allCards => {
+        allCards.sort((a, b) => {
+          return b.timestamp - a.timestamp;
+        })
 
-    for(var card of allCards) {
-      if(card) {
-        announcements.appendChild(card.element);
-        window.getComputedStyle(card.element).opacity; // added animation
-        card.element.className += ' in';
-      }
-    }
-  });
+        for (var card of allCards) {
+          if (card) {
+            announcements.appendChild(card.element);
+            window.getComputedStyle(card.element).opacity; // added animation
+            card.element.className += ' in';
+          }
+        }
+      });
 }
