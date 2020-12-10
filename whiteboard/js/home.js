@@ -267,6 +267,7 @@ function loadZuck() {
 
 async function getStories() {
   var stories = await fetch("https://whiteboard-stories.herokuapp.com/stories")
+  // var stories = await fetch("http://localhost:5000/stories")
     .then(resp => resp.text())
     .then(text => {
       return JSON.parse(text);
@@ -281,6 +282,23 @@ const get = function (array, what) {
     return '';
   }
 };
+
+async function loadAddStory() {
+  var addButton = createElementFromHTML(`
+    <div class="story">
+      <a class="item-link" target="_blank" rel="noopener noreferrer" href="https://whiteboard-stories.herokuapp.com/">
+      <span class="item-preview">
+        <img lazy="eager" src="https://www.pinclipart.com/picdir/big/1-17259_list-add-clip-art-add-image-button-png.png">
+      </span>
+      <span class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <strong class="name" itemprop="name">Add Story</strong>
+        <span class="time"></span>
+      </span>
+      </a>
+    </div>
+  `);
+  document.getElementById("stories").appendChild(addButton);
+}
 
 async function runZuck() {
   var currentSkin = getCurrentSkin();
@@ -317,6 +335,7 @@ async function runZuck() {
       }
     }
   });
+  loadAddStory();
 }
 
 // dashboard page (home)
