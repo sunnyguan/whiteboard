@@ -28,15 +28,16 @@ async function startCoursebook() {
 }
 
 async function start(options) {
-    var originalHTML = "Please turn off Whiteboard, log in normally, and turn on Whiteboard.";
     fetch(chrome.extension.getURL("loading.html"))
         .then(response => response.text())
-        .then(template => {
-            originalHTML = document.getElementsByTagName("html")[0].innerHTML;
+        .then(async function(template) {
+            var originalHTML = document.getElementsByTagName("html")[0].innerHTML;
             document.getElementsByTagName("html")[0].innerHTML = template;
+            const src = chrome.extension.getURL('js/main.js');
+            const contentScript = await import(src);
+            var login = await contentScript.start(options);
+            if(login) {
+                document.getElementsByTagName("html")[0].innerHTML = originalHTML;
+            }
         });
-
-    const src = chrome.extension.getURL('js/main.js');
-    const contentScript = await import(src);
-    contentScript.start(options);
 }

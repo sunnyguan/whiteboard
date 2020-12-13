@@ -561,7 +561,7 @@ function fetchCourseList() {
                     var unavailable = c.course.availability.available === "No";
                     var f20 = c.course.courseId.startsWith('2208-');
                     var s21 = c.course.courseId.startsWith('2212-');
-                    var group = c.dataSourceId === "_2_1";
+                    var group = c.course.organization === true;
                     if (!(f20 || group))
                         continue;
                     var newElement = {};

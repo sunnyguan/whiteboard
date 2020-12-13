@@ -19,17 +19,18 @@ const urlPrefix = "https://elearning.utdallas.edu";
 var flag = false;
 var waiting = false;
 
-export function start(options) {
+export async function start(options) {
     console.log("Fetching your unique id...")
-    fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
+    var login = await fetch(urlPrefix + "/webapps/blackboard/execute/personalInfo")
         .then(response => response.text())
         .then(result => {
-            getUserId(result, options)
+            return getUserId(result, options)
         }).catch(error => {
             console.log(error);
             console.log("you're not logged in.")
-            document.getElementsByTagName("html")[0].innerHTML = originalHTML;
+            return true;
         });
+    return login;
 }
 
 // save user ID for API calls
@@ -42,7 +43,7 @@ function getUserId(result, options) {
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
-        throw 404;
+        return true;
     } else {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
         user_id = avatarid[1];
@@ -50,11 +51,13 @@ function getUserId(result, options) {
         avatar_link = avatarMatch[1];
         setUserInfo(email, user_id, username, avatar_link, options);
         replacePage();
+        return false;
     }
 }
 
 // logic for choosing page to replace
 function replacePage() {
+    
     var href = window.location.href;
     const urlParams = new URLSearchParams(window.location.search);
     var courseId = urlParams.get("course_id");
