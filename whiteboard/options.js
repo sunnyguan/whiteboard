@@ -6,7 +6,7 @@ var defaults = [true, false, false, false, false];
 // set checkbox
 chrome.storage.local.get(options, function (result) {
     var id = 0;
-    for (var p of Object.keys(result)) {
+    for (var p of options) {
         if(result[p] == null) 
             document.getElementById(p).checked = defaults[id];
         else
@@ -52,7 +52,6 @@ function checkEnabled(element) {
 
 function init() {
     for (var p of options) {
-        console.log(p);
         document.getElementById(p).addEventListener('click', checkEnabled);
     }
 }
