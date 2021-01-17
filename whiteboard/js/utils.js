@@ -554,12 +554,12 @@ function fetchCourseList() {
             chrome.storage.local.get({ links: {} }, function (result) {
                 var courses = [];
                 for (var c of courseArr) {
-                    // NOTE: this could break if the 2208 pattern changes!
+                    // NOTE: this could break if the 2212 pattern changes!
                     // TODO find better way to separate course/group
                     // console.log(c.course.availability);
                     // console.log(c.course.name);
                     var unavailable = c.course.availability.available === "No";
-                    var f20 = c.course.courseId.startsWith('2208-');
+                    var f20 = c.course.courseId.startsWith('2212-');
                     var s21 = c.course.courseId.startsWith('2212-');
                     var group = c.course.organization === true;
                     if (!(f20 || group))

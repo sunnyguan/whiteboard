@@ -1,14 +1,15 @@
 export function startCB() {
     document.addEventListener('DOMContentLoaded', function () {
-        viewport = document.querySelector("meta[name=viewport]");
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+        // viewport = document.querySelector("meta[name=viewport]");
+        // viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
         checkFlag();
     });
 }
 
+var waiting = false;
 
 function checkFlag() {
-    flag = document.querySelector("#sr > div > table > tbody") != null && document.querySelector("#sr > div > table > tbody").rows.length != 0 && document.querySelectorAll("#sr > div > table > thead > tr > th").length == 7;
+    var flag = document.querySelector("#sr > div > table > tbody") != null && document.querySelector("#sr > div > table > tbody").rows.length != 0 && document.querySelectorAll("#sr > div > table > thead > tr > th").length == 7;
     if (flag == false || waiting == true) {
         window.setTimeout(checkFlag, 1000);
     } else {

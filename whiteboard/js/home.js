@@ -361,8 +361,8 @@ export default async function home(template) {
 
     // add the "real" classes first
     for (var course of courseArr) {
-      // NOTE: this could break if the 2208 pattern changes!
-      if (!course.course.courseId.startsWith('2208-')) continue;
+      // NOTE: this could break if the 2212 pattern changes!
+      if (!course.course.courseId.startsWith('2212-')) continue;
       var newElement = createElementFromHTML(
         `<div class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
@@ -380,11 +380,11 @@ export default async function home(template) {
     // add the other stuff at the bottom
     // TODO: work on groups
     for (var course of courseArr) {
-      // NOTE: this could break if the 2208 pattern changes!
-      if (course.course.courseId.startsWith('2208-')) continue;
+      // NOTE: this could break if the 2212 pattern changes!
+      if (course.course.courseId.startsWith('2212-')) continue;
       var c = course;
       var unavailable = c.course.availability.available === "No";
-      var f20 = c.course.courseId.startsWith('2208-');
+      var f20 = c.course.courseId.startsWith('2212-');
       var s21 = c.course.courseId.startsWith('2212-');
       var group = c.dataSourceId === "_2_1";
       if (!(group))
