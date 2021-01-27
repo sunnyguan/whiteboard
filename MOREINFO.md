@@ -2,7 +2,7 @@
 
 ## Overview
 
-Material UI redesign of Blackboard, UTD's online learning management system.
+Material UI redesign of Blackboard, UTD's online Learning Management System.
 
 ## Description
 
