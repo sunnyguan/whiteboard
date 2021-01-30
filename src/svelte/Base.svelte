@@ -19,6 +19,9 @@
     async function fetchCourseList (user_id) {
         const course_data = fetch(URL_PREFIX + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => data.results);
         let courseArr = await course_data;
+        courseArr = courseArr.filter(c => {
+            return c.course.courseId.startsWith('2212-');
+        });
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
@@ -34,11 +37,11 @@
     });
 </script>
 
-<div>
+<div class="p-8">
     {#each courses as course}
-        <p class="bg-blue-400">Name: {course.course.name}</p>
+        <Course course={course} />
     {:else}
-        <p>please wait...</p>
+        <p class="text-center">please wait...</p>
     {/each}
 </div>
 
