@@ -44,9 +44,3 @@
         <p class="text-center">please wait...</p>
     {/each}
 </div>
-
-<style>
-    p {
-        color: blue;
-    }
-</style>
