@@ -14,7 +14,7 @@
 
 <div class="bg-blue-100 min-h-screen flex">
     {#if user && user.courses}
-        <div class="bg-red-100 w-72">
+        <div class="w-72">
             <Sidebar user={user} />
         </div>
         <div class="bg-green-100 flex-auto">

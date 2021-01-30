@@ -4,6 +4,7 @@
 </script>
 
 <div class="p-8">
+    <h1 class="text-center text-3xl">{user.name}'s Courses</h1>
     {#each user.courses as course}
         <Course course={course} />
     {:else}

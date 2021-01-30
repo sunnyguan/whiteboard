@@ -6,6 +6,6 @@
     }
 </script>
 
-<div class="bg-blue-400 rounded-md m-4 p-2">
+<div class="bg-blue-200 rounded-md m-4 p-2 shadow-lg">
     <a href="www.google.com">{shorten(course.course.name)}</a>
 </div>
