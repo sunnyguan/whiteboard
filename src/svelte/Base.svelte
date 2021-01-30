@@ -21,6 +21,6 @@
             <Home user={user} />
         </div>
     {:else}
-        <p class="text-center">loading...</p>
+        <p class="text-center w-full">loading...</p>
     {/if}
 </div>
