@@ -1,23 +1,49 @@
 <script>
-    const fetchUserInfo = (async () => {
-        // const response = await fetch("https://dog.ceo/api/breeds/image/random");
-        // return await response.json();
-        
-        const response = await fetch("https://elearning.utdallas.edu/webapps/blackboard/execute/personalInfo");
+    import { onMount } from 'svelte';
+    import Course from './Course.svelte';
+    
+    const URL_PREFIX = "https://elearning.utdallas.edu"
+
+    let name = "anonymoose";
+    let id = "0";
+    let courses = [];
+
+    async function fetchUserInfo() {
+        const response = await fetch(URL_PREFIX + "/webapps/blackboard/execute/personalInfo");
         const result = await response.text();
         const nameMatch = result.match("class=global-top-avatar />(.*?)<span");
-        return nameMatch[1];
-    })();
+        const user_id = result.match("key=(.*?), dataType=blackboard.data.user.User")[1];
+        return {name: nameMatch[1], id: user_id};
+    }
+
+    async function fetchCourseList (user_id) {
+        const course_data = fetch(URL_PREFIX + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => data.results);
+        let courseArr = await course_data;
+        courseArr.sort(function (a, b) {
+            return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
+        });
+        return courseArr;
+    }
+
+    onMount(async () => {
+        let info = await fetchUserInfo();
+        name = info.name;
+        id = info.id;
+        courses = await fetchCourseList(id);
+        console.log(courses);
+    });
 </script>
 
+<div>
+    {#each courses as course}
+        <p class="bg-blue-400">Name: {course.course.name}</p>
+    {:else}
+        <p>please wait...</p>
+    {/each}
+</div>
+
 <style>
-    h1 {
-        color: pink;
+    p {
+        color: blue;
     }
 </style>
-
-{#await fetchUserInfo}
-    <p>...please wait...</p>
-{:then data} 
-    <h1>Good morning, {data}!</h1>
-{/await}

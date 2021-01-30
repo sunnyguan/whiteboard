@@ -5,7 +5,8 @@ var webpack = require("webpack"),
     CleanWebpackPlugin = require("clean-webpack-plugin"),
     CopyWebpackPlugin = require("copy-webpack-plugin"),
     HtmlWebpackPlugin = require("html-webpack-plugin"),
-    WriteFilePlugin = require("write-file-webpack-plugin");
+    WriteFilePlugin = require("write-file-webpack-plugin"),
+    MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 // load the secrets
 var alias = {};
@@ -37,8 +38,8 @@ var options = {
     rules: [
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader",
-        exclude: /node_modules/
+        loader: "style-loader!css-loader!postcss-loader",
+        exclude: /node_modules/,
       },
       {
         test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
@@ -56,7 +57,7 @@ var options = {
 				use: {
 					loader: 'svelte-loader',
 					options: {
-						emitCss: false,
+						emitCss: true,
 						hotReload: false
 					}
 				}
@@ -104,7 +105,11 @@ var options = {
       filename: "base.html",
       chunks: ["base"]
     }),
-    new WriteFilePlugin()
+    new WriteFilePlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].bundle.css',
+      chunkFilename: '[id].css'
+    })
   ]
 };
 

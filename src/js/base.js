@@ -1,3 +1,4 @@
+import '../css/base.css';
 import Base from '../svelte/Base.svelte';
 
 const app = new Base({
