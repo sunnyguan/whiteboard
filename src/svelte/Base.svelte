@@ -1,7 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import { fetchUserInfo } from '../js/services/services.js';
-    import User from '../js/services/user.js';
     import Home from './Home.svelte'
     import Sidebar from './Sidebar.svelte';
     
@@ -12,12 +11,12 @@
     });
 </script>
 
-<div class="bg-blue-100 min-h-screen flex">
+<div class="min-h-screen flex">
     {#if user && user.courses}
         <div class="w-72">
             <Sidebar user={user} />
         </div>
-        <div class="bg-green-100 flex-auto">
+        <div class="flex-auto">
             <Home user={user} />
         </div>
     {:else}
