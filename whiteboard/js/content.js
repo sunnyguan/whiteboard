@@ -27,7 +27,7 @@ export default function content(template, courseId, contentId) {
                     <div class="cardInfo informationContent mdl-card__supporting-text mdl-color-text--grey-600" style="overflow-y: auto; height: 100%; ${!hasContent ? `padding: 0` : ''}">
                         ${item.querySelector(".details").innerHTML}
                     </div>
-                    <div class="informationLinks mdl-card__actions mdl-card--border" style="height: 53px; min-height: 53px; max-height: 53px;">
+                    <div class="informationLinks mdl-card__actions mdl-card--border">
                     </div>
                 </div>`
             );
@@ -59,7 +59,7 @@ export default function content(template, courseId, contentId) {
             if (attachments && attachments.length != 0) {
                 attachments.forEach(file => {
                     var attached = createElementFromHTML(
-                        `<a href="${file.querySelector("a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--secondary">${file.querySelector("a").textContent.trim()}</a>`
+                        `<p style="margin-bottom: 0px"><a href="${file.querySelector("a").href}" class="informationLink mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--secondary">${file.querySelector("a").textContent.trim()}</a></p>`
                     );
                     newElement.querySelector(".informationLinks").appendChild(attached);
                 });
