@@ -359,10 +359,17 @@ export default async function home(template) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
 
+        console.log(courseArr.map(x => x.course.name))
+
+        const mergedCourses = [];
         // add the "real" classes first
         for (var course of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
             if (!course.course.courseId.startsWith('2212-')) continue;
+
+            if (mergedCourses.some(val => course.course.name.indexOf(val) != -1)) 
+                continue;
+
             var newElement = createElementFromHTML(
                 `<div class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
@@ -376,6 +383,13 @@ export default async function home(template) {
             );
             // newElement.querySelector(".courseContent").textContent = "Course content goes here"; // what to put here?
             document.querySelector(".courseAll").appendChild(newElement);
+
+            // mark if this is a merged course. This logic blocks the unmerged courses from being seen
+            if (course.course.name.startsWith('(MERGED) ')) {
+                const matches = course.course.name.match(/[A-Z]{2,4} \d{4}\.\w{3}/g)
+                if (matches)
+                    matches.forEach(m => mergedCourses.push(m));
+            }
         }
         // add the other stuff at the bottom
         // TODO: work on groups

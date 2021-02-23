@@ -553,6 +553,7 @@ function fetchCourseList() {
         return new Promise(function (resolve, reject) {
             chrome.storage.local.get({ links: {} }, function (result) {
                 var courses = [];
+                let mergedCourses = [];
                 for (var c of courseArr) {
                     // NOTE: this could break if the 2212 pattern changes!
                     // TODO find better way to separate course/group
@@ -564,6 +565,8 @@ function fetchCourseList() {
                     var group = c.course.organization === true;
                     if (!(f20 || group))
                         continue;
+                    if (mergedCourses.some(val => c.course.name.indexOf(val) != -1)) 
+                        continue;
                     var newElement = {};
                     newElement.id = c.course.id;
                     newElement.href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
@@ -573,6 +576,13 @@ function fetchCourseList() {
 
                     if (!(c.course.id in courseIds)) {
                         courseIds[c.course.id] = c.course.name.split("-")[0].replace("(MERGED) ", "");
+                    }
+
+                    // mark if this is a merged course. This logic blocks the unmerged courses from being seen
+                    if (c.course.name.startsWith('(MERGED) ')) {
+                        const matches = c.course.name.match(/[A-Z]{2,4} \d{4}\.\w{3}/g)
+                        if (matches)
+                            matches.forEach(m => mergedCourses.push(m));
                     }
                 }
                 resolve(courses);
