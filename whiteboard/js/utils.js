@@ -565,7 +565,7 @@ function fetchCourseList() {
                     var group = c.course.organization === true;
                     if (!(f20 || group))
                         continue;
-                    if (mergedCourses.some(val => c.course.name.indexOf(val) != -1)) 
+                    if (!options['showUnmerged'] && mergedCourses.some(val => c.course.name.indexOf(val) != -1)) 
                         continue;
                     var newElement = {};
                     newElement.id = c.course.id;

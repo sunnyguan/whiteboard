@@ -367,8 +367,10 @@ export default async function home(template) {
             // NOTE: this could break if the 2212 pattern changes!
             if (!course.course.courseId.startsWith('2212-')) continue;
 
-            if (mergedCourses.some(val => course.course.name.indexOf(val) != -1)) 
-                continue;
+            if (
+                !options['showUnmerged'] && 
+                mergedCourses.some(val => course.course.name.indexOf(val) != -1)
+            )   continue;
 
             var newElement = createElementFromHTML(
                 `<div class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
