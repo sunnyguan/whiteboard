@@ -1,7 +1,7 @@
 const urlPrefix = "https://elearning.utdallas.edu/webapps";
 
-var options = ['enabled', 'showGroupGrades', 'showNotifications', 'showGroupSidebar', 'loadStories'];
-var defaults = [true, false, false, false, false];
+var options = ['enabled', 'showGroupGrades', 'showNotifications', 'showGroupSidebar', 'showUnmerged', 'loadStories'];
+var defaults = [true, false, false, false, true, false];
 
 // set checkbox
 chrome.storage.local.get(options, function (result) {
