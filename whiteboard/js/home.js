@@ -365,7 +365,7 @@ export default async function home(template) {
         // add the "real" classes first
         for (var course of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            if (!course.course.courseId.startsWith('2212-')) continue;
+            if (!course.course.courseId.startsWith('2215-')) continue;
 
             if (
                 !options['showUnmerged'] && 
@@ -461,7 +461,8 @@ function fetchGrades() {
             if (!courseIds[courseId].match("[A-Z]+ [0-9].[0-9]{2}\."))
                 continue;
         }
-        promises.push(`${urlPrefix}/webapps/bb-mygrades-BBLEARN/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
+		// https://elearning.utdallas.edu/webapps/bb-mygrades-BB6093de9f52e1b/myGrades?course_id=_195871_1&stream_name=mygrades&is_stream=false
+        promises.push(`${urlPrefix}/webapps/bb-mygrades-BB6093de9f52e1b/myGrades?course_id=${courseId}&stream_name=mygrades&is_stream=false`);
     }
 
     return Promise.all(promises.map(url => fetch(url)

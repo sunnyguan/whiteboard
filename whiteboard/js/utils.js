@@ -560,8 +560,8 @@ function fetchCourseList() {
                     // console.log(c.course.availability);
                     // console.log(c.course.name);
                     var unavailable = c.course.availability.available === "No";
-                    var f20 = c.course.courseId.startsWith('2212-');
-                    var s21 = c.course.courseId.startsWith('2212-');
+                    var f20 = c.course.courseId.startsWith('2215-');
+                    var s21 = c.course.courseId.startsWith('2215-');
                     var group = c.course.organization === true;
                     if (!(f20 || group))
                         continue;
