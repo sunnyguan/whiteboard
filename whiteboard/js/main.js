@@ -43,12 +43,13 @@ function getUserId(result, options) {
     console.log(avatarid);
     if (!avatarid || avatarid.length < 2) {
         console.log("Not logged in");
+        window.location.replace("https://elearning.utdallas.edu/webapps/login/?action=relogin");
         return true;
     } else {
         email = result.match("Email: (.*?@utdallas\\.edu)")[1];
         user_id = avatarid[1];
         username = nameMatch[1];
-        avatar_link = avatarMatch[1];
+        avatar_link = avatarMatch ? avatarMatch[1] : "https://learn.content.blackboardcdn.com/3900.21.0-rel.28+dd6c7ec/images/ci/ng/default_profile_avatar.svg";
         setUserInfo(email, user_id, username, avatar_link, options);
         replacePage();
         return false;

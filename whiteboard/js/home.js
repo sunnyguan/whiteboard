@@ -365,7 +365,7 @@ export default async function home(template) {
         // add the "real" classes first
         for (var course of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            if (!course.course.courseId.startsWith('2215-')) continue;
+            if (!course.course.courseId.startsWith('2218-')) continue;
 
             if (
                 !options['showUnmerged'] && 
