@@ -340,46 +340,44 @@ async function runZuck() {
 
 // dashboard page (home)
 export default async function home(template) {
+    processTemplate(template, home_main);
+    if (options["loadStories"]) {
+        addCSS("zuck_js", ["style.css", "zuck.min.css", "snapgram.css"]);
+        loadZuck();
+    }
+
+    var bbScrape = document.createElement("iframe");
+    bbScrape.id = "bbFrame";
+    bbScrape.style.display = 'none';
+    bbScrape.src = urlPrefix + "/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
+    document.getElementsByTagName("body")[0].appendChild(bbScrape);
+    document.title = "Dashboard";
+
     await fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
-        processTemplate(template, home_main);
-        if (options["loadStories"]) {
-            addCSS("zuck_js", ["style.css", "zuck.min.css", "snapgram.css"]);
-            loadZuck();
-        }
-
-        var bbScrape = document.createElement("iframe");
-        bbScrape.id = "bbFrame";
-        bbScrape.style.display = 'none';
-        bbScrape.src = urlPrefix + "/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1";
-        document.getElementsByTagName("body")[0].appendChild(bbScrape);
-        document.title = "Dashboard";
-
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
 
-        console.log(courseArr.map(x => x.course.name))
-
         const mergedCourses = [];
         // add the "real" classes first
-        for (var course of courseArr) {
+        for (var c of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            if (!course.course.courseId.startsWith('2218-')) continue;
+            if (!c.course.courseId.startsWith('2222-')) continue;
 
             if (
                 !options['showUnmerged'] && 
-                mergedCourses.some(val => course.course.name.indexOf(val) != -1)
+                mergedCourses.some(val => c.course.name.indexOf(val) != -1)
             )   continue;
 
             var newElement = createElementFromHTML(
                 `<div class="zoomDiv course demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--cyan-100">
-                        <h2 class="courseTitle mdl-card__title-text">${course.course.name}</h2>
+                        <h2 class="courseTitle mdl-card__title-text">${c.course.name}</h2>
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
-                        <a href="${urlPrefix}/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
-                        <a href="${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${course.course.id}" class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
+                        <a href="${urlPrefix}/webapps/blackboard/content/listContent.jsp?course_id=${c.course.id}" class="float-left courseLink1 mdl-button mdl-js-button mdl-js-ripple-effect">Homepage</a>
+                        <a href="${urlPrefix}/webapps/blackboard/execute/announcement?course_id=${c.course.id}" class="float-right courseLink2 mdl-button mdl-js-button mdl-js-ripple-effect">Announcements</a>
                     </div>
                 </div>`
             );
@@ -387,31 +385,28 @@ export default async function home(template) {
             document.querySelector(".courseAll").appendChild(newElement);
 
             // mark if this is a merged course. This logic blocks the unmerged courses from being seen
-            if (course.course.name.startsWith('(MERGED) ')) {
-                const matches = course.course.name.match(/[A-Z]{2,4} \d{4}\.\w{3}/g)
+            if (c.course.name.startsWith('(MERGED) ')) {
+                const matches = c.course.name.match(/[A-Z]{2,4} \d{4}\.\w{3}/g)
                 if (matches)
                     matches.forEach(m => mergedCourses.push(m));
             }
         }
         // add the other stuff at the bottom
         // TODO: work on groups
-        for (var course of courseArr) {
+        for (var c of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            if (course.course.courseId.startsWith('2212-')) continue;
-            var c = course;
-            var unavailable = c.course.availability.available === "No";
-            var f20 = c.course.courseId.startsWith('2212-');
-            var s21 = c.course.courseId.startsWith('2212-');
-            var group = c.dataSourceId === "_2_1";
-            if (!(group))
+            //var curSemester = c.course.courseId.startsWith('2222-');
+            var group = c.course.organization === true;
+            if (!group)
                 continue;
+
             var newElement = createElementFromHTML(
                 `<div class="zoomDiv group demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--4-col-desktop">
                     <div class="mdl-card__title mdl-card--expand mdl-color--blue-300">
-                        <h2 class="groupTitle mdl-card__title-text">${course.course.name}</h2>
+                        <h2 class="groupTitle mdl-card__title-text">${c.course.name}</h2>
                     </div>
                     <div class="mdl-card__actions mdl-card--border">
-                        <a href="${urlPrefix}/webapps/blackboard/content/listContent.jsp?course_id=${course.course.id}" class="groupLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
+                        <a href="${urlPrefix}/webapps/blackboard/content/listContent.jsp?course_id=${c.course.id}" class="groupLink mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
                     </div>
                 </div>`
             );
