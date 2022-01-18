@@ -426,12 +426,16 @@ export function formatDate(d) {
 // fetch list of courses for sidebar (home page and iframe)
 export function fetchSidebarCourses(courseId = "") {
     document.querySelector('.allLinks').innerHTML = "";
+
+    const urlParams = new URLSearchParams(location.search);
+    const urlCourseId = urlParams.get('course_id');
+
     return fetchCourseList().then(courses => {
         var allLinks = document.querySelector('.allLinks');
         var currentCourse;
         var uiCourses = courses;
         if(!options['showGroupSidebar']) {
-            uiCourses = uiCourses.filter(course => course.textContent.match("[A-Z]+ [0-9].[0-9]{2}\."));
+            uiCourses = uiCourses.filter(course => course.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.") || course.id === urlCourseId);
         }
         uiCourses.sort((a, b) => {
             var aIsCourse = a.textContent.match("[A-Z]+ [0-9].[0-9]{2}\.");
@@ -557,14 +561,13 @@ function fetchCourseList() {
                 for (var c of courseArr) {
                     // NOTE: this could break if the 2212 pattern changes!
                     // TODO find better way to separate course/group
-                    // console.log(c.course.availability);
                     // console.log(c.course.name);
                     var unavailable = c.course.availability.available === "No";
-                    var f20 = c.course.courseId.startsWith('2218-');
-                    var s21 = c.course.courseId.startsWith('2218-');
+                    var curSemester = c.course.courseId.startsWith('2222-');
                     var group = c.course.organization === true;
-                    if (!(f20 || group))
+                    if (!curSemester && !group)
                         continue;
+
                     if (!options['showUnmerged'] && mergedCourses.some(val => c.course.name.indexOf(val) != -1)) 
                         continue;
                     var newElement = {};
