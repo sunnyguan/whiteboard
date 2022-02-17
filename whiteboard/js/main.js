@@ -35,13 +35,13 @@ export async function start(options) {
 
 // save user ID for API calls
 function getUserId(result, options) {
+    let notLoggedIn = result.match("Either you are not logged in or you do not have the appropriate privileges to perform this action.");
     avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
     var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
     var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
     // src="/avatar/default_user?ts=1525262400000"  <- note: needs to also match this for default avatar
 
-    console.log(avatarid);
-    if (!avatarid || avatarid.length < 2) {
+    if (notLoggedIn) {
         console.log("Not logged in");
         window.location.replace("https://elearning.utdallas.edu/webapps/login/?action=relogin");
         return true;
