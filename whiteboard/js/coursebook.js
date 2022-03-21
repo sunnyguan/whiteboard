@@ -2,6 +2,10 @@ export function startCB() {
     document.addEventListener('DOMContentLoaded', function () {
         // viewport = document.querySelector("meta[name=viewport]");
         // viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+	if (document.querySelectorAll("#srch_term > option[value='term_22f']").length === 0) {
+		document.querySelector("#srch_term > option:nth-child(2)").innerText = "2022 Fall (22f)";
+		document.querySelector("#srch_term > option:nth-child(2)").value = "term_22f";
+	}
         checkFlag();
     });
 }
