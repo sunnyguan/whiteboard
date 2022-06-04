@@ -24,7 +24,6 @@ function deepEqual(x, y) {
 }
 
 function checkEnabled(element) {
-    debugger
     var isChecked = [];
     for (var option of options) {
         isChecked[option] = document.getElementById(option).checked;
