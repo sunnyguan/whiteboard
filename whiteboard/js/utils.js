@@ -411,16 +411,10 @@ export function createElementFromHTML(htmlString) {
 
 // util function to format date
 export function formatDate(d) {
-    var month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
-
-    return [year, month, day].join('-');
+    let mm = ('0' + (d.getMonth() + 1)).slice(-2);
+    let dd = ('0' + d.getDate()).slice(-2);
+    let yyyy = d.getFullYear();
+    return `${yyyy}-${mm}-${dd}`;
 }
 
 // fetch list of courses for sidebar (home page and iframe)
@@ -563,7 +557,7 @@ function fetchCourseList() {
                     // TODO find better way to separate course/group
                     // console.log(c.course.name);
                     var unavailable = c.course.availability.available === "No";
-                    var curSemester = c.course.courseId.startsWith('2222-');
+                    var curSemester = c.course.courseId.startsWith('2228-');
                     var group = c.course.organization === true;
                     if (!curSemester && !group)
                         continue;

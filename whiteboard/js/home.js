@@ -2,35 +2,47 @@ import { urlPrefix, email, user_id, username, avatar_link, courseIds, processTem
 
 // fetch week at a glance
 function processAgenda() {
-    var lastSun = new Date();
-    lastSun.setDate(lastSun.getDate() - lastSun.getDay());
-    var lastSunday = formatDate(lastSun);
-    lastSun.setDate(lastSun.getDate() + 7);
-    var nextSunday = formatDate(lastSun);
+    const curDate = new Date();
+    const lastSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay());
+    const nextSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay() + 7);
 
-    lastSun = new Date(lastSunday);
-    var nextSun = new Date(nextSunday);
-
-    return fetch(urlPrefix + "/learn/api/public/v1/calendars/items?since=" + lastSunday + "&until=" + nextSunday).then(response => response.json()).then(data => {
+    return fetch(`${urlPrefix}/learn/api/public/v1/calendars/items?since=${formatDate(lastSun)}&until=${formatDate(nextSun)}`).then(response => response.json()).then(data => {
         if ("results" in data) {
-            for (var cls of data["results"]) {
-                var name = cls.title;
-                var course = cls.calendarName.split(".")[0];
-                var color = cls.color;
-                var id = cls.id;
-                var dateStart = cls.start.split("T")[0];
-                var jsDate = new Date(cls.end);
-                jsDate.setTime(jsDate.getTime() - 5 * 60 * 60 * 1000);
-                var dist = jsDate.getDay();
-                if (jsDate.getTime() > lastSun.getTime() && jsDate.getTime() < nextSun.getTime()) {
-                    var processName = name;
-                    if (processName.length > 15) {
-                        processName = processName.substring(0, 18) + "...";
-                    }
-                    var newElement = createElementFromHTML(`
+            for (let cls of data["results"]) {
+                /**
+                 * Example cls:
+                 * {
+                 *      "id": "_1749031_1",
+                 *      "type": "GradebookColumn",
+                 *      "calendarId": "_263543_1",
+                 *      "calendarName": "2228-UTDAL-CS-6363-SEC001-84728: CS 6363.001 - Design and Analysis of Computer Algorithms - F22",
+                 *      "title": "Homework 2",
+                 *      "start": "2022-09-22T04:59:00.000Z",
+                 *      "end": "2022-09-22T04:59:00.000Z",
+                 *      "modified": null,
+                 *      "color": "#222222",
+                 *      "disableResizing": true,
+                 *      "createdByUserId": null,
+                 *      "dynamicCalendarItemProps": {
+                 *          "attemptable": true,
+                 *          "categoryId": "_2273721_1",
+                 *          "dateRangeLimited": false,
+                 *          "eventType": "Assignment",
+                 *          "gradable": false
+                 *      }
+                 *  }
+                 */
+                const name = cls.title.length > 15 ? cls.title.substring(0, 18) + "..." : cls.title;
+                const course = cls.calendarName.split(": ")[1].split(".")[0];
+                const color = cls.color;
+                const id = cls.id;
+                const dueDate = new Date(cls.end);
+                const dist = dueDate.getDay();
+                if (dueDate.getTime() > lastSun.getTime() && dueDate.getTime() < nextSun.getTime()) {
+                    let newElement = createElementFromHTML(`
                         <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
                             <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
-                                href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${processName + "\n" + course}</a>
+                                href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${name + "\n" + course}</a>
                         </p>
                     `);
                     if ("dynamicCalendarItemProps" in cls) {
@@ -363,7 +375,7 @@ export default async function home(template) {
         // add the "real" classes first
         for (var c of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            if (!c.course.courseId.startsWith('2222-')) continue;
+            if (!c.course.courseId.startsWith('2228-')) continue;
 
             if (
                 !options['showUnmerged'] && 
@@ -395,7 +407,7 @@ export default async function home(template) {
         // TODO: work on groups
         for (var c of courseArr) {
             // NOTE: this could break if the 2212 pattern changes!
-            //var curSemester = c.course.courseId.startsWith('2222-');
+            //var curSemester = c.course.courseId.startsWith('2228-');
             var group = c.course.organization === true;
             if (!group)
                 continue;
