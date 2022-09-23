@@ -4,7 +4,7 @@ import { urlPrefix, email, user_id, username, avatar_link, courseIds, processTem
 function processAgenda() {
     const curDate = new Date();
     const lastSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay());
-    const nextSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay() + 7);
+    const nextSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay() + 14);
 
     return fetch(`${urlPrefix}/learn/api/public/v1/calendars/items?since=${formatDate(lastSun)}&until=${formatDate(nextSun)}`).then(response => response.json()).then(data => {
         if ("results" in data) {
@@ -32,32 +32,34 @@ function processAgenda() {
                  *      }
                  *  }
                  */
+                const dueDate = new Date(cls.end);
+                if (dueDate.getTime() < lastSun.getTime() || dueDate.getTime() > nextSun.getTime()) { continue; }
+                
+                const day = dueDate.getDay();
+                const week = Math.floor((dueDate.getTime() - lastSun.getTime()) / (7 * 24 * 60 * 60 * 1000));
                 const name = cls.title.length > 15 ? cls.title.substring(0, 18) + "..." : cls.title;
                 const course = cls.calendarName.split(": ")[1].split(".")[0];
                 const color = cls.color;
                 const id = cls.id;
-                const dueDate = new Date(cls.end);
-                const dist = dueDate.getDay();
-                if (dueDate.getTime() > lastSun.getTime() && dueDate.getTime() < nextSun.getTime()) {
-                    let newElement = createElementFromHTML(`
-                        <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
-                            <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
-                                href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${name + "\n" + course}</a>
-                        </p>
-                    `);
-                    if ("dynamicCalendarItemProps" in cls) {
-                        newElement.style.cursor = "pointer";
-                    } else {
-                        newElement.style.cursor = "initial";
-                        newElement.querySelector(".directLink").addEventListener('click', function (e) { e.preventDefault(); });
-                        newElement.querySelector(".directLink").href = "";
-                    }
-                    document.getElementsByClassName("calendar-week")[0].children[dist].querySelector(".employee").insertAdjacentElement("afterend", newElement);
-                    window.getComputedStyle(newElement).opacity; // added
-                    newElement.className += ' in';
+                let newElement = createElementFromHTML(`
+                    <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
+                        <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
+                            href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${name + "\n" + course}</a>
+                    </p>
+                `);
+                if ("dynamicCalendarItemProps" in cls) {
+                    newElement.style.cursor = "pointer";
+                } else {
+                    newElement.style.cursor = "initial";
+                    newElement.querySelector(".directLink").addEventListener('click', function (e) { e.preventDefault(); });
+                    newElement.querySelector(".directLink").href = "";
                 }
+                document.getElementsByClassName("calendar-week")[week].children[day].querySelector(".employee").insertAdjacentElement("afterend", newElement);
+                window.getComputedStyle(newElement).opacity; // added
+                newElement.className += ' in';
             }
         }
+        // Highlight current day
         document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
     })
 
@@ -79,13 +81,64 @@ var home_main = `
           style="padding: 15px">
           <div class="container" style="width: 100%">
             <header>
-              <h3 style="font-family: Roboto; font-weight: 300;">Week at a Glance</h2>
+              <h3 style="font-family: Roboto; font-weight: 300;">Two Week Summary</h2>
             </header>
             <div class="grid-calendar" style="margin: auto;">
             </div>
             <div class="grid-calendar" style="margin: auto; width: 100%">
               <div class="row calendar-week" id="agenda-container">
                 <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Sunday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Monday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Tuesday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Wednesday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Thursday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Friday</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1 grid-cell">
+                  <div class="day">
+                    <div class="employee-wrapper">
+                      <p class="employee design">Saturday</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row calendar-week" id="agenda-container">
+              <div class="col-xs-1 grid-cell">
                   <div class="day">
                     <div class="employee-wrapper">
                       <p class="employee design">Sunday</p>
