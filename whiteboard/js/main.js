@@ -35,10 +35,10 @@ export async function start(options) {
 
 // save user ID for API calls
 function getUserId(result, options) {
-    let notLoggedIn = result.match("Either you are not logged in or you do not have the appropriate privileges to perform this action.");
-    avatarid = result.match("key=(.*?), dataType=blackboard.data.user.User");
-    var nameMatch = result.match("class=global-top-avatar />(.*?)<span");
-    var avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
+    const notLoggedIn = result.match("Either you are not logged in or you do not have the appropriate privileges to perform this action.");
+    avatarid = result.match("PkId{key=(.*?), dataType=blackboard.data.user.User");
+    const nameMatch = result.match("UserName: (\\S*?)");
+    const avatarMatch = result.match('src="(/avatar/.*?user.*?)"');
     // src="/avatar/default_user?ts=1525262400000"  <- note: needs to also match this for default avatar
 
     if (notLoggedIn) {
@@ -67,7 +67,10 @@ function replacePage() {
     var iframeSrc = "";
     var title = "";
 
-    if (href.startsWith(urlPrefix + "/webapps/portal/execute/tabs/tabAction")) {
+    if (href.startsWith(urlPrefix + "/ultra")) {
+        console.log("Redirecting to legacy page");
+        window.location.replace("https://elearning.utdallas.edu/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1");
+    } else if (href.startsWith(urlPrefix + "/webapps/portal/execute/tabs/tabAction")) {
         replaceUrl = "home";
     } else if (href.startsWith(urlPrefix + "/webapps/blackboard/content/listContent")) {
         if (urlParams.get('content_id') != null) {
