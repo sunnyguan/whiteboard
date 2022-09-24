@@ -41,7 +41,7 @@ function processAgenda() {
                 if (dueDate.getTime() > lastSun.getTime() && dueDate.getTime() < nextSun.getTime()) {
                     let newElement = createElementFromHTML(`
                         <p class="zoomText employee design box" style="background-color: ${color}; font-size: 12px;">
-                            <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%" 
+                            <a class="directLink" style="white-space: pre; text-decoration: none; color: white; cursor: inherit; width: 100%; height: 100%; display: block" 
                                 href="${urlPrefix}/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${id}">${name + "\n" + course}</a>
                         </p>
                     `);
