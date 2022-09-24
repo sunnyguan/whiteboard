@@ -1,10 +1,32 @@
-import { urlPrefix, email, user_id, username, avatar_link, courseIds, processTemplate, createElementFromHTML, fetchSidebarCourses, formatDate, options } from './utils.js';
+import {
+    courseIds,
+    createElementFromHTML,
+    fetchSidebarCourses,
+    formatDate,
+    options,
+    processTemplate,
+    urlPrefix,
+    user_id
+} from './utils.js';
+
+let numWeeks = 0;
 
 // fetch week at a glance
 function processAgenda() {
     const curDate = new Date();
+    curDate.setDate(curDate.getDate() + numWeeks * 7);
     const lastSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay());
+    const midSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay() + 7);
     const nextSun = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() - curDate.getDay() + 14);
+
+    document.querySelector("#agenda-container1 > div:nth-child(1) > div > div > p:nth-child(1)").textContent = "Sunday (" + (1 + lastSun.getMonth()) + "/" + lastSun.getDate() + ")";
+    document.querySelector("#agenda-container2 > div:nth-child(1) > div > div > p:nth-child(1)").textContent = "Sunday (" + (1 + midSun.getMonth()) + "/" + midSun.getDate() + ")";
+
+    document.querySelectorAll('.employee-wrapper').forEach(day => {
+        while (day.childElementCount > 1) {
+            day.removeChild(day.lastChild);
+        }
+    })
 
     return fetch(`${urlPrefix}/learn/api/public/v1/calendars/items?since=${formatDate(lastSun)}&until=${formatDate(nextSun)}`).then(response => response.json()).then(data => {
         if ("results" in data) {
@@ -60,7 +82,13 @@ function processAgenda() {
             }
         }
         // Highlight current day
-        document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
+        document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "";
+        document.getElementsByClassName("calendar-week")[1].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "";
+        if (numWeeks === 0) {
+            document.getElementsByClassName("calendar-week")[0].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
+        } else if (numWeeks === -1) {
+            document.getElementsByClassName("calendar-week")[1].children[new Date().getDay()].querySelector(".day > div").style.backgroundColor = "#dfdfdf";
+        }
     })
 
 }
@@ -80,13 +108,41 @@ var home_main = `
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid"
           style="padding: 15px">
           <div class="container" style="width: 100%">
-            <header>
-              <h3 style="font-family: Roboto; font-weight: 300;">Two Week Summary</h2>
-            </header>
+          <header style="
+              display: flex;
+          ">
+            <h3 style="font-family: Roboto;font-weight: 300;flex-grow: 1;">Two-Week Summary</h3><div style="
+                display: flex;
+                margin-top: auto;
+                margin-bottom: auto;
+            ">
+            <div
+            class="mdl-shadow--4dp"
+            style="
+                font-family: Muli, Arial, sans-serif;
+                width: 100px;
+                height: 50px;
+                text-align: center;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                background: #3877ff;
+                border-radius: 10px;
+                position: relative;
+            ">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left icon i-1 prev-next" id="calendar-prev">
+              <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right icon i-2 prev-next" id="calendar-next">
+              <polyline points="9 18 15 12 9 6"></polyline></svg>
+              </svg>
+            </div>
+          </header>
+            
             <div class="grid-calendar" style="margin: auto;">
             </div>
             <div class="grid-calendar" style="margin: auto; width: 100%">
-              <div class="row calendar-week" id="agenda-container">
+              <div class="row calendar-week agenda-container" id="agenda-container1">
                 <div class="col-xs-1 grid-cell">
                   <div class="day">
                     <div class="employee-wrapper">
@@ -137,7 +193,7 @@ var home_main = `
                   </div>
                 </div>
               </div>
-              <div class="row calendar-week" id="agenda-container">
+              <div class="row calendar-week agenda-container" id="agenda-container2">
               <div class="col-xs-1 grid-cell">
                   <div class="day">
                     <div class="employee-wrapper">
@@ -418,6 +474,16 @@ export default async function home(template) {
     document.getElementsByTagName("body")[0].appendChild(bbScrape);
     document.title = "Dashboard";
 
+    document.querySelector("#calendar-next").onclick = function(e) {
+        numWeeks++;
+        processAgenda();
+    }
+
+    document.querySelector("#calendar-prev").onclick = function(e) {
+        numWeeks--;
+        processAgenda();
+    }
+
     await fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
         var courseArr = data.results;
         courseArr.sort(function (a, b) {
@@ -431,7 +497,7 @@ export default async function home(template) {
             if (!c.course.courseId.startsWith('2228-')) continue;
 
             if (
-                !options['showUnmerged'] && 
+                !options['showUnmerged'] &&
                 mergedCourses.some(val => c.course.name.indexOf(val) != -1)
             )   continue;
 
