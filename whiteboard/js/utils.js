@@ -557,9 +557,10 @@ function fetchCourseList() {
                     // NOTE: this could break if the 2212 pattern changes!
                     // TODO find better way to separate course/group
                     // console.log(c.course.name);
-                    var unavailable = c.course.availability.available === "No";
-                    var curSemester = new Date(c['course']['term']['startDate']) <= now && now <= new Date(c['course']['term']['endDate'])
-                    var group = c.course.organization === true;
+                    var curSemester = false;
+                    if ('term' in c['course'])
+                        curSemester = new Date(c['course']['term']['startDate']) <= now && now <= new Date(c['course']['term']['endDate'])
+                    var group = c.course.isOrganization === true;
                     if (!curSemester && !group)
                         continue;
 
