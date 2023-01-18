@@ -484,8 +484,10 @@ export default async function home(template) {
         processAgenda();
     }
 
-    await fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
-        var courseArr = data.results;
+    let now = new Date();
+    fetch('https://elearning.utdallas.edu/learn/api/v1/users/' + user_id + '/memberships?availability.available=Yes&role=Student&expand=course').then(res => res.json()).then(data => {
+        let courseArr = data['results'];
+
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
@@ -493,9 +495,10 @@ export default async function home(template) {
         const mergedCourses = [];
         // add the "real" classes first
         for (var c of courseArr) {
-            // NOTE: this could break if the 2212 pattern changes!
-            if (!c.course.courseId.startsWith('2228-')) continue;
-
+            if (!('term' in c['course']))
+                continue
+            if (new Date(c['course']['term']['startDate']) > now || now > new Date(c['course']['term']['endDate']))
+                continue
             if (
                 !options['showUnmerged'] &&
                 mergedCourses.some(val => c.course.name.indexOf(val) != -1)
