@@ -543,8 +543,9 @@ export function fetchSidebarCourses(courseId = "") {
 
 // fetch list of courses
 function fetchCourseList() {
-    return fetch(urlPrefix + "/learn/api/public/v1/users/" + user_id + "/courses?availability.available=Yes&role=Student&expand=course").then(response => response.json()).then(data => {
+    return fetch(urlPrefix + '/learn/api/v1/users/' + user_id + '/memberships?availability.available=Yes&role=Student&expand=course').then(res => res.json()).then(data => {
         var courseArr = data.results;
+        const now = new Date();
         courseArr.sort(function (a, b) {
             return a.course.name > b.course.name ? 1 : a.course.name < b.course.name ? -1 : 0;
         });
@@ -557,7 +558,7 @@ function fetchCourseList() {
                     // TODO find better way to separate course/group
                     // console.log(c.course.name);
                     var unavailable = c.course.availability.available === "No";
-                    var curSemester = c.course.courseId.startsWith('2228-');
+                    var curSemester = new Date(c['course']['term']['startDate']) <= now && now <= new Date(c['course']['term']['endDate'])
                     var group = c.course.organization === true;
                     if (!curSemester && !group)
                         continue;

@@ -485,7 +485,7 @@ export default async function home(template) {
     }
 
     let now = new Date();
-    fetch('https://elearning.utdallas.edu/learn/api/v1/users/' + user_id + '/memberships?availability.available=Yes&role=Student&expand=course').then(res => res.json()).then(data => {
+    fetch(urlPrefix + '/learn/api/v1/users/' + user_id + '/memberships?availability.available=Yes&role=Student&expand=course').then(res => res.json()).then(data => {
         let courseArr = data['results'];
 
         courseArr.sort(function (a, b) {
