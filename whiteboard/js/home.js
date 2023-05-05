@@ -353,15 +353,18 @@ var getCurrentSkin = function () {
         }
     };
 
+    if (!skins[skin]) {
+      skin = 'Snapgram';
+  }
+
     var el = document.querySelectorAll('#skin option');
     var total = el.length;
     for (var i = 0; i < total; i++) {
-        var what = skin == el[i].value ? true : false;
+        var isSelected = skin === el[i].value;
 
-        if (what) {
+        if (isSelected) {
             el[i].setAttribute('selected', 'selected');
-
-            header.innerHTML = skin;
+            header.textContent = skin;
             header.className = skin;
         } else {
             el[i].removeAttribute('selected');
@@ -373,7 +376,6 @@ var getCurrentSkin = function () {
         params: skins[skin]
     };
 };
-
 
 function loadZuck() {
     fetch(chrome.runtime.getURL("zuck_js/zuck.min.js"))
