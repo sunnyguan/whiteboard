@@ -353,27 +353,29 @@ var getCurrentSkin = function () {
         }
     };
 
-    var el = document.querySelectorAll('#skin option');
-    var total = el.length;
-    for (var i = 0; i < total; i++) {
-        var what = skin == el[i].value ? true : false;
+    if (!skins[skin]) {
+      skin = 'Snapgram';
+  }
 
-        if (what) {
-            el[i].setAttribute('selected', 'selected');
+  var el = document.querySelectorAll('#skin option');
+  var total = el.length;
+  for (var i = 0; i < total; i++) {
+      var isSelected = skin === el[i].value;
 
-            header.innerHTML = skin;
-            header.className = skin;
-        } else {
-            el[i].removeAttribute('selected');
-        }
-    }
+      if (isSelected) {
+          el[i].setAttribute('selected', 'selected');
+          header.textContent = skin;
+          header.className = skin;
+      } else {
+          el[i].removeAttribute('selected');
+      }
+  }
 
     return {
         name: skin,
         params: skins[skin]
     };
 };
-
 
 function loadZuck() {
     fetch(chrome.runtime.getURL("zuck_js/zuck.min.js"))
