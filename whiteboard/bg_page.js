@@ -3,6 +3,7 @@ chrome.runtime.onMessage.addListener(
         fetch(url)
             .then(response => response.text())
             .then(responseText => onSuccess(responseText))
+            .catch(error => console.error(error));
         return true;
     }
 );
