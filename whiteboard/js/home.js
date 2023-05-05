@@ -357,19 +357,19 @@ var getCurrentSkin = function () {
       skin = 'Snapgram';
   }
 
-  var el = document.querySelectorAll('#skin option');
-  var total = el.length;
-  for (var i = 0; i < total; i++) {
-      var isSelected = skin === el[i].value;
+    var el = document.querySelectorAll('#skin option');
+    var total = el.length;
+    for (var i = 0; i < total; i++) {
+        var isSelected = skin === el[i].value;
 
-      if (isSelected) {
-          el[i].setAttribute('selected', 'selected');
-          header.textContent = skin;
-          header.className = skin;
-      } else {
-          el[i].removeAttribute('selected');
-      }
-  }
+        if (isSelected) {
+            el[i].setAttribute('selected', 'selected');
+            header.textContent = skin;
+            header.className = skin;
+        } else {
+            el[i].removeAttribute('selected');
+        }
+    }
 
     return {
         name: skin,
