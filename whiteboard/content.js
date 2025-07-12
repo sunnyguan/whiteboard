@@ -30,18 +30,18 @@
 console.log('Whiteboard extension loaded!');
 
 async function startCoursebook() {
-    const src = chrome.extension.getURL('js/coursebook.js');
+    const src = chrome.runtime.getURL('js/coursebook.js');
     const contentScript = await import(src);
     contentScript.startCB();
 }
 
 async function start(options) {
-    fetch(chrome.extension.getURL("loading.html"))
+    fetch(chrome.runtime.getURL("loading.html"))
         .then(response => response.text())
         .then(async function(template) {
             var originalHTML = document.getElementsByTagName("html")[0].innerHTML;
             document.getElementsByTagName("html")[0].innerHTML = template;
-            const src = chrome.extension.getURL('js/main.js');
+            const src = chrome.runtime.getURL('js/main.js');
             const contentScript = await import(src);
             var login = await contentScript.start(options);
             if(login) {

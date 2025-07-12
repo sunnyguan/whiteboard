@@ -285,7 +285,7 @@ var home_main = `
 function addCSS(pre, filenames) {
     for (var filename of filenames) {
         var link = document.createElement("link");
-        link.href = chrome.extension.getURL(pre + "/" + filename);
+        link.href = chrome.runtime.getURL(pre + "/" + filename);
         link.type = "text/css";
         link.rel = "stylesheet";
         document.getElementsByTagName("head")[0].appendChild(link);

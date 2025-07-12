@@ -131,7 +131,7 @@ function replacePage() {
 
     if (courseId == null) courseId = "";
 
-    fetch(chrome.extension.getURL("home/index.html"))
+    fetch(chrome.runtime.getURL("home/index.html"))
         .then(function (response) {
             switch (response.status) {
                 case 200:
