@@ -136,7 +136,7 @@ function verToNumber(str) {
 }
 
 function checkLatestRelease() {
-    return fetch(chrome.extension.getURL("manifest.json")).then(data => data.json()).then(current => {
+    return fetch(chrome.runtime.getURL("manifest.json")).then(data => data.json()).then(current => {
         var appVersion = current["version"];
         document.querySelector("#stableUpdate").innerText = "Version: " + appVersion;
         document.querySelector("#stableUpdate").href = "#";

@@ -3,16 +3,20 @@ const urlPrefix = "https://elearning.utdallas.edu/webapps";
 var options = ['enabled', 'showGroupGrades', 'showNotifications', 'showGroupSidebar', 'showUnmerged', 'loadStories'];
 var defaults = [true, false, false, false, true, false];
 
-// set checkbox
-chrome.storage.local.get(options, function (result) {
-    var id = 0;
-    for (var p of options) {
-        if(result[p] == null) 
-            document.getElementById(p).checked = defaults[id];
-        else
-            document.getElementById(p).checked = result[p];
-        id++;
-    }
+document.addEventListener("DOMContentLoaded", function () {
+    // set checkbox
+    chrome.storage.local.get(options, function (result) {
+        var id = 0;
+        for (var p of options) {
+            if(result[p] == null) 
+                document.getElementById(p).checked = defaults[id];
+            else
+                document.getElementById(p).checked = result[p];
+            id++;
+        }
+    });
+
+    init();
 });
 
 function deepEqual(x, y) {
@@ -54,5 +58,3 @@ function init() {
         document.getElementById(p).addEventListener('click', checkEnabled);
     }
 }
-
-document.addEventListener('DOMContentLoaded', init);
