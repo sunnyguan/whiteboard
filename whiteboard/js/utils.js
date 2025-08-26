@@ -443,12 +443,19 @@ export function fetchSidebarCourses(courseId = "") {
             var nav_uls = "";
             if (classes)
                 nav_uls = '<ul class="mdl-navigation__list"></ul>';
+            var courseDisplay = c.courseName ?
+                `<div class="course-id">${c.courseId}</div><div class="course-name">${c.courseName}</div>` :
+                `<div class="course-id">${c.courseId}</div>`;
+                // class course-id not needed but keeping for consistency & potential future use
+
             var newElement = createElementFromHTML(`
                 <li ${classes} course="${c.id}">
                     <div class="mdl-navigation__link">
                         <a href="${c.href}" class="no-dec-link">
                             <i class="material-icons" role="presentation">subject</i>
-                            ${c.textContent}
+                            <div class="course-info">
+                                ${courseDisplay}
+                            </div>
                         </a>
                         ${courseId !== "" || nav_uls !== "" ? `<div class="after js-toggle-subnav">
                             <i class="material-icons" role="presentation">expand_more</i>
@@ -569,7 +576,17 @@ function fetchCourseList() {
                     var newElement = {};
                     newElement.id = c.course.id;
                     newElement.href = urlPrefix + "/webapps/blackboard/content/listContent.jsp?course_id=" + c.course.id;
-                    newElement.textContent = c.course.name.split("-")[0].replace("(MERGED) ", ""); // TODO figure out better way to trim course name
+
+                    // extract course id as well as name if available (displayName)
+                    let fullCourseName = c.course.displayName.replace("(MERGED) ", "");
+                    let nameParts = fullCourseName.split(" - ");
+                    let courseId = nameParts[0].trim();
+                    // in case there's a course with a " - " in its name (assuming all names end with something like - F25)
+                    let courseName = nameParts.length > 1 ? nameParts.splice(1, nameParts.length-2).join(" - ") : "";
+
+                    newElement.courseId = courseId;
+                    newElement.courseName = courseName;
+                    newElement.textContent = courseId;
                     newElement.links = (result.links[c.course.id] !== undefined) ? result.links[c.course.id] : [];
                     courses.push(newElement);
 
