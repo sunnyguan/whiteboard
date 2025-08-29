@@ -31,8 +31,9 @@ function processAgenda() {
     return fetch(`${urlPrefix}/learn/api/public/v1/calendars/items?since=${formatDate(lastSun)}&until=${formatDate(nextSun)}`).then(response => response.json()).then(data => {
         if ("results" in data) {
             for (let cls of data["results"]) {
+              if(cls.type !== "GradebookColumn") continue;
                 /**
-                 * Example cls:
+                 * Example cls (type can be gradebookcolumn or personal for created events):
                  * {
                  *      "id": "_1749031_1",
                  *      "type": "GradebookColumn",
@@ -687,15 +688,12 @@ function loadAnnouncementCards() {
         announcement_fetches.push(urlPrefix + "/learn/api/public/v1/courses/" + courseId + "/announcements?sort=modified(desc)");
     }
     document.querySelector("#announcementLoad").style.display = 'none';
-
     var announcementCards = [];
-
     return Promise.all(
         announcement_fetches.map(url =>
             fetch(url).then(resp => resp.json()).then(res => {
                 if (!("results" in res && res["results"].length >= 1))
                     return;
-
                 var card1info = res["results"][0];
                 var courseId = url.split("courses/")[1].split("/")[0];
                 var createdDate = new Date(card1info.created);
